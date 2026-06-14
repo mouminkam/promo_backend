@@ -31,7 +31,8 @@ app.use(
 
 // ─── Body Parsing ───────────────────────────
 // NOTE: Stripe webhooks need raw body — register that route BEFORE json parser
-// app.post('/api/v1/webhooks/stripe', express.raw({ type: 'application/json' }), stripeWebhookHandler);
+import { webhookController } from './controllers/webhook.controller';
+app.post(`/api/${env.API_VERSION}/webhooks/stripe`, express.raw({ type: 'application/json' }), webhookController.handleStripeWebhook);
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));

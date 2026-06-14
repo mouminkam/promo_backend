@@ -27,25 +27,37 @@ router.get('/health', (_req, res) => {
 //   import authRoutes from './auth.routes';
 //   router.use('/auth', authRoutes);
 
+import authRoutes from './auth.routes';
+
 // Phase 2: Authentication
-// router.use('/auth', authRoutes);
+router.use('/auth', authRoutes);
+
+import profileRoutes from './profile.routes';
 
 // Phase 3: Profiles
-// router.use('/profiles', profileRoutes);
+router.use('/profiles', profileRoutes);
+
+import followRoutes from './follow.routes';
 
 // Phase 4: Follow System
-// router.use('/follows', followRoutes);
+router.use('/follows', followRoutes);
+
+import offerRoutes from './offer.routes';
+import adRoutes from './ad.routes';
 
 // Phase 5: Offers & Ads
-// router.use('/offers', offerRoutes);
-// router.use('/ads', adRoutes);
+router.use('/offers', offerRoutes);
+router.use('/ads', adRoutes);
+
+import subscriptionRoutes from './subscription.routes';
 
 // Phase 6: Subscriptions
-// router.use('/subscriptions', subscriptionRoutes);
-// router.use('/plans', planRoutes);
+router.use('/subscriptions', subscriptionRoutes);
+
+import chatRoutes from './chat.routes';
 
 // Phase 7: Chat
-// router.use('/chats', chatRoutes);
+router.use('/chats', chatRoutes);
 
 // Phase 8: Notifications
 // router.use('/notifications', notificationRoutes);
