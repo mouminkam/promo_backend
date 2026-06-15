@@ -64,10 +64,14 @@ import notificationRoutes from './notification.routes';
 // Phase 8: Notifications
 router.use('/notifications', notificationRoutes);
 
+import uploadRoutes from './upload.routes';
+import searchRoutes from './search.routes';
+import categoryRoutes from './category.routes';
+
 // Phase 9: Upload & Search
-// router.use('/upload', uploadRoutes);
-// router.use('/search', searchRoutes);
-// router.use('/categories', categoryRoutes);
+router.use('/upload', uploadRoutes);
+router.use('/search', searchRoutes);
+router.use('/categories', categoryRoutes);
 
 // Phase 10: Featured & Payments
 // router.use('/featured', featuredRoutes);

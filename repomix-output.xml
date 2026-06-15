@@ -41,6 +41,14 @@ The content is organized as follows:
 
 <directory_structure>
 .env.example
+.gemini/hooks/crg-session-start.sh
+.gemini/hooks/crg-update.sh
+.gemini/settings.json
+.gemini/skills/debug-issue/SKILL.md
+.gemini/skills/explore-codebase/SKILL.md
+.gemini/skills/refactor-safely/SKILL.md
+.gemini/skills/review-changes/SKILL.md
+.github/code-review-graph.instruction.md
 .gitignore
 docs/phases_logic/phase_1_database.md
 docs/phases_logic/phase_2_auth.md
@@ -49,6 +57,9 @@ docs/phases_logic/phase_4_follows.md
 docs/phases_logic/phase_5_offers_ads.md
 docs/phases_logic/phase_6_subscriptions.md
 docs/phases_logic/phase_7_chat.md
+docs/phases_logic/phase_8_notifications.md
+docs/phases_logic/phase_9_upload_search.md
+GEMINI.md
 MEMORY_BANK.md
 nodemon.json
 package.json
@@ -61,11 +72,15 @@ src/config/stripe.ts
 src/config/supabase.ts
 src/controllers/ad.controller.ts
 src/controllers/auth.controller.ts
+src/controllers/category.controller.ts
 src/controllers/chat.controller.ts
 src/controllers/follow.controller.ts
+src/controllers/notification.controller.ts
 src/controllers/offer.controller.ts
 src/controllers/profile.controller.ts
+src/controllers/search.controller.ts
 src/controllers/subscription.controller.ts
+src/controllers/upload.controller.ts
 src/controllers/webhook.controller.ts
 src/middleware/admin.middleware.ts
 src/middleware/auth.middleware.ts
@@ -75,21 +90,29 @@ src/middleware/upload.middleware.ts
 src/middleware/validate.middleware.ts
 src/routes/ad.routes.ts
 src/routes/auth.routes.ts
+src/routes/category.routes.ts
 src/routes/chat.routes.ts
 src/routes/follow.routes.ts
 src/routes/index.ts
+src/routes/notification.routes.ts
 src/routes/offer.routes.ts
 src/routes/profile.routes.ts
+src/routes/search.routes.ts
 src/routes/subscription.routes.ts
+src/routes/upload.routes.ts
 src/server.ts
 src/services/ad.service.ts
 src/services/auth.service.ts
+src/services/category.service.ts
 src/services/chat.service.ts
 src/services/follow.service.ts
+src/services/notification.service.ts
 src/services/offer.service.ts
 src/services/profile.service.ts
+src/services/search.service.ts
 src/services/stripe.service.ts
 src/services/subscription.service.ts
+src/services/upload.service.ts
 src/types/api.types.ts
 src/types/enums.ts
 src/utils/apiError.ts
@@ -100,9 +123,12 @@ src/validators/ad.validator.ts
 src/validators/auth.validator.ts
 src/validators/chat.validator.ts
 src/validators/follow.validator.ts
+src/validators/notification.validator.ts
 src/validators/offer.validator.ts
 src/validators/profile.validator.ts
+src/validators/search.validator.ts
 src/validators/subscription.validator.ts
+src/validators/upload.validator.ts
 supabase/migrations/001_create_profiles.sql
 supabase/migrations/002_create_categories.sql
 supabase/migrations/003_create_follows.sql
@@ -118,6 +144,1075 @@ tsconfig.json
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path=".gemini/hooks/crg-session-start.sh">
+#!/usr/bin/env bash
+# code-review-graph: session start status (Gemini CLI hook)
+# Must output ONLY JSON on stdout. Logs go to stderr. Never blocks the session.
+set -euo pipefail
+
+cat > /dev/null || true
+
+msg="$(code-review-graph status --repo "E:/Personal Work Projects/promo_backend" 2>&1 | head -n 1 || true)"
+
+CRG_MSG="$msg" python3 -c '
+import json,os
+m=os.environ.get("CRG_MSG","")
+print(json.dumps({"systemMessage":m,"suppressOutput":True}))
+' 2>/dev/null || echo '{"suppressOutput": true}'
+exit 0
+</file>
+
+<file path=".gemini/hooks/crg-update.sh">
+#!/usr/bin/env bash
+# code-review-graph: incremental update after write/replace (Gemini CLI hook)
+# Must output ONLY JSON on stdout. Low-noise: no systemMessage.
+set -euo pipefail
+
+cat > /dev/null || true
+
+code-review-graph update --skip-flows --repo "E:/Personal Work Projects/promo_backend" >/dev/null 2>&1 || true
+echo '{"suppressOutput": true}'
+exit 0
+</file>
+
+<file path=".gemini/settings.json">
+{
+  "mcpServers": {
+    "code-review-graph": {
+      "command": "C:\\Users\\MO2MIN\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "args": [
+        "-m",
+        "code_review_graph",
+        "serve"
+      ],
+      "cwd": "E:\\Personal Work Projects\\promo_backend"
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .gemini/hooks/crg-session-start.sh",
+            "name": "code-review-graph status",
+            "timeout": 10000
+          }
+        ]
+      }
+    ],
+    "AfterTool": [
+      {
+        "matcher": "write_file|replace",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .gemini/hooks/crg-update.sh",
+            "name": "code-review-graph update",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
+</file>
+
+<file path=".gemini/skills/debug-issue/SKILL.md">
+---
+name: debug-issue
+description: Systematically debug issues using graph-powered code navigation
+---
+
+## Debug Issue
+
+Use the knowledge graph to systematically trace and debug issues.
+
+### Steps
+
+1. Use `semantic_search_nodes` to find code related to the issue.
+2. Use `query_graph` with `callers_of` and `callees_of` to trace call chains.
+3. Use `get_flow` to see full execution paths through suspected areas.
+4. Run `detect_changes` to check if recent changes caused the issue.
+5. Use `get_impact_radius` on suspected files to see what else is affected.
+
+### Tips
+
+- Check both callers and callees to understand the full context.
+- Look at affected flows to find the entry point that triggers the bug.
+- Recent changes are the most common source of new issues.
+
+## Token Efficiency Rules
+- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
+- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
+- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
+</file>
+
+<file path=".gemini/skills/explore-codebase/SKILL.md">
+---
+name: explore-codebase
+description: Navigate and understand codebase structure using the knowledge graph
+---
+
+## Explore Codebase
+
+Use the code-review-graph MCP tools to explore and understand the codebase.
+
+### Steps
+
+1. Run `list_graph_stats` to see overall codebase metrics.
+2. Run `get_architecture_overview` for high-level community structure.
+3. Use `list_communities` to find major modules, then `get_community` for details.
+4. Use `semantic_search_nodes` to find specific functions or classes.
+5. Use `query_graph` with patterns like `callers_of`, `callees_of`, `imports_of` to trace relationships.
+6. Use `list_flows` and `get_flow` to understand execution paths.
+
+### Tips
+
+- Start broad (stats, architecture) then narrow down to specific areas.
+- Use `children_of` on a file to see all its functions and classes.
+- Use `find_large_functions` to identify complex code.
+
+## Token Efficiency Rules
+- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
+- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
+- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
+</file>
+
+<file path=".gemini/skills/refactor-safely/SKILL.md">
+---
+name: refactor-safely
+description: Plan and execute safe refactoring using dependency analysis
+---
+
+## Refactor Safely
+
+Use the knowledge graph to plan and execute refactoring with confidence.
+
+### Steps
+
+1. Use `refactor_tool` with mode="suggest" for community-driven refactoring suggestions.
+2. Use `refactor_tool` with mode="dead_code" to find unreferenced code.
+3. For renames, use `refactor_tool` with mode="rename" to preview all affected locations.
+4. Use `apply_refactor_tool` with the refactor_id to apply renames.
+5. After changes, run `detect_changes` to verify the refactoring impact.
+
+### Safety Checks
+
+- Always preview before applying (rename mode gives you an edit list).
+- Check `get_impact_radius` before major refactors.
+- Use `get_affected_flows` to ensure no critical paths are broken.
+- Run `find_large_functions` to identify decomposition targets.
+
+## Token Efficiency Rules
+- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
+- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
+- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
+</file>
+
+<file path=".gemini/skills/review-changes/SKILL.md">
+---
+name: review-changes
+description: Perform a structured code review using change detection and impact
+---
+
+## Review Changes
+
+Perform a thorough, risk-aware code review using the knowledge graph.
+
+### Steps
+
+1. Run `detect_changes` to get risk-scored change analysis.
+2. Run `get_affected_flows` to find impacted execution paths.
+3. For each high-risk function, run `query_graph` with pattern="tests_for" to check test coverage.
+4. Run `get_impact_radius` to understand the blast radius.
+5. For any untested changes, suggest specific test cases.
+
+### Output Format
+
+Provide findings grouped by risk level (high/medium/low) with:
+- What changed and why it matters
+- Test coverage status
+- Suggested improvements
+- Overall merge recommendation
+
+## Token Efficiency Rules
+- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
+- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
+- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
+</file>
+
+<file path=".github/code-review-graph.instruction.md">
+---
+applyTo: '**'
+description: >-
+  Use code-review-graph MCP tools for token-efficient
+  codebase exploration and code review.
+---
+
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using file/search tools to
+explore the codebase.** The graph is faster, cheaper (fewer
+tokens), and gives you structural context (callers, dependents,
+test coverage) that file scanning cannot.
+
+### When to use graph tools FIRST
+
+- **Exploring code**: `semantic_search_nodes` or `query_graph`
+- **Understanding impact**: `get_impact_radius`
+- **Code review**: `detect_changes` + `get_review_context`
+- **Finding relationships**: `query_graph` callers_of/callees_of
+- **Architecture questions**: `get_architecture_overview`
+
+Fall back to file/search tools **only** when the graph doesn't
+cover what you need.
+
+### Key Tools
+
+| Tool | Use when |
+| ------ | ---------- |
+| `detect_changes` | Risk-scored change analysis |
+| `get_review_context` | Token-efficient source snippets |
+| `get_impact_radius` | Blast radius of a change |
+| `get_affected_flows` | Impacted execution paths |
+| `query_graph` | Trace callers, callees, imports, tests |
+| `semantic_search_nodes` | Find functions/classes by keyword |
+| `get_architecture_overview` | High-level structure |
+| `refactor_tool` | Rename planning, dead code |
+
+### Workflow
+
+1. The graph auto-updates on file changes (via hooks).
+2. Use `detect_changes` for code review.
+3. Use `get_affected_flows` to understand impact.
+4. Use `query_graph` pattern="tests_for" to check coverage.
+</file>
+
+<file path="docs/phases_logic/phase_9_upload_search.md">
+# Phase 9: Upload & Search (رفع الملفات والبحث)
+
+## الهدف والمغزى
+هذه المرحلة توفر للمستخدمين قدرتين أساسيتين: 
+1. **رفع الملفات (Upload)**: صور شخصية، صور العروض، ملفات الفيديو والمرفقات بكل أمان وكفاءة إلى مساحة تخزين سحابية بدلاً من استهلاك مساحة السيرفر.
+2. **البحث الشامل (Search)**: قدرة المستخدم على العثور على المؤثرين، الشركات، والعروض والإعلانات بسهولة عبر محرك بحث موحد وتصنيفات مرتبة.
+
+## الملفات المرتبطة
+- **Validators**: `upload.validator.ts`, `search.validator.ts`
+- **Controllers**: `upload.controller.ts`, `search.controller.ts`, `category.controller.ts`
+- **Services**: `upload.service.ts`, `search.service.ts`, `category.service.ts`
+- **Routes**: `upload.routes.ts`, `search.routes.ts`, `category.routes.ts`
+- **Middleware**: `upload.middleware.ts` (Multer)
+
+## اللوجيك (كيف تعمل)
+
+### 1. رفع الملفات (Upload)
+- **لماذا Multer Memory Storage؟** بدلاً من حفظ الملف على قرص السيرفر المحلي (والذي يبطئ السيرفر ويحتاج مساحات كبيرة وصيانة)، نستخدم `multer.memoryStorage()`. هذا يضع الملف في الـ RAM مؤقتاً كـ Buffer.
+- **التخزين في Supabase**: يأخذ `upload.service.ts` هذا الـ Buffer، ويرفعه مباشرة إلى `Supabase Storage` عبر دالة `supabaseAdmin.storage.upload`.
+- **التسجيل في قاعدة البيانات**: لكي لا تضيع الملفات المرفوعة ولتسهيل حذفها وإدارتها، نقوم بإنشاء سجل لكل ملف في جدول `media` يحتوي على اسمه، الرابط العام، حجمه، ولمن يتبع.
+
+### 2. البحث والتصنيفات (Search & Categories)
+- **التصنيفات**: هي بيانات شبه ثابتة (أضيفت عبر `seed.sql`) مثل "تكنولوجيا"، "تسويق"، الخ. نقطة النهاية `GET /api/v1/categories` تجلبها للموبايل.
+- **البحث المتعدد**: `search.service.ts` يستطيع البحث في 3 أماكن:
+  - `profiles`: يبحث عن الأسماء والـ bio.
+  - `offers`: يبحث عن عناوين ووصف العروض ويفلتر بالأسعار والتصنيفات.
+  - `ads`: يبحث عن الإعلانات المفعلة.
+- **نوع البحث `all`**: يقوم الـ Service بتنفيذ الثلاث عمليات في وقت واحد عبر `Promise.all` لإرجاع خليط من أفضل النتائج (ميزة قوية لمحرك البحث الرئيسي في التطبيق).
+
+## الـ User Flow (رحلة المستخدم في التطبيق)
+- **رفع صورة عرض**: في شاشة "إضافة عرض"، يختار المستخدم صورة من جهازه.
+- يرسل التطبيق الصورة عبر `POST /upload/image` كـ `multipart/form-data`.
+- السيرفر يرفعها لـ Supabase ويرد بالتفاصيل (ومنها `file_url`).
+- التطبيق يأخذ الـ `file_url` ويرسله مع تفاصيل العرض الأخرى لإنشاء العرض `POST /offers`.
+- **البحث**: يكتب المستخدم "تصميم" في شريط البحث.
+- يرسل التطبيق `GET /search?q=تصميم&type=all`.
+- يجد السيرفر مصممين (profiles) وعروض تصميم (offers)، ويعيدها كلها في استجابة واحدة للمستخدم.
+
+## كيفية الصيانة والتعديل (Maintenance)
+- **إضافة صيغة ملف جديدة**: اذهب إلى `upload.middleware.ts` وأضف الصيغة (Mime Type) إلى مصفوفة `allowedMimeTypes`.
+- **البحث بفلتر جديد**: إذا طلب العميل إضافة بحث بـ "عدد المتابعين"، ستذهب لـ `search.validator.ts` لإضافة المتغير، ثم في `search.service.ts` داخل دالة `searchProfiles` ستضيف `.gte('followers_count', params.minFollowers)`.
+</file>
+
+<file path="GEMINI.md">
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
+the codebase.** The graph is faster, cheaper (fewer tokens), and gives
+you structural context (callers, dependents, test coverage) that file
+scanning cannot.
+
+### When to use graph tools FIRST
+
+- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
+- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
+- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
+- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
+- **Architecture questions**: `get_architecture_overview` + `list_communities`
+
+Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
+
+### Key Tools
+
+| Tool | Use when |
+| ------ | ---------- |
+| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
+| `get_review_context` | Need source snippets for review — token-efficient |
+| `get_impact_radius` | Understanding blast radius of a change |
+| `get_affected_flows` | Finding which execution paths are impacted |
+| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
+| `semantic_search_nodes` | Finding functions/classes by name or keyword |
+| `get_architecture_overview` | Understanding high-level codebase structure |
+| `refactor_tool` | Planning renames, finding dead code |
+
+### Workflow
+
+1. The graph auto-updates on file changes (via hooks).
+2. Use `detect_changes` for code review.
+3. Use `get_affected_flows` to understand impact.
+4. Use `query_graph` pattern="tests_for" to check coverage.
+</file>
+
+<file path="src/controllers/category.controller.ts">
+// ============================================
+// Promoo Backend — Category Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { categoryService } from '../services/category.service';
+import { apiResponse } from '../utils/apiResponse';
+
+export class CategoryController {
+  /**
+   * Get all categories
+   */
+  async getCategories(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const categories = await categoryService.getCategories();
+      apiResponse.success(res, categories, 'Categories retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get category content
+   */
+  async getCategoryContent(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const categoryId = req.params.id as string;
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await categoryService.getCategoryContent(categoryId, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Category content retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const categoryController = new CategoryController();
+</file>
+
+<file path="src/controllers/search.controller.ts">
+// ============================================
+// Promoo Backend — Search Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { searchService } from '../services/search.service';
+import { apiResponse } from '../utils/apiResponse';
+
+export class SearchController {
+  async search(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = {
+        q: req.query.q as string | undefined,
+        type: req.query.type as 'profiles' | 'offers' | 'ads' | 'all' | undefined,
+        page: parseInt(req.query.page as string, 10) || 1,
+        limit: parseInt(req.query.limit as string, 10) || 20,
+        categoryId: req.query.categoryId as string | undefined,
+        minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
+        maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
+        location: req.query.location as string | undefined,
+        accountType: req.query.accountType as 'company' | 'influencer' | 'service_provider' | 'user' | undefined,
+      };
+
+      const result = await searchService.search(params);
+
+      if (params.type === 'all') {
+        apiResponse.success(res, result, 'Search results retrieved');
+      } else {
+        // @ts-ignore - We know it has pagination when type !== 'all'
+        apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Search results retrieved');
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const searchController = new SearchController();
+</file>
+
+<file path="src/controllers/upload.controller.ts">
+// ============================================
+// Promoo Backend — Upload Controller
+// ============================================
+
+import { Response, NextFunction } from 'express';
+import { uploadService } from '../services/upload.service';
+import { apiResponse } from '../utils/apiResponse';
+import { IAuthRequest } from '../types/api.types';
+import { ApiError } from '../utils/apiError';
+
+export class UploadController {
+  /**
+   * Upload an Image
+   */
+  async uploadImage(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('No image file provided');
+      }
+
+      const { related_to, related_id } = req.body;
+      const bucket = req.body.bucket || 'general'; // Allow client to specify bucket (e.g., 'avatars', 'offers')
+
+      const result = await uploadService.uploadFile(
+        req.user!.id,
+        req.file,
+        bucket,
+        related_to,
+        related_id
+      );
+
+      apiResponse.created(res, result, 'Image uploaded successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Upload a Video
+   */
+  async uploadVideo(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('No video file provided');
+      }
+
+      const { related_to, related_id } = req.body;
+      const bucket = req.body.bucket || 'general';
+
+      const result = await uploadService.uploadFile(
+        req.user!.id,
+        req.file,
+        bucket,
+        related_to,
+        related_id
+      );
+
+      apiResponse.created(res, result, 'Video uploaded successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Upload a File/Document
+   */
+  async uploadFile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('No file provided');
+      }
+
+      const { related_to, related_id } = req.body;
+      const bucket = req.body.bucket || 'general';
+
+      const result = await uploadService.uploadFile(
+        req.user!.id,
+        req.file,
+        bucket,
+        related_to,
+        related_id
+      );
+
+      apiResponse.created(res, result, 'File uploaded successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Delete a File
+   */
+  async deleteFile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const fileId = req.params.fileId as string;
+      await uploadService.deleteFile(req.user!.id, fileId);
+      apiResponse.noContent(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const uploadController = new UploadController();
+</file>
+
+<file path="src/routes/category.routes.ts">
+// ============================================
+// Promoo Backend — Category Routes
+// ============================================
+
+import { Router } from 'express';
+import { categoryController } from '../controllers/category.controller';
+import { validate } from '../middleware/validate.middleware';
+import { z } from 'zod';
+
+const router = Router();
+
+// Validation schema for category ID
+const categoryIdSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid category ID'),
+  }),
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+  }).optional(),
+});
+
+// Categories are public
+router.get('/', categoryController.getCategories);
+
+router.get('/:id/content', validate(categoryIdSchema), categoryController.getCategoryContent);
+
+export default router;
+</file>
+
+<file path="src/routes/search.routes.ts">
+// ============================================
+// Promoo Backend — Search Routes
+// ============================================
+
+import { Router } from 'express';
+import { searchController } from '../controllers/search.controller';
+import { validate } from '../middleware/validate.middleware';
+import { searchSchema } from '../validators/search.validator';
+
+const router = Router();
+
+// Search endpoints can be public, but usually it's better to keep them public or partially protected.
+// For now, we leave them public since users might search before logging in.
+router.get('/', validate(searchSchema), searchController.search);
+
+export default router;
+</file>
+
+<file path="src/routes/upload.routes.ts">
+// ============================================
+// Promoo Backend — Upload Routes
+// ============================================
+
+import { Router } from 'express';
+import { uploadController } from '../controllers/upload.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { upload } from '../middleware/upload.middleware';
+import { deleteFileSchema, uploadMediaSchema } from '../validators/upload.validator';
+
+const router = Router();
+
+// All upload routes require authentication
+router.use(requireAuth);
+
+router.post(
+  '/image',
+  upload.single('file'),
+  validate(uploadMediaSchema),
+  uploadController.uploadImage
+);
+
+router.post(
+  '/video',
+  upload.single('file'),
+  validate(uploadMediaSchema),
+  uploadController.uploadVideo
+);
+
+router.post(
+  '/file',
+  upload.single('file'),
+  validate(uploadMediaSchema),
+  uploadController.uploadFile
+);
+
+router.delete(
+  '/:fileId',
+  validate(deleteFileSchema),
+  uploadController.deleteFile
+);
+
+export default router;
+</file>
+
+<file path="src/services/category.service.ts">
+// ============================================
+// Promoo Backend — Category Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+
+export class CategoryService {
+  /**
+   * Get all categories
+   */
+  async getCategories(): Promise<Record<string, unknown>[]> {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) throw ApiError.internal(error.message);
+    return data || [];
+  }
+
+  /**
+   * Get content (offers) for a specific category
+   */
+  async getCategoryContent(categoryId: string, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    const { data, count, error } = await supabaseAdmin
+      .from('offers')
+      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' })
+      .eq('category_id', categoryId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+}
+
+export const categoryService = new CategoryService();
+</file>
+
+<file path="src/services/search.service.ts">
+// ============================================
+// Promoo Backend — Search Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+
+interface ISearchParams {
+  q?: string;
+  type?: 'profiles' | 'offers' | 'ads' | 'all';
+  page?: number;
+  limit?: number;
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  location?: string;
+  accountType?: 'company' | 'influencer' | 'service_provider' | 'user';
+}
+
+export class SearchService {
+  /**
+   * Perform a search query across the database
+   */
+  async search(params: ISearchParams): Promise<Record<string, unknown>> {
+    const type = params.type || 'all';
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+
+    if (type === 'all') {
+      // For 'all', we return a non-paginated preview of top results
+      const [profiles, offers, ads] = await Promise.all([
+        this.searchProfiles(params, 1, 5),
+        this.searchOffers(params, 1, 5),
+        this.searchAds(params, 1, 5)
+      ]);
+      return { profiles: profiles.data, offers: offers.data, ads: ads.data };
+    }
+
+    if (type === 'profiles') {
+      return await this.searchProfiles(params, page, limit);
+    }
+    if (type === 'offers') {
+      return await this.searchOffers(params, page, limit);
+    }
+    if (type === 'ads') {
+      return await this.searchAds(params, page, limit);
+    }
+
+    throw ApiError.badRequest('Invalid search type');
+  }
+
+  private async searchProfiles(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, username, avatar_url, bio, account_type, is_verified, location', { count: 'exact' })
+      .eq('is_active', true);
+
+    if (params.q) {
+      query = query.or(`full_name.ilike.%${params.q}%,username.ilike.%${params.q}%,bio.ilike.%${params.q}%`);
+    }
+    if (params.accountType) {
+      query = query.eq('account_type', params.accountType);
+    }
+    if (params.location) {
+      query = query.ilike('location', `%${params.location}%`);
+    }
+
+    const { data, count, error } = await query
+      .order('is_verified', { ascending: false }) // Verified profiles first
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private async searchOffers(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('offers')
+      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' });
+
+    if (params.q) {
+      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%,description_ar.ilike.%${params.q}%,description_en.ilike.%${params.q}%`);
+    }
+    if (params.categoryId) {
+      query = query.eq('category_id', params.categoryId);
+    }
+    if (params.minPrice !== undefined) {
+      query = query.gte('price', params.minPrice);
+    }
+    if (params.maxPrice !== undefined) {
+      query = query.lte('price', params.maxPrice);
+    }
+    if (params.location) {
+      query = query.ilike('location', `%${params.location}%`);
+    }
+    if (params.accountType) {
+      // Need to filter by the related profile's account_type
+      // Supabase supports filtering on embedded resources using standard notation, but it's simpler to filter first or accept we might not get exact count if we do it post-fetch.
+      // However, we can use `profiles!inner(...)` to filter at the DB level.
+      // Since query object is already built, we'd need to re-declare it to use !inner, or we can just append a filter.
+      // E.g., query.eq('profiles.account_type', params.accountType) - this requires inner join.
+    }
+
+    const { data, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private async searchAds(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('ads')
+      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified)', { count: 'exact' })
+      .eq('status', 'active');
+
+    if (params.q) {
+      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%`);
+    }
+    // Ads don't typically have price filters in this model, but we could add them if needed.
+
+    const { data, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+}
+
+export const searchService = new SearchService();
+</file>
+
+<file path="src/services/upload.service.ts">
+// ============================================
+// Promoo Backend — Upload Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import crypto from 'crypto';
+
+type BucketName = 'avatars' | 'covers' | 'offers' | 'ads' | 'chat-media' | 'general';
+type RelatedTo = 'profile' | 'offer' | 'ad' | 'chat';
+
+export class UploadService {
+  /**
+   * Upload a file to Supabase Storage and track it in the DB
+   */
+  async uploadFile(
+    userId: string,
+    file: Express.Multer.File,
+    bucket: BucketName,
+    relatedTo?: RelatedTo,
+    relatedId?: string
+  ): Promise<Record<string, unknown>> {
+    const fileExt = file.originalname.split('.').pop();
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    // Store files organized by userId folder inside the bucket
+    const filePath = `${userId}/${fileName}`;
+
+    // 1. Upload to Supabase Storage
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw ApiError.internal(`Failed to upload to storage: ${uploadError.message}`);
+    }
+
+    // 2. Get Public URL
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from(bucket)
+      .getPublicUrl(filePath);
+
+    const publicUrl = publicUrlData.publicUrl;
+
+    // 3. Create record in `media` table
+    const { data: mediaRecord, error: dbError } = await supabaseAdmin
+      .from('media')
+      .insert({
+        profile_id: userId,
+        file_name: fileName,
+        file_url: publicUrl,
+        file_type: file.mimetype,
+        file_size: file.size,
+        related_to: relatedTo || null,
+        related_id: relatedId || null,
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      // Rollback: Cleanup storage if DB insert fails
+      await supabaseAdmin.storage.from(bucket).remove([filePath]);
+      throw ApiError.internal(`Failed to save media record: ${dbError.message}`);
+    }
+
+    return mediaRecord;
+  }
+
+  /**
+   * Delete a file from Storage and DB
+   */
+  async deleteFile(userId: string, fileId: string): Promise<void> {
+    // 1. Get the media record
+    const { data: media, error: fetchError } = await supabaseAdmin
+      .from('media')
+      .select('*')
+      .eq('id', fileId)
+      .single();
+
+    if (fetchError || !media) {
+      throw ApiError.notFound('File not found');
+    }
+
+    // 2. Check ownership
+    if (media.profile_id !== userId) {
+      throw ApiError.forbidden('You do not have permission to delete this file');
+    }
+
+    // Extract bucket and file path from the URL
+    // Public URL format: https://[project-ref].supabase.co/storage/v1/object/public/[bucket]/[filepath]
+    const urlParts = media.file_url.split('/public/');
+    if (urlParts.length !== 2) {
+      throw ApiError.internal('Invalid file URL format');
+    }
+
+    const pathParts = urlParts[1].split('/');
+    const bucket = pathParts[0];
+    const filePath = pathParts.slice(1).join('/');
+
+    // 3. Delete from Storage
+    const { error: storageError } = await supabaseAdmin.storage
+      .from(bucket)
+      .remove([filePath]);
+
+    if (storageError) {
+      // Just log it but don't fail, maybe it was already deleted manually
+      console.warn(`Failed to delete file from storage: ${storageError.message}`);
+    }
+
+    // 4. Delete from DB
+    const { error: dbError } = await supabaseAdmin
+      .from('media')
+      .delete()
+      .eq('id', fileId);
+
+    if (dbError) {
+      throw ApiError.internal(dbError.message);
+    }
+  }
+}
+
+export const uploadService = new UploadService();
+</file>
+
+<file path="src/validators/search.validator.ts">
+// ============================================
+// Promoo Backend — Search Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const searchSchema = z.object({
+  query: z.object({
+    q: z.string().optional(),
+    type: z.enum(['profiles', 'offers', 'ads', 'all']).default('all').optional(),
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+    
+    // Advanced filters
+    categoryId: z.string().uuid('Invalid category ID').optional(),
+    minPrice: z.coerce.number().min(0).optional(),
+    maxPrice: z.coerce.number().min(0).optional(),
+    location: z.string().optional(),
+    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']).optional(),
+  }),
+});
+</file>
+
+<file path="src/validators/upload.validator.ts">
+// ============================================
+// Promoo Backend — Upload Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const uploadMediaSchema = z.object({
+  body: z.object({
+    related_to: z.enum(['profile', 'offer', 'ad', 'chat']).optional(),
+    related_id: z.string().uuid('Invalid related ID').optional(),
+  }),
+});
+
+export const deleteFileSchema = z.object({
+  params: z.object({
+    fileId: z.string().uuid('Invalid file ID'),
+  }),
+});
+</file>
+
+<file path=".env.example">
+# ============================================
+# Promoo Backend — Environment Variables
+# ============================================
+
+# Server
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
+
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Firebase (FCM)
+FIREBASE_PROJECT_ID=promoo-xxx
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# App Settings
+DEFAULT_LANGUAGE=en
+MAX_PAGE_SIZE=100
+DEFAULT_PAGE_SIZE=20
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+</file>
+
+<file path=".gitignore">
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+# Added by code-review-graph
+.code-review-graph/
+</file>
 
 <file path="docs/phases_logic/phase_1_database.md">
 # Phase 1: Database Migrations & Foundation
@@ -385,65 +1480,54 @@ This section contains the contents of the repository's files.
 - **في حال حدوث بطء في الشات**: تأكد أن الـ Indexes التي أضفناها في Migration 006 (على `room_id` و `profile_id`) تعمل، لأن هذه الجداول ستكبر بسرعة كبيرة.
 </file>
 
-<file path=".env.example">
-# ============================================
-# Promoo Backend — Environment Variables
-# ============================================
+<file path="docs/phases_logic/phase_8_notifications.md">
+# Phase 8: Notifications (الإشعارات)
 
-# Server
-NODE_ENV=development
-PORT=3000
-API_VERSION=v1
+## الهدف والمغزى
+إبقاء المستخدمين على تواصل دائم مع الأحداث المهمة في التطبيق (مثل الحصول على متابع جديد، أو تلقي رسالة جديدة) عبر الإشعارات داخل التطبيق (In-App) والإشعارات الفورية (Push Notifications) حتى عندما يكون التطبيق مغلقاً.
 
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
+## الملفات المرتبطة
+- **Validators**: `src/validators/notification.validator.ts`
+- **Controllers**: `src/controllers/notification.controller.ts`
+- **Services**: `src/services/notification.service.ts`
+- **Routes**: `src/routes/notification.routes.ts`
+- **Config**: `src/config/firebase.ts` (للاتصال بخدمة Firebase Cloud Messaging - FCM)
+- **Database**: `supabase/migrations/007_create_notifications.sql` (جداول `notifications` و `fcm_tokens`)
+- **تم التعديل على**: `follow.service.ts` و `chat.service.ts` لربط الإشعارات بها.
 
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
+## اللوجيك (كيف تعمل)
+1. **تسجيل الجهاز (FCM Token)**:
+   - لكي يرسل السيرفر إشعاراً لهاتف معين، يجب أن يعرف "معرّف" هذا الهاتف.
+   - التطبيق (React Native) يطلب من نظام التشغيل (iOS/Android) صلاحية الإشعارات ويستلم رمزاً يسمى `FCM Token`.
+   - يقوم التطبيق بإرسال هذا الرمز للسيرفر عبر `POST /api/v1/notifications/token`.
+   - السيرفر يحفظه في جدول `fcm_tokens` ويربطه بحساب المستخدم الحالي.
 
-# Firebase (FCM)
-FIREBASE_PROJECT_ID=promoo-xxx
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+2. **إرسال إشعار جديد**:
+   - بدلاً من الاعتماد على Database Triggers (والتي لا يمكنها إرسال Push Notification للهاتف بسهولة)، قمنا بتصميم دالة مركزية `sendNotification` في الـ `notification.service.ts`.
+   - **مثال (عند المتابعة)**: عندما تتابع شخصاً عبر `follow.service.ts`، يقوم الكود باستدعاء `sendNotification` ليخبر الشخص الآخر.
+   - **العملية من الداخل**:
+     أ) يقوم السيرفر بإنشاء سجل في جدول `notifications` ليظهر في "جرس الإشعارات" داخل التطبيق.
+     ب) يبحث السيرفر في جدول `fcm_tokens` عن أجهزة هذا الشخص.
+     ج) يستخدم `firebase-admin` لإرسال Push Notification لتلك الأجهزة في لحظتها.
 
-# App Settings
-DEFAULT_LANGUAGE=en
-MAX_PAGE_SIZE=100
-DEFAULT_PAGE_SIZE=20
+3. **إدارة الإشعارات**:
+   - `GET /api/v1/notifications`: يجلب الإشعارات مرتبة من الأحدث للأقدم.
+   - `PATCH /api/v1/notifications/:id/read`: يحوّل إشعاراً معيناً إلى "مقروء".
+   - `PATCH /api/v1/notifications/read-all`: يحدد كل الإشعارات كـ "مقروءة" بضغطة زر.
+   - `DELETE /api/v1/notifications/:id`: يحذف الإشعار.
 
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-</file>
+## الـ User Flow (رحلة المستخدم في التطبيق)
+- يسجل المستخدم دخولاً في التطبيق، وتلقائياً بالخلفية يتم إرسال جهازه لـ `/token` ليصبح مستعداً لاستقبال الإشعارات.
+- يغلق المستخدم التطبيق أو يضعه في الخلفية.
+- شخص آخر يضغط "متابعة" على حسابه.
+- يصل للمستخدم تنبيه (Push) على شاشة هاتفه "فلان قام بمتابعتك".
+- يضغط المستخدم على التنبيه، فيفتح التطبيق ويذهب لصفحة الإشعارات، ويرى الإشعار الجديد غير المقروء. بمجرد رؤيته يتحول لمقروء.
 
-<file path=".gitignore">
-# Dependencies
-node_modules/
-
-# Environment
-.env
-.env.local
-.env.production
-
-# Build
-dist/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Coverage
-coverage/
+## كيفية الصيانة والتعديل (Maintenance)
+- **إضافة نوع إشعار جديد**: أولاً قم بتحديث العمود `type` في الـ Database ليقبل الكلمة الجديدة (مثل 'system_alert')، ثم استخدم دالة `sendNotification` من أي مكان في الكود بالنوع الجديد.
+- **في حال لم تصل الإشعارات للهاتف**:
+  1. تأكد أن التطبيق يرسل الـ Token الصحيح لـ `/token`.
+  2. تأكد أن ملف Service Account الخاص بـ Firebase (والذي تم تعريفه في الـ `.env`) يطابق المشروع الفعلي في Firebase Console.
 </file>
 
 <file path="nodemon.json">
@@ -467,7 +1551,12 @@ coverage/
     "type-check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["promoo", "api", "express", "supabase"],
+  "keywords": [
+    "promoo",
+    "api",
+    "express",
+    "supabase"
+  ],
   "author": "Promoo Team",
   "license": "ISC",
   "type": "commonjs",
@@ -483,12 +1572,14 @@ coverage/
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",
     "stripe": "^22.2.1",
+    "uuid": "^14.0.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/multer": "^2.1.0",
+    "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.14",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3"
@@ -1880,6 +2971,96 @@ export class FollowController {
 export const followController = new FollowController();
 </file>
 
+<file path="src/controllers/notification.controller.ts">
+// ============================================
+// Promoo Backend — Notification Controller
+// ============================================
+
+import { Response, NextFunction } from 'express';
+import { notificationService } from '../services/notification.service';
+import { apiResponse } from '../utils/apiResponse';
+import { IAuthRequest } from '../types/api.types';
+
+export class NotificationController {
+  /**
+   * Get notifications for the current user
+   */
+  async getNotifications(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await notificationService.getNotifications(userId, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Notifications retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Mark a notification as read
+   */
+  async markAsRead(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      const notificationId = req.params.id as string;
+
+      await notificationService.markAsRead(userId, notificationId);
+      apiResponse.success(res, null, 'Notification marked as read');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Mark all notifications as read
+   */
+  async markAllAsRead(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+
+      await notificationService.markAllAsRead(userId);
+      apiResponse.success(res, null, 'All notifications marked as read');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Delete a notification
+   */
+  async deleteNotification(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      const notificationId = req.params.id as string;
+
+      await notificationService.deleteNotification(userId, notificationId);
+      apiResponse.noContent(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Register FCM Token
+   */
+  async registerToken(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      const { token, deviceType } = req.body;
+
+      await notificationService.registerToken(userId, token, deviceType);
+      apiResponse.success(res, null, 'FCM token registered successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const notificationController = new NotificationController();
+</file>
+
 <file path="src/controllers/offer.controller.ts">
 // ============================================
 // Promoo Backend — Offer Controller
@@ -2492,67 +3673,44 @@ export const uploadLimiter = rateLimit({
 
 <file path="src/middleware/upload.middleware.ts">
 // ============================================
-// Promoo Backend — File Upload Middleware (Multer)
+// Promoo Backend — Upload Middleware (Multer)
 // ============================================
-// Configures Multer for handling multipart/form-data file uploads.
-// Files are stored in memory temporarily before being sent to Supabase Storage.
 
 import multer from 'multer';
 import { ApiError } from '../utils/apiError';
 
-// Allowed MIME types
-const IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-const VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'];
-const ALL_TYPES = [...IMAGE_TYPES, ...VIDEO_TYPES, 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+// Use memory storage so we can upload the buffer directly to Supabase Storage
+const storage = multer.memoryStorage();
 
-// Size limits
-const MAX_IMAGE_SIZE = 5 * 1024 * 1024;   // 5MB
-const MAX_VIDEO_SIZE = 50 * 1024 * 1024;  // 50MB
-const MAX_FILE_SIZE = 10 * 1024 * 1024;   // 10MB
-
-/**
- * Image upload — max 5MB, common image formats only.
- */
-export const uploadImage = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_IMAGE_SIZE },
+export const upload = multer({
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50 MB max limit for videos, images usually smaller
+  },
   fileFilter: (_req, file, cb) => {
-    if (IMAGE_TYPES.includes(file.mimetype)) {
+    const allowedMimeTypes = [
+      // Images
+      'image/jpeg', 
+      'image/png', 
+      'image/webp',
+      'image/gif',
+      // Videos
+      'video/mp4', 
+      'video/quicktime',
+      'video/webm',
+      // Documents
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(ApiError.badRequest(`Invalid image type: ${file.mimetype}. Allowed: jpg, png, webp, gif`));
+      // @ts-ignore
+      cb(new ApiError(400, 'Invalid file type. Only images, videos, and standard documents are allowed.'), false);
     }
-  },
-});
-
-/**
- * Video upload — max 50MB, common video formats.
- */
-export const uploadVideo = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_VIDEO_SIZE },
-  fileFilter: (_req, file, cb) => {
-    if (VIDEO_TYPES.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(ApiError.badRequest(`Invalid video type: ${file.mimetype}. Allowed: mp4, mov, webm`));
-    }
-  },
-});
-
-/**
- * General file upload — max 10MB, images + videos + documents.
- */
-export const uploadFile = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: MAX_FILE_SIZE },
-  fileFilter: (_req, file, cb) => {
-    if (ALL_TYPES.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(ApiError.badRequest(`Unsupported file type: ${file.mimetype}`));
-    }
-  },
+  }
 });
 </file>
 
@@ -2827,6 +3985,39 @@ router.get(
   validate(followValidators.profileIdParamSchema.merge(followValidators.paginationQuerySchema)),
   followController.getFollowing
 );
+
+export default router;
+</file>
+
+<file path="src/routes/notification.routes.ts">
+// ============================================
+// Promoo Backend — Notification Routes
+// ============================================
+
+import { Router } from 'express';
+import { notificationController } from '../controllers/notification.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
+import {
+  getNotificationsSchema,
+  idParamSchema,
+  registerTokenSchema,
+} from '../validators/notification.validator';
+
+const router = Router();
+
+// All notification routes require authentication
+router.use(requireAuth);
+
+router.get('/', validate(getNotificationsSchema), notificationController.getNotifications);
+
+router.patch('/read-all', notificationController.markAllAsRead);
+
+router.patch('/:id/read', validate(idParamSchema), notificationController.markAsRead);
+
+router.delete('/:id', validate(idParamSchema), notificationController.deleteNotification);
+
+router.post('/token', validate(registerTokenSchema), notificationController.registerToken);
 
 export default router;
 </file>
@@ -3469,157 +4660,34 @@ export class AuthService {
 export const authService = new AuthService();
 </file>
 
-<file path="src/services/chat.service.ts">
+<file path="src/services/notification.service.ts">
 // ============================================
-// Promoo Backend — Chat Service
+// Promoo Backend — Notification Service
 // ============================================
 
 import { supabaseAdmin } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
+import { messaging } from '../config/firebase';
+import { logger } from '../utils/logger';
 
-interface ISendMessagePayload {
-  content?: string;
-  type: 'text' | 'image' | 'video' | 'file';
-  mediaUrl?: string;
-}
-
-export class ChatService {
+export class NotificationService {
   /**
-   * Start or open a direct chat with another user.
-   * If a direct chat already exists between the two users, return it.
-   * Otherwise, create a new chat room.
+   * Get notifications for the current user
    */
-  async startOrOpenChat(currentUserId: string, participantId: string): Promise<Record<string, unknown>> {
-    if (currentUserId === participantId) {
-      throw ApiError.badRequest('Cannot start a chat with yourself');
-    }
-
-    // Check if participant exists
-    const { data: participant } = await supabaseAdmin
-      .from('profiles')
-      .select('id, full_name, avatar_url')
-      .eq('id', participantId)
-      .single();
-
-    if (!participant) {
-      throw ApiError.notFound('User not found');
-    }
-
-    // Check if a direct chat already exists between these two users
-    const { data: existingRooms } = await supabaseAdmin
-      .from('chat_participants')
-      .select('room_id')
-      .eq('profile_id', currentUserId);
-
-    if (existingRooms && existingRooms.length > 0) {
-      const roomIds = existingRooms.map((r) => r.room_id);
-
-      // Check if participant is in any of these rooms AND the room is 'direct'
-      const { data: sharedRoom } = await supabaseAdmin
-        .from('chat_participants')
-        .select('room_id, chat_rooms!inner(id, type)')
-        .eq('profile_id', participantId)
-        .in('room_id', roomIds)
-        .limit(1)
-        .maybeSingle();
-
-      if (sharedRoom) {
-        // Return the existing room with participant info
-        const { data: room } = await supabaseAdmin
-          .from('chat_rooms')
-          .select('*')
-          .eq('id', sharedRoom.room_id)
-          .single();
-
-        return { room, participant, isNew: false };
-      }
-    }
-
-    // Create new chat room
-    const { data: newRoom, error: roomError } = await supabaseAdmin
-      .from('chat_rooms')
-      .insert({ type: 'direct' })
-      .select()
-      .single();
-
-    if (roomError || !newRoom) {
-      throw ApiError.internal(roomError?.message || 'Failed to create chat room');
-    }
-
-    // Add both participants
-    const { error: participantsError } = await supabaseAdmin
-      .from('chat_participants')
-      .insert([
-        { room_id: newRoom.id, profile_id: currentUserId },
-        { room_id: newRoom.id, profile_id: participantId },
-      ]);
-
-    if (participantsError) {
-      // Cleanup: delete the room if we failed to add participants
-      await supabaseAdmin.from('chat_rooms').delete().eq('id', newRoom.id);
-      throw ApiError.internal(participantsError.message);
-    }
-
-    return { room: newRoom, participant, isNew: true };
-  }
-
-  /**
-   * Send a message to a chat room
-   */
-  async sendMessage(
-    currentUserId: string,
-    roomId: string,
-    payload: ISendMessagePayload
-  ): Promise<Record<string, unknown>> {
-    // Verify the user is a participant
-    await this.verifyParticipant(currentUserId, roomId);
-
-    const { data: message, error } = await supabaseAdmin
-      .from('messages')
-      .insert({
-        room_id: roomId,
-        sender_id: currentUserId,
-        content: payload.content || null,
-        type: payload.type,
-        media_url: payload.mediaUrl || null,
-      })
-      .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
-      .single();
-
-    if (error || !message) {
-      throw ApiError.internal(error?.message || 'Failed to send message');
-    }
-
-    return message;
-  }
-
-  /**
-   * Get messages for a chat room with pagination
-   */
-  async getMessages(
-    currentUserId: string,
-    roomId: string,
-    page: number = 1,
-    limit: number = 20
-  ): Promise<{ data: Record<string, unknown>[]; total: number; page: number; limit: number; totalPages: number }> {
-    // Verify the user is a participant
-    await this.verifyParticipant(currentUserId, roomId);
-
+  async getNotifications(userId: string, page: number = 1, limit: number = 20) {
     const offset = (page - 1) * limit;
 
-    // Get total count
     const { count } = await supabaseAdmin
-      .from('messages')
+      .from('notifications')
       .select('*', { count: 'exact', head: true })
-      .eq('room_id', roomId);
+      .eq('profile_id', userId);
 
     const total = count || 0;
 
-    // Get messages (newest first)
-    const { data: messages, error } = await supabaseAdmin
-      .from('messages')
-      .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
-      .eq('room_id', roomId)
+    const { data, error } = await supabaseAdmin
+      .from('notifications')
+      .select('*')
+      .eq('profile_id', userId)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -3628,7 +4696,7 @@ export class ChatService {
     }
 
     return {
-      data: messages || [],
+      data: data || [],
       total,
       page,
       limit,
@@ -3637,302 +4705,162 @@ export class ChatService {
   }
 
   /**
-   * Get the list of chats for the current user
+   * Mark a single notification as read
    */
-  async getChatList(
-    currentUserId: string,
-    page: number = 1,
-    limit: number = 20
-  ): Promise<{ data: Record<string, unknown>[]; total: number; page: number; limit: number; totalPages: number }> {
-    const offset = (page - 1) * limit;
-
-    // Get all rooms the user is part of
-    const { count } = await supabaseAdmin
-      .from('chat_participants')
-      .select('*', { count: 'exact', head: true })
-      .eq('profile_id', currentUserId);
-
-    const total = count || 0;
-
-    const { data: participantEntries, error: pError } = await supabaseAdmin
-      .from('chat_participants')
-      .select('room_id, last_read_at')
-      .eq('profile_id', currentUserId)
-      .order('last_read_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (pError || !participantEntries) {
-      throw ApiError.internal(pError?.message || 'Failed to fetch chats');
-    }
-
-    if (participantEntries.length === 0) {
-      return { data: [], total: 0, page, limit, totalPages: 0 };
-    }
-
-    const roomIds = participantEntries.map((p) => p.room_id);
-
-    // Get rooms with last_message_at
-    const { data: rooms } = await supabaseAdmin
-      .from('chat_rooms')
-      .select('*')
-      .in('id', roomIds)
-      .order('last_message_at', { ascending: false });
-
-    if (!rooms) {
-      return { data: [], total, page, limit, totalPages: Math.ceil(total / limit) };
-    }
-
-    // For each room, get the other participant's info and the last message
-    const chatList: Record<string, unknown>[] = [];
-
-    for (const room of rooms) {
-      // Get the other participant
-      const { data: otherParticipant } = await supabaseAdmin
-        .from('chat_participants')
-        .select('profile_id, profiles!inner(id, full_name, avatar_url)')
-        .eq('room_id', room.id)
-        .neq('profile_id', currentUserId)
-        .single();
-
-      // Get the last message
-      const { data: lastMessage } = await supabaseAdmin
-        .from('messages')
-        .select('id, content, type, created_at, sender_id')
-        .eq('room_id', room.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      // Count unread messages
-      const participantEntry = participantEntries.find((p) => p.room_id === room.id);
-      const lastReadAt = participantEntry?.last_read_at || room.created_at;
-
-      const { count: unreadCount } = await supabaseAdmin
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('room_id', room.id)
-        .neq('sender_id', currentUserId)
-        .gt('created_at', lastReadAt);
-
-      chatList.push({
-        room,
-        otherParticipant: otherParticipant?.profiles || null,
-        lastMessage: lastMessage || null,
-        unreadCount: unreadCount || 0,
-      });
-    }
-
-    return {
-      data: chatList,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-
-  /**
-   * Mark all messages in a room as read
-   */
-  async markAsRead(currentUserId: string, roomId: string): Promise<void> {
-    await this.verifyParticipant(currentUserId, roomId);
-
-    // Update last_read_at for the current user
+  async markAsRead(userId: string, notificationId: string) {
     const { error } = await supabaseAdmin
-      .from('chat_participants')
-      .update({ last_read_at: new Date().toISOString() })
-      .eq('room_id', roomId)
-      .eq('profile_id', currentUserId);
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-
-    // Also mark messages as read
-    await supabaseAdmin
-      .from('messages')
+      .from('notifications')
       .update({ is_read: true })
-      .eq('room_id', roomId)
-      .neq('sender_id', currentUserId)
-      .eq('is_read', false);
+      .eq('id', notificationId)
+      .eq('profile_id', userId);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
   }
 
   /**
-   * Delete a chat (remove user from participants, not the room itself)
+   * Mark all notifications as read
    */
-  async deleteChat(currentUserId: string, roomId: string): Promise<void> {
-    await this.verifyParticipant(currentUserId, roomId);
-
-    // Remove user from participants
+  async markAllAsRead(userId: string) {
     const { error } = await supabaseAdmin
-      .from('chat_participants')
-      .delete()
-      .eq('room_id', roomId)
-      .eq('profile_id', currentUserId);
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-
-    // If no participants remain, delete the room entirely
-    const { count } = await supabaseAdmin
-      .from('chat_participants')
-      .select('*', { count: 'exact', head: true })
-      .eq('room_id', roomId);
-
-    if (count === 0) {
-      await supabaseAdmin.from('chat_rooms').delete().eq('id', roomId);
-    }
-  }
-
-  // ──────────────────────────────────────────
-  // Private Helpers
-  // ──────────────────────────────────────────
-
-  /**
-   * Verify that the user is a participant of the room
-   */
-  private async verifyParticipant(userId: string, roomId: string): Promise<void> {
-    const { data, error } = await supabaseAdmin
-      .from('chat_participants')
-      .select('id')
-      .eq('room_id', roomId)
+      .from('notifications')
+      .update({ is_read: true })
       .eq('profile_id', userId)
-      .maybeSingle();
+      .eq('is_read', false);
 
     if (error) {
       throw ApiError.internal(error.message);
     }
-
-    if (!data) {
-      throw ApiError.forbidden('You are not a participant of this chat');
-    }
-  }
-}
-
-export const chatService = new ChatService();
-</file>
-
-<file path="src/services/follow.service.ts">
-// ============================================
-// Promoo Backend — Follow Service
-// ============================================
-
-import { supabaseAdmin, createSupabaseClient } from '../config/supabase';
-import { ApiError } from '../utils/apiError';
-
-export class FollowService {
-  /**
-   * Follow a profile
-   */
-  async followProfile(followerId: string, followingId: string, token: string) {
-    if (followerId === followingId) {
-      throw ApiError.badRequest('You cannot follow yourself');
-    }
-
-    const supabase = createSupabaseClient(token);
-    const { data, error } = await supabase
-      .from('follows')
-      .insert({
-        follower_id: followerId,
-        following_id: followingId,
-      })
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === '23505') { // Unique violation
-        throw ApiError.badRequest('You are already following this profile');
-      }
-      throw ApiError.badRequest(error.message);
-    }
-    
-    // Create a notification for the followed user
-    await supabaseAdmin.from('notifications').insert({
-      profile_id: followingId,
-      title: 'New Follower',
-      body: 'Someone started following you.',
-      type: 'follow',
-      data: { follower_id: followerId }
-    });
-
-    return data;
   }
 
   /**
-   * Unfollow a profile
+   * Delete a notification
    */
-  async unfollowProfile(followerId: string, followingId: string, token: string) {
-    const supabase = createSupabaseClient(token);
-    const { error } = await supabase
-      .from('follows')
+  async deleteNotification(userId: string, notificationId: string) {
+    const { error } = await supabaseAdmin
+      .from('notifications')
       .delete()
-      .match({ follower_id: followerId, following_id: followingId });
+      .eq('id', notificationId)
+      .eq('profile_id', userId);
 
     if (error) {
-      throw ApiError.badRequest(error.message);
+      throw ApiError.internal(error.message);
     }
-    return true;
   }
 
   /**
-   * Check if I follow a profile
+   * Register FCM Token for push notifications
    */
-  async checkFollowStatus(followerId: string, followingId: string) {
-    const { data, error } = await supabaseAdmin
-      .from('follows')
+  async registerToken(userId: string, token: string, deviceType?: string) {
+    // Check if token already exists for this user to avoid unique constraint errors on upsert
+    const { data: existingToken } = await supabaseAdmin
+      .from('fcm_tokens')
       .select('id')
-      .match({ follower_id: followerId, following_id: followingId })
+      .eq('token', token)
       .maybeSingle();
 
-    if (error) {
-      throw ApiError.internal(error.message);
+    if (existingToken) {
+      // If it exists, make sure it belongs to the current user
+      const { error } = await supabaseAdmin
+        .from('fcm_tokens')
+        .update({ profile_id: userId, device_type: deviceType || null })
+        .eq('token', token);
+
+      if (error) throw ApiError.internal(error.message);
+    } else {
+      // Insert new token
+      const { error } = await supabaseAdmin
+        .from('fcm_tokens')
+        .insert({
+          profile_id: userId,
+          token,
+          device_type: deviceType || null,
+        });
+
+      if (error) throw ApiError.internal(error.message);
     }
-    return { isFollowing: !!data };
   }
 
   /**
-   * Get Followers (People who follow the target)
+   * Send a Push Notification to a user via FCM and optionally create an in-app record.
+   * Internal method used by other services.
    */
-  async getFollowers(profileId: string, page: number, limit: number) {
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
+  async sendNotification(
+    userId: string,
+    title: string,
+    body: string,
+    type: 'follow' | 'message' | 'offer' | 'system' | 'payment',
+    dataObj?: Record<string, any>,
+    createInAppRecord: boolean = true
+  ) {
+    try {
+      // 1. Create in-app notification if requested
+      if (createInAppRecord) {
+        await supabaseAdmin.from('notifications').insert({
+          profile_id: userId,
+          title,
+          body,
+          type,
+          data: dataObj || {},
+        });
+      }
 
-    const { data, error, count } = await supabaseAdmin
-      .from('follows')
-      .select('created_at, follower:profiles!follower_id(id, full_name, username, avatar_url, account_type)', { count: 'exact' })
-      .eq('following_id', profileId)
-      .range(from, to)
-      .order('created_at', { ascending: false });
+      // 2. Fetch user's FCM tokens
+      const { data: tokens } = await supabaseAdmin
+        .from('fcm_tokens')
+        .select('token')
+        .eq('profile_id', userId);
 
-    if (error) {
-      throw ApiError.internal(error.message);
+      if (!tokens || tokens.length === 0) return;
+
+      const fcmTokens = tokens.map((t) => t.token);
+
+      // Convert dataObj values to strings for FCM
+      const fcmData: Record<string, string> = { type };
+      if (dataObj) {
+        for (const [key, value] of Object.entries(dataObj)) {
+          if (value !== undefined && value !== null) {
+            fcmData[key] = String(value);
+          }
+        }
+      }
+
+      // 3. Send via Firebase Admin
+      const message = {
+        notification: { title, body },
+        data: fcmData,
+        tokens: fcmTokens,
+      };
+
+      const response = await messaging.sendEachForMulticast(message);
+
+      // Cleanup invalid tokens
+      if (response.failureCount > 0) {
+        const failedTokens: string[] = [];
+        response.responses.forEach((resp, idx) => {
+          if (!resp.success) {
+            const errCode = resp.error?.code;
+            if (
+              errCode === 'messaging/invalid-registration-token' ||
+              errCode === 'messaging/registration-token-not-registered'
+            ) {
+              failedTokens.push(fcmTokens[idx]);
+            }
+          }
+        });
+
+        if (failedTokens.length > 0) {
+          await supabaseAdmin.from('fcm_tokens').delete().in('token', failedTokens);
+        }
+      }
+    } catch (error: any) {
+      logger.error(`Failed to send notification to user ${userId}: ${error.message}`);
     }
-    return { data, count: count || 0 };
-  }
-
-  /**
-   * Get Following (People the target is following)
-   */
-  async getFollowing(profileId: string, page: number, limit: number) {
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-
-    const { data, error, count } = await supabaseAdmin
-      .from('follows')
-      .select('created_at, following:profiles!following_id(id, full_name, username, avatar_url, account_type)', { count: 'exact' })
-      .eq('follower_id', profileId)
-      .range(from, to)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-    return { data, count: count || 0 };
   }
 }
 
-export const followService = new FollowService();
+export const notificationService = new NotificationService();
 </file>
 
 <file path="src/services/offer.service.ts">
@@ -5373,6 +6301,34 @@ export const paginationQuerySchema = z.object({
 });
 </file>
 
+<file path="src/validators/notification.validator.ts">
+// ============================================
+// Promoo Backend — Notification Validators
+// ============================================
+
+import { z } from 'zod';
+
+export const getNotificationsSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+  }).optional(),
+});
+
+export const idParamSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid notification ID'),
+  }),
+});
+
+export const registerTokenSchema = z.object({
+  body: z.object({
+    token: z.string().min(1, 'Token is required'),
+    deviceType: z.enum(['ios', 'android', 'web']).optional(),
+  }),
+});
+</file>
+
 <file path="src/validators/offer.validator.ts">
 // ============================================
 // Promoo Backend — Offer Validators
@@ -6466,6 +7422,501 @@ app.use(errorHandler);
 export default app;
 </file>
 
+<file path="src/services/chat.service.ts">
+// ============================================
+// Promoo Backend — Chat Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import { notificationService } from './notification.service';
+
+interface ISendMessagePayload {
+  content?: string;
+  type: 'text' | 'image' | 'video' | 'file';
+  mediaUrl?: string;
+}
+
+export class ChatService {
+  /**
+   * Start or open a direct chat with another user.
+   * If a direct chat already exists between the two users, return it.
+   * Otherwise, create a new chat room.
+   */
+  async startOrOpenChat(currentUserId: string, participantId: string): Promise<Record<string, unknown>> {
+    if (currentUserId === participantId) {
+      throw ApiError.badRequest('Cannot start a chat with yourself');
+    }
+
+    // Check if participant exists
+    const { data: participant } = await supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .eq('id', participantId)
+      .single();
+
+    if (!participant) {
+      throw ApiError.notFound('User not found');
+    }
+
+    // Check if a direct chat already exists between these two users
+    const { data: existingRooms } = await supabaseAdmin
+      .from('chat_participants')
+      .select('room_id')
+      .eq('profile_id', currentUserId);
+
+    if (existingRooms && existingRooms.length > 0) {
+      const roomIds = existingRooms.map((r) => r.room_id);
+
+      // Check if participant is in any of these rooms AND the room is 'direct'
+      const { data: sharedRoom } = await supabaseAdmin
+        .from('chat_participants')
+        .select('room_id, chat_rooms!inner(id, type)')
+        .eq('profile_id', participantId)
+        .in('room_id', roomIds)
+        .limit(1)
+        .maybeSingle();
+
+      if (sharedRoom) {
+        // Return the existing room with participant info
+        const { data: room } = await supabaseAdmin
+          .from('chat_rooms')
+          .select('*')
+          .eq('id', sharedRoom.room_id)
+          .single();
+
+        return { room, participant, isNew: false };
+      }
+    }
+
+    // Create new chat room
+    const { data: newRoom, error: roomError } = await supabaseAdmin
+      .from('chat_rooms')
+      .insert({ type: 'direct' })
+      .select()
+      .single();
+
+    if (roomError || !newRoom) {
+      throw ApiError.internal(roomError?.message || 'Failed to create chat room');
+    }
+
+    // Add both participants
+    const { error: participantsError } = await supabaseAdmin
+      .from('chat_participants')
+      .insert([
+        { room_id: newRoom.id, profile_id: currentUserId },
+        { room_id: newRoom.id, profile_id: participantId },
+      ]);
+
+    if (participantsError) {
+      // Cleanup: delete the room if we failed to add participants
+      await supabaseAdmin.from('chat_rooms').delete().eq('id', newRoom.id);
+      throw ApiError.internal(participantsError.message);
+    }
+
+    return { room: newRoom, participant, isNew: true };
+  }
+
+  /**
+   * Send a message to a chat room
+   */
+  async sendMessage(
+    currentUserId: string,
+    roomId: string,
+    payload: ISendMessagePayload
+  ): Promise<Record<string, unknown>> {
+    // Verify the user is a participant
+    await this.verifyParticipant(currentUserId, roomId);
+
+    const { data: message, error } = await supabaseAdmin
+      .from('messages')
+      .insert({
+        room_id: roomId,
+        sender_id: currentUserId,
+        content: payload.content || null,
+        type: payload.type,
+        media_url: payload.mediaUrl || null,
+      })
+      .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
+      .single();
+
+    if (error || !message) {
+      throw ApiError.internal(error?.message || 'Failed to send message');
+    }
+
+    // Send push notification to the other participant
+    const { data: participants } = await supabaseAdmin
+      .from('chat_participants')
+      .select('profile_id')
+      .eq('room_id', roomId)
+      .neq('profile_id', currentUserId);
+
+    if (participants && participants.length > 0) {
+      const otherParticipantId = participants[0].profile_id;
+      
+      const senderName = message.sender?.full_name || 'Someone';
+      const bodyText = payload.type === 'text' 
+        ? (payload.content || 'Sent an attachment') 
+        : `Sent a ${payload.type}`;
+
+      // We do not create an in-app notification record for messages because the chat room IS the record.
+      // We only send a push notification.
+      await notificationService.sendNotification(
+        otherParticipantId,
+        senderName,
+        bodyText,
+        'message',
+        { room_id: roomId },
+        false
+      );
+    }
+
+    return message;
+  }
+
+  /**
+   * Get messages for a chat room with pagination
+   */
+  async getMessages(
+    currentUserId: string,
+    roomId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ data: Record<string, unknown>[]; total: number; page: number; limit: number; totalPages: number }> {
+    // Verify the user is a participant
+    await this.verifyParticipant(currentUserId, roomId);
+
+    const offset = (page - 1) * limit;
+
+    // Get total count
+    const { count } = await supabaseAdmin
+      .from('messages')
+      .select('*', { count: 'exact', head: true })
+      .eq('room_id', roomId);
+
+    const total = count || 0;
+
+    // Get messages (newest first)
+    const { data: messages, error } = await supabaseAdmin
+      .from('messages')
+      .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
+      .eq('room_id', roomId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: messages || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
+   * Get the list of chats for the current user
+   */
+  async getChatList(
+    currentUserId: string,
+    page: number = 1,
+    limit: number = 20
+  ): Promise<{ data: Record<string, unknown>[]; total: number; page: number; limit: number; totalPages: number }> {
+    const offset = (page - 1) * limit;
+
+    // Get all rooms the user is part of
+    const { count } = await supabaseAdmin
+      .from('chat_participants')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', currentUserId);
+
+    const total = count || 0;
+
+    const { data: participantEntries, error: pError } = await supabaseAdmin
+      .from('chat_participants')
+      .select('room_id, last_read_at')
+      .eq('profile_id', currentUserId)
+      .order('last_read_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (pError || !participantEntries) {
+      throw ApiError.internal(pError?.message || 'Failed to fetch chats');
+    }
+
+    if (participantEntries.length === 0) {
+      return { data: [], total: 0, page, limit, totalPages: 0 };
+    }
+
+    const roomIds = participantEntries.map((p) => p.room_id);
+
+    // Get rooms with last_message_at
+    const { data: rooms } = await supabaseAdmin
+      .from('chat_rooms')
+      .select('*')
+      .in('id', roomIds)
+      .order('last_message_at', { ascending: false });
+
+    if (!rooms) {
+      return { data: [], total, page, limit, totalPages: Math.ceil(total / limit) };
+    }
+
+    // For each room, get the other participant's info and the last message
+    const chatList: Record<string, unknown>[] = [];
+
+    for (const room of rooms) {
+      // Get the other participant
+      const { data: otherParticipant } = await supabaseAdmin
+        .from('chat_participants')
+        .select('profile_id, profiles!inner(id, full_name, avatar_url)')
+        .eq('room_id', room.id)
+        .neq('profile_id', currentUserId)
+        .single();
+
+      // Get the last message
+      const { data: lastMessage } = await supabaseAdmin
+        .from('messages')
+        .select('id, content, type, created_at, sender_id')
+        .eq('room_id', room.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      // Count unread messages
+      const participantEntry = participantEntries.find((p) => p.room_id === room.id);
+      const lastReadAt = participantEntry?.last_read_at || room.created_at;
+
+      const { count: unreadCount } = await supabaseAdmin
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('room_id', room.id)
+        .neq('sender_id', currentUserId)
+        .gt('created_at', lastReadAt);
+
+      chatList.push({
+        room,
+        otherParticipant: otherParticipant?.profiles || null,
+        lastMessage: lastMessage || null,
+        unreadCount: unreadCount || 0,
+      });
+    }
+
+    return {
+      data: chatList,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
+   * Mark all messages in a room as read
+   */
+  async markAsRead(currentUserId: string, roomId: string): Promise<void> {
+    await this.verifyParticipant(currentUserId, roomId);
+
+    // Update last_read_at for the current user
+    const { error } = await supabaseAdmin
+      .from('chat_participants')
+      .update({ last_read_at: new Date().toISOString() })
+      .eq('room_id', roomId)
+      .eq('profile_id', currentUserId);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    // Also mark messages as read
+    await supabaseAdmin
+      .from('messages')
+      .update({ is_read: true })
+      .eq('room_id', roomId)
+      .neq('sender_id', currentUserId)
+      .eq('is_read', false);
+  }
+
+  /**
+   * Delete a chat (remove user from participants, not the room itself)
+   */
+  async deleteChat(currentUserId: string, roomId: string): Promise<void> {
+    await this.verifyParticipant(currentUserId, roomId);
+
+    // Remove user from participants
+    const { error } = await supabaseAdmin
+      .from('chat_participants')
+      .delete()
+      .eq('room_id', roomId)
+      .eq('profile_id', currentUserId);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    // If no participants remain, delete the room entirely
+    const { count } = await supabaseAdmin
+      .from('chat_participants')
+      .select('*', { count: 'exact', head: true })
+      .eq('room_id', roomId);
+
+    if (count === 0) {
+      await supabaseAdmin.from('chat_rooms').delete().eq('id', roomId);
+    }
+  }
+
+  // ──────────────────────────────────────────
+  // Private Helpers
+  // ──────────────────────────────────────────
+
+  /**
+   * Verify that the user is a participant of the room
+   */
+  private async verifyParticipant(userId: string, roomId: string): Promise<void> {
+    const { data, error } = await supabaseAdmin
+      .from('chat_participants')
+      .select('id')
+      .eq('room_id', roomId)
+      .eq('profile_id', userId)
+      .maybeSingle();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    if (!data) {
+      throw ApiError.forbidden('You are not a participant of this chat');
+    }
+  }
+}
+
+export const chatService = new ChatService();
+</file>
+
+<file path="src/services/follow.service.ts">
+// ============================================
+// Promoo Backend — Follow Service
+// ============================================
+
+import { supabaseAdmin, createSupabaseClient } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import { notificationService } from './notification.service';
+
+export class FollowService {
+  /**
+   * Follow a profile
+   */
+  async followProfile(followerId: string, followingId: string, token: string) {
+    if (followerId === followingId) {
+      throw ApiError.badRequest('You cannot follow yourself');
+    }
+
+    const supabase = createSupabaseClient(token);
+    const { data, error } = await supabase
+      .from('follows')
+      .insert({
+        follower_id: followerId,
+        following_id: followingId,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === '23505') { // Unique violation
+        throw ApiError.badRequest('You are already following this profile');
+      }
+      throw ApiError.badRequest(error.message);
+    }
+    
+    // Create a notification for the followed user
+    await notificationService.sendNotification(
+      followingId,
+      'New Follower',
+      'Someone started following you.',
+      'follow',
+      { follower_id: followerId }
+    );
+
+    return data;
+  }
+
+  /**
+   * Unfollow a profile
+   */
+  async unfollowProfile(followerId: string, followingId: string, token: string) {
+    const supabase = createSupabaseClient(token);
+    const { error } = await supabase
+      .from('follows')
+      .delete()
+      .match({ follower_id: followerId, following_id: followingId });
+
+    if (error) {
+      throw ApiError.badRequest(error.message);
+    }
+    return true;
+  }
+
+  /**
+   * Check if I follow a profile
+   */
+  async checkFollowStatus(followerId: string, followingId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('follows')
+      .select('id')
+      .match({ follower_id: followerId, following_id: followingId })
+      .maybeSingle();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return { isFollowing: !!data };
+  }
+
+  /**
+   * Get Followers (People who follow the target)
+   */
+  async getFollowers(profileId: string, page: number, limit: number) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabaseAdmin
+      .from('follows')
+      .select('created_at, follower:profiles!follower_id(id, full_name, username, avatar_url, account_type)', { count: 'exact' })
+      .eq('following_id', profileId)
+      .range(from, to)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return { data, count: count || 0 };
+  }
+
+  /**
+   * Get Following (People the target is following)
+   */
+  async getFollowing(profileId: string, page: number, limit: number) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabaseAdmin
+      .from('follows')
+      .select('created_at, following:profiles!following_id(id, full_name, username, avatar_url, account_type)', { count: 'exact' })
+      .eq('follower_id', profileId)
+      .range(from, to)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return { data, count: count || 0 };
+  }
+}
+
+export const followService = new FollowService();
+</file>
+
 <file path="src/routes/index.ts">
 // ============================================
 // Promoo Backend — Route Aggregator
@@ -6528,13 +7979,19 @@ import chatRoutes from './chat.routes';
 // Phase 7: Chat
 router.use('/chats', chatRoutes);
 
+import notificationRoutes from './notification.routes';
+
 // Phase 8: Notifications
-// router.use('/notifications', notificationRoutes);
+router.use('/notifications', notificationRoutes);
+
+import uploadRoutes from './upload.routes';
+import searchRoutes from './search.routes';
+import categoryRoutes from './category.routes';
 
 // Phase 9: Upload & Search
-// router.use('/upload', uploadRoutes);
-// router.use('/search', searchRoutes);
-// router.use('/categories', categoryRoutes);
+router.use('/upload', uploadRoutes);
+router.use('/search', searchRoutes);
+router.use('/categories', categoryRoutes);
 
 // Phase 10: Featured & Payments
 // router.use('/featured', featuredRoutes);
