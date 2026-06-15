@@ -4,6 +4,7 @@
 
 import { supabaseAdmin } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
+import { notificationService } from './notification.service';
 
 interface ISendMessagePayload {
   content?: string;
@@ -116,6 +117,33 @@ export class ChatService {
 
     if (error || !message) {
       throw ApiError.internal(error?.message || 'Failed to send message');
+    }
+
+    // Send push notification to the other participant
+    const { data: participants } = await supabaseAdmin
+      .from('chat_participants')
+      .select('profile_id')
+      .eq('room_id', roomId)
+      .neq('profile_id', currentUserId);
+
+    if (participants && participants.length > 0) {
+      const otherParticipantId = participants[0].profile_id;
+      
+      const senderName = message.sender?.full_name || 'Someone';
+      const bodyText = payload.type === 'text' 
+        ? (payload.content || 'Sent an attachment') 
+        : `Sent a ${payload.type}`;
+
+      // We do not create an in-app notification record for messages because the chat room IS the record.
+      // We only send a push notification.
+      await notificationService.sendNotification(
+        otherParticipantId,
+        senderName,
+        bodyText,
+        'message',
+        { room_id: roomId },
+        false
+      );
     }
 
     return message;

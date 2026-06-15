@@ -4,6 +4,7 @@
 
 import { supabaseAdmin, createSupabaseClient } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
+import { notificationService } from './notification.service';
 
 export class FollowService {
   /**
@@ -32,13 +33,13 @@ export class FollowService {
     }
     
     // Create a notification for the followed user
-    await supabaseAdmin.from('notifications').insert({
-      profile_id: followingId,
-      title: 'New Follower',
-      body: 'Someone started following you.',
-      type: 'follow',
-      data: { follower_id: followerId }
-    });
+    await notificationService.sendNotification(
+      followingId,
+      'New Follower',
+      'Someone started following you.',
+      'follow',
+      { follower_id: followerId }
+    );
 
     return data;
   }

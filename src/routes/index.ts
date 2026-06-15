@@ -59,8 +59,10 @@ import chatRoutes from './chat.routes';
 // Phase 7: Chat
 router.use('/chats', chatRoutes);
 
+import notificationRoutes from './notification.routes';
+
 // Phase 8: Notifications
-// router.use('/notifications', notificationRoutes);
+router.use('/notifications', notificationRoutes);
 
 // Phase 9: Upload & Search
 // router.use('/upload', uploadRoutes);
