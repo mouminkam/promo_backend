@@ -73,9 +73,12 @@ router.use('/upload', uploadRoutes);
 router.use('/search', searchRoutes);
 router.use('/categories', categoryRoutes);
 
+import featuredRoutes from './featured.routes';
+import paymentRoutes from './payment.routes';
+
 // Phase 10: Featured & Payments
-// router.use('/featured', featuredRoutes);
-// router.use('/payments', paymentRoutes);
+router.use('/featured', featuredRoutes);
+router.use('/payments', paymentRoutes);
 
 // Phase 11: Reports
 // router.use('/reports', reportRoutes);
