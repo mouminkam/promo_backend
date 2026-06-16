@@ -20,8 +20,8 @@
 | 8 | Notifications | ✅ Completed | 2026-06-15 |
 | 9 | Upload & Search | ✅ Completed | 2026-06-15 |
 | 10 | Featured & Payments | ✅ Completed | 2026-06-16 |
-| 11 | Reports | ⬜ Not Started | — |
-| 12 | Admin Dashboard APIs | ⬜ Not Started | — |
+| 11 | Reports | ✅ Completed | 2026-06-16 |
+| 12 | Admin Dashboard APIs | ✅ Completed | 2026-06-16 |
 
 ---
 

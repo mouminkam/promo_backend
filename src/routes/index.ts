@@ -85,8 +85,10 @@ import reportRoutes from './report.routes';
 // Phase 11: Reports
 router.use('/reports', reportRoutes);
 
+import adminRoutes from './admin';
+
 // Phase 12: Admin
-// router.use('/admin', adminRoutes);
+router.use('/admin', adminRoutes);
 
 // Webhooks (Stripe) — registered separately in app.ts with raw body parser
 

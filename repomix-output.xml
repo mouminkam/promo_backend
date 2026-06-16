@@ -52,6 +52,7 @@ The content is organized as follows:
 .gitignore
 docs/phases_logic/phase_1_database.md
 docs/phases_logic/phase_10_featured_payments.md
+docs/phases_logic/phase_11_reports.md
 docs/phases_logic/phase_2_auth.md
 docs/phases_logic/phase_3_profiles.md
 docs/phases_logic/phase_4_follows.md
@@ -81,6 +82,7 @@ src/controllers/notification.controller.ts
 src/controllers/offer.controller.ts
 src/controllers/payment.controller.ts
 src/controllers/profile.controller.ts
+src/controllers/report.controller.ts
 src/controllers/search.controller.ts
 src/controllers/subscription.controller.ts
 src/controllers/upload.controller.ts
@@ -102,6 +104,7 @@ src/routes/notification.routes.ts
 src/routes/offer.routes.ts
 src/routes/payment.routes.ts
 src/routes/profile.routes.ts
+src/routes/report.routes.ts
 src/routes/search.routes.ts
 src/routes/subscription.routes.ts
 src/routes/upload.routes.ts
@@ -116,6 +119,7 @@ src/services/notification.service.ts
 src/services/offer.service.ts
 src/services/payment.service.ts
 src/services/profile.service.ts
+src/services/report.service.ts
 src/services/search.service.ts
 src/services/stripe.service.ts
 src/services/subscription.service.ts
@@ -135,6 +139,7 @@ src/validators/notification.validator.ts
 src/validators/offer.validator.ts
 src/validators/payment.validator.ts
 src/validators/profile.validator.ts
+src/validators/report.validator.ts
 src/validators/search.validator.ts
 src/validators/subscription.validator.ts
 src/validators/upload.validator.ts
@@ -506,6 +511,48 @@ cover what you need.
 ## كيفية الصيانة والتعديل (Maintenance)
 - **تغيير التسعيرة**: لتغيير سعر اليوم الواحد للظهور المميز، افتح `featured.service.ts` وعدّل قيمة الثابت `PRICE_PER_DAY`.
 - **رابط التحويل (Redirect URL)**: بعد نجاح أو إلغاء الدفع في Stripe، سيتم تحويل المستخدم لروابط تعتمد على المتغير `CLIENT_URL` في ملف الـ `.env`. تأكد من تعديله ليناسب التطبيق الخاص بك وقت النشر (مثلاً: رابط Deep Link يحول لداخل التطبيق `myapp://featured/success`).
+</file>
+
+<file path="docs/phases_logic/phase_11_reports.md">
+# Phase 11: Reports (البلاغات والشكاوى)
+
+## الهدف والمغزى
+الحفاظ على بيئة التطبيق نظيفة وآمنة من خلال السماح للمستخدمين بالإبلاغ عن المحتوى المسيء، الاحتيال، أو الحسابات الوهمية. 
+
+## الملفات المرتبطة
+- **Validators**: `report.validator.ts`
+- **Controllers**: `report.controller.ts`
+- **Services**: `report.service.ts`
+- **Routes**: `report.routes.ts`
+- **Database**: `supabase/migrations/008_create_reports_and_media.sql` (جدول `reports`)
+
+## اللوجيك (كيف تعمل)
+
+### 1. تقديم بلاغ (Submit a Report)
+- عندما يرى المستخدم حساباً، عرضاً، إعلاناً، أو حتى رسالة مسيئة، يضغط على خيار "إبلاغ".
+- التطبيق يرسل طلب `POST /api/v1/reports`.
+- يتم إرسال معرّف العنصر المبلَّغ عنه (`reported_id`)، ونوعه (`reported_type`)، وسبب البلاغ (`reason`).
+- **حماية من التكرار المزعج (Spam Protection):** 
+  يقوم `report.service.ts` بالتحقق مما إذا كان هذا المستخدم قد أبلغ مسبقاً عن نفس العنصر وهذا البلاغ لا يزال "قيد المراجعة" (`pending` أو `reviewed`). إذا كان كذلك، يمنع النظام تكرار البلاغ للحد من الإزعاج.
+- **حماية منطقية:** لا يمكن للمستخدم أن يبلغ عن نفسه.
+
+### 2. متابعة حالة البلاغ (Get My Reports)
+- نقطة النهاية `GET /api/v1/reports/me` تتيح للمستخدم رؤية الشكاوى والبلاغات التي رفعها، بالإضافة لمعرفة حالتها (هل تم الرد عليها أم ما زالت معلقة).
+- الحالات المتاحة للبلاغ هي: `pending` (معلق)، `reviewed` (قيد المراجعة)، `resolved` (تم حله وإتخاذ إجراء)، `dismissed` (مرفوض لعدم وجود مخالفة).
+
+*(ملاحظة: وظائف الرد على البلاغات وتغيير حالتها هي مسؤولية موظفي الإدارة، ولذلك سيتم بناؤها في المرحلة 12 الخاصة بالـ Admin Dashboard).*
+
+## الـ User Flow (رحلة المستخدم في التطبيق)
+1. يتصفح المستخدم عروض الخدمات، فيجد عرضاً يحتوي على معلومات احتيالية.
+2. يضغط على زر "إبلاغ عن العرض".
+3. تنبثق نافذة تطلب منه اختيار السبب (مثلاً: "محتوى احتيالي") وكتابة تفاصيل إضافية.
+4. يضغط إرسال.
+5. يستلم الـ Backend الطلب، يسجله في جدول `reports` وتصبح حالته `pending`.
+6. يستطيع المستخدم الدخول لصفحة "بلاغاتي" لرؤية البلاغ وحالته.
+7. لاحقاً، عندما يدخل الإدمن من لوحة التحكم، يرى البلاغ، يحذف العرض المسيء، ويغير حالة البلاغ إلى `resolved`.
+
+## كيفية الصيانة والتعديل (Maintenance)
+- **إضافة أنواع جديدة للإبلاغ**: إذا قررت لاحقاً السماح بالإبلاغ عن "التعليقات" (Comments)، ستحتاج أولاً لإضافة `comment` إلى حقل الـ `check` في الـ Database، ثم إضافته للـ `z.enum` في `report.validator.ts`.
 </file>
 
 <file path="docs/phases_logic/phase_2_auth.md">
@@ -1210,457 +1257,6 @@ When creating a new module, always create these files:
 5. `routes/{module}.routes.ts` — Route definitions
 6. Register routes in `routes/index.ts`
 7. Add types to `types/` if needed
-</file>
-
-<file path="REQUIREMENTS_STATUS.md">
-# Promoo Backend — Requirements Status
-> تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
-> آخر تحديث: 2026-06-15 | الوضع الحالي: Phase 7 مكتملة ✅
-
----
-
-## الأيقونات المستخدمة
-| أيقونة | المعنى |
-|--------|--------|
-| ✅ | مُنفَّذ بالكامل |
-| 🔄 | مُنفَّذ جزئياً |
-| ⬜ | لم يُبدأ بعد |
-| ⚠️ | مُنفَّذ لكن يحتاج تحسين |
-
----
-
-## 1. تسجيل وإنشاء الحسابات ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 2
-
-### المتطلب
-تسجيل حساب جديد لأي من الأنواع الأربعة: شركة، مؤثر، مقدم خدمة، مستخدم عادي.
-
-### كيف نُفِّذ
-- **الملفات**: `src/services/auth.service.ts` → `src/controllers/auth.controller.ts` → `src/routes/auth.routes.ts`
-- **نقطة النهاية**: `POST /api/v1/auth/register/email` و `POST /api/v1/auth/register/phone`
-- **اللوجيك**:
-  1. المستخدم يرسل (email أو phone) + password + fullName + accountType
-  2. يتم التحقق من البيانات عبر Zod Validator
-  3. يُستدعى `supabaseAdmin.auth.signUp()` لإنشاء المستخدم في Supabase Auth
-  4. Supabase يُطلق Database Trigger تلقائياً يُنشئ سجل في جدول `profiles`
-  5. يُرجع رمز JWT للمستخدم
-- **أنواع الحسابات**: مُعرَّفة في `src/types/enums.ts` كـ enum: `company | influencer | service_provider | user`
-
----
-
-## 2. تسجيل الدخول بالبريد أو الهاتف ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 2
-
-### المتطلب
-تسجيل الدخول باستخدام البريد الإلكتروني أو رقم الهاتف + كلمة المرور.
-
-### كيف نُفِّذ
-- **نقاط النهاية**: `POST /api/v1/auth/login/email` و `POST /api/v1/auth/login/phone`
-- **اللوجيك**:
-  1. يُرسل المستخدم بيانات الدخول
-  2. `supabaseAdmin.auth.signInWithPassword()` تتحقق من الهوية
-  3. يُرجع `access_token` + `refresh_token`
-  4. كل الطلبات التالية تُرسل الـ token في `Authorization: Bearer <token>`
-  5. middleware `auth.middleware.ts` يتحقق من الـ token في كل route محمية
-
----
-
-## 3. تسجيل الدخول بـ Google وApple ✅
-
-**الحالة**: مُنفَّذ — Phase 2
-
-### المتطلب
-OAuth عبر Google وApple.
-
-### كيف نُفِّذ
-- **نقطة النهاية**: `POST /api/v1/auth/oauth`
-- **اللوجيك**:
-  1. تطبيق الموبايل (React Native) يستخدم Supabase SDK لإطلاق OAuth Flow مباشرة
-  2. بعد نجاح OAuth، Supabase يُرجع token جاهز
-  3. الـ Backend يستقبل طلب التحقق من الـ token `POST /api/v1/auth/verify`
-  4. يُتحقق من صحته ويُرجع بيانات المستخدم
-- **ملاحظة**: Google/Apple OAuth يُدار في Supabase Dashboard مباشرة، لا يحتاج كود إضافي في الـ Backend
-
----
-
-## 4. التحقق عبر OTP ✅
-
-**الحالة**: مُنفَّذ — Phase 2
-
-### المتطلب
-إرسال رمز OTP للهاتف أو البريد والتحقق منه.
-
-### كيف نُفِّذ
-- **نقاط النهاية**: `POST /api/v1/auth/otp/send` و `POST /api/v1/auth/otp/verify`
-- **اللوجيك**:
-  1. `supabase.auth.signInWithOtp()` يُرسل OTP عبر SMS أو Email
-  2. المستخدم يُرسل الكود المستلم + الهاتف/الإيميل
-  3. `supabase.auth.verifyOtp()` يتحقق ويُرجع session
-
----
-
-## 5. الملفات الشخصية (Profiles) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 3
-
-### المتطلب
-ملف شخصي متكامل لكل نوع حساب مع إمكانية التعديل والعرض العام.
-
-### كيف نُفِّذ
-- **الملفات**: `src/services/profile.service.ts` → `src/controllers/profile.controller.ts`
-- **الجدول**: `profiles` (migration 001)
-- **الحقول**: id, full_name, username, bio, avatar_url, cover_url, account_type, website, location, is_verified, is_active, stripe_customer_id, ...
-- **نقاط النهاية**:
-  - `GET /api/v1/profiles/me` — عرض ملفي الشخصي
-  - `PUT /api/v1/profiles/me` — تحديث ملفي
-  - `GET /api/v1/profiles/:id` — عرض ملف عام بالـ ID
-  - `POST /api/v1/profiles/me/avatar` — رفع صورة شخصية
-  - `POST /api/v1/profiles/me/cover` — رفع صورة غلاف
-  - `POST /api/v1/profiles/me/verify-request` — طلب التوثيق
-  - `DELETE /api/v1/profiles/me` — حذف الحساب
-- **اللوجيك الأساسي**:
-  - الملف الشخصي يُنشأ تلقائياً عبر Trigger في Supabase عند التسجيل
-  - RLS تضمن أن كل مستخدم يرى فقط بياناته الخاصة ما عدا البيانات العامة
-  - `account_type` يحدد نوع الحساب ويُستخدم لفلترة المحتوى لاحقاً
-
----
-
-## 6. نظام المتابعة (Follow System) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 4
-
-### المتطلب
-متابعة وإلغاء متابعة الحسابات، وعرض قوائم المتابعين والمتابَعين.
-
-### كيف نُفِّذ
-- **الجدول**: `follows` (migration 003)
-- **نقاط النهاية**:
-  - `POST /api/v1/follows/:profileId` — متابعة حساب
-  - `DELETE /api/v1/follows/:profileId` — إلغاء المتابعة
-  - `GET /api/v1/profiles/:id/followers` — قائمة المتابعين (مع pagination)
-  - `GET /api/v1/profiles/:id/following` — قائمة المتابَعين (مع pagination)
-  - `GET /api/v1/follows/:profileId/status` — هل أنا أتابعه؟
-- **اللوجيك**:
-  - لا يمكن متابعة نفسك (validation في الـ service)
-  - لا يمكن المتابعة مرتين (UNIQUE constraint في DB)
-  - الـ followers/following count مُحسوبة في وقت الطلب بـ JOIN
-
----
-
-## 7. نظام العروض (Offers) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 5
-
-### المتطلب
-إنشاء عروض خدمات، وعرضها وتصفيتها وتعديلها وحذفها.
-
-### كيف نُفِّذ
-- **الجدول**: `offers` (migration 004)
-- **نقاط النهاية**:
-  - `POST /api/v1/offers` — إنشاء عرض
-  - `PUT /api/v1/offers/:id` — تعديل عرض
-  - `DELETE /api/v1/offers/:id` — حذف عرض (صاحبه فقط)
-  - `GET /api/v1/offers/:id` — تفاصيل عرض + زيادة views_count
-  - `GET /api/v1/offers` — قائمة العروض مع فلاتر (category, price range, location) + pagination
-  - `GET /api/v1/profiles/:id/offers` — عروض مستخدم معين
-- **اللوجيك**:
-  - عند فتح تفاصيل عرض: يُزاد `views_count` تلقائياً
-  - الفلترة: حسب category_id, min_price, max_price, location, account_type
-  - التحقق من الملكية: فقط صاحب العرض يقدر يعدل أو يحذف
-
----
-
-## 8. نظام الإعلانات (Ads) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 5
-
-### المتطلب
-إنشاء إعلانات مع تتبع الانطباعات والنقرات وإدارة الحالة.
-
-### كيف نُفِّذ
-- **الجدول**: `ads` (migration 004)
-- **نقاط النهاية**:
-  - `POST /api/v1/ads` — إنشاء إعلان
-  - `PUT /api/v1/ads/:id` — تعديل إعلان
-  - `PATCH /api/v1/ads/:id/toggle` — تفعيل/إيقاف الإعلان
-  - `GET /api/v1/ads/:id/stats` — إحصائيات (impressions, clicks, CTR)
-  - `POST /api/v1/ads/:id/impression` — تسجيل ظهور (من التطبيق)
-  - `POST /api/v1/ads/:id/click` — تسجيل نقرة (من التطبيق)
-- **اللوجيك**:
-  - `impressions_count` و `clicks_count` تُزاد مباشرة في DB عند كل طلب
-  - CTR = (clicks / impressions) × 100 — مُحسوب في الـ service
-  - الإعلان له status: active/paused/expired
-
----
-
-## 9. نظام الاشتراكات والباقات (Subscriptions) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 6
-
-### المتطلب
-باقات اشتراك مدفوعة عبر Stripe مع إدارة الاشتراكات.
-
-### كيف نُفِّذ
-- **الجداول**: `subscription_plans` + `subscriptions` (migration 005)
-- **الملفات**: `stripe.service.ts` + `subscription.service.ts`
-- **نقاط النهاية**:
-  - `GET /api/v1/subscriptions/plans` — عرض الباقات المتاحة (عام)
-  - `POST /api/v1/subscriptions` — إنشاء Checkout Session للدفع
-  - `GET /api/v1/subscriptions/me` — اشتراكي الحالي
-  - `POST /api/v1/subscriptions/manage` — بوابة Stripe لإلغاء/ترقية
-  - `POST /api/v1/webhooks/stripe` — Webhook لاستقبال أحداث Stripe
-- **اللوجيك**:
-  1. المستخدم يختار باقة → Backend ينشئ Stripe Checkout Session
-  2. المستخدم يدفع في صفحة Stripe
-  3. Stripe يُرسل webhook → Backend يُحدِّث جدول `subscriptions`
-  4. الإلغاء/الترقية يتم عبر Stripe Customer Portal (لا كود مخصص)
-  5. كل تغيير في Stripe يُزامَن تلقائياً عبر Webhook
-
----
-
-## 10. نظام المحادثات (Chat) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 7
-
-### المتطلب
-محادثات مباشرة 1-to-1 بين المستخدمين داخل التطبيق.
-
-### كيف نُفِّذ
-- **الجداول**: `chat_rooms` + `chat_participants` + `messages` (migration 006)
-- **الملفات**: `chat.service.ts` + `chat.controller.ts`
-- **نقاط النهاية**:
-  - `POST /api/v1/chats` — بدء محادثة أو فتح محادثة موجودة
-  - `POST /api/v1/chats/:roomId/messages` — إرسال رسالة
-  - `GET /api/v1/chats/:roomId/messages` — قراءة الرسائل (مع pagination)
-  - `GET /api/v1/chats` — قائمة محادثاتي (مع آخر رسالة وعدد غير المقروء)
-  - `PATCH /api/v1/chats/:roomId/read` — تحديد الرسائل كمقروءة
-  - `DELETE /api/v1/chats/:roomId` — حذف محادثة
-- **اللوجيك**:
-  1. عند `POST /chats`: يتحقق هل توجد غرفة مشتركة بين المستخدمَين → يعيدها إذا وُجدت
-  2. الغرف الجديدة تُنشأ مع إضافة المشاركَين في `chat_participants`
-  3. عند حذف محادثة: يُزيل المستخدم من `chat_participants` فقط، لا يحذف الغرفة كلها
-  4. إذا لم يتبق أي مشارك → تُحذف الغرفة تلقائياً
-  5. عدد الرسائل غير المقروءة = رسائل بعد `last_read_at` من المشارك الآخر
-- **Realtime**: الـ Backend جاهز للـ Realtime — التطبيق يتصل مباشرة بـ Supabase Realtime عبر SDK
-
----
-
-## 11. نظام الإشعارات الفورية (Push Notifications) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 8
-
-### المتطلب
-إشعارات فورية عبر FCM + سجلات إشعارات داخل التطبيق.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول جاهزة**: `notifications` + `fcm_tokens` (migration 007)
-- **Firebase Config**: `src/config/firebase.ts` جاهز
-- **ما ينقص**:
-  - `notification.service.ts` — منطق إرسال الإشعارات
-  - `notification.controller.ts`
-  - `notification.routes.ts`
-  - نقاط النهاية: GET, PATCH read, DELETE, POST token
-  - إرسال FCM عند حدث معين (رسالة جديدة، متابعة جديدة، إلخ)
-
----
-
-## 12. رفع الصور والفيديوهات والمرفقات (File Upload) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 9
-
-### المتطلب
-رفع الملفات (صور، فيديو، مرفقات) وتخزينها وإدارتها.
-
-### ما تم تجهيزه مسبقاً
-- **Supabase Storage**: مُجهَّز في الـ config
-- **Buckets المخططة**: avatars, covers, offers, ads, chat-media
-- **الجداول**: `media` (migration 008)
-- **ما ينقص**:
-  - `upload.middleware.ts` — Multer config
-  - `upload.service.ts` — رفع لـ Supabase Storage
-  - `upload.controller.ts` + `upload.routes.ts`
-  - نقاط النهاية: POST /upload/image, /upload/video, /upload/file
-  - حدود الأحجام: صورة 5MB، فيديو 50MB، مرفق 10MB
-
----
-
-## 13. البحث والتصنيفات (Search & Categories) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 9
-
-### المتطلب
-بحث عام بكلمة مفتاحية وتصفية حسب التصنيفات.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `categories` (migration 002) — التصنيفات جاهزة مع Seed data
-- **ما ينقص**:
-  - `search.service.ts` — بحث في profiles, offers, ads
-  - `category.service.ts` — قائمة التصنيفات ومحتواها
-  - نقاط النهاية: GET /search?q=&type=, GET /categories, GET /categories/:id/content
-
----
-
-## 14. الحسابات المميزة والظهور المدفوع (Featured) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 10
-
-### المتطلب
-دفع مقابل ظهور مميز في البحث أو الصفحة الرئيسية.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `featured_listings` (migration 009)
-- **ما ينقص**:
-  - `payment.service.ts` — دفعة مباشرة عبر Stripe PaymentIntent
-  - منطق الظهور المميز: الحسابات/العروض المميزة تُعطى أولوية في نتائج البحث
-  - نقاط النهاية: POST /featured, GET /featured
-
----
-
-## 15. إدارة المدفوعات (Payments) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 10
-
-### المتطلب
-ربط كامل مع Stripe لمعالجة المدفوعات وإدارة سجلاتها.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `payments` (migration 009)
-- **ما ينقص**:
-  - `payment.service.ts` — سجل الدفعات، تاريخ المعاملات
-  - نقطة النهاية: GET /payments/history
-
----
-
-## 16. الحسابات الموثقة (Verified Accounts) ✅ / ⬜
-
-**الحالة**: جزء منه مُنفَّذ (طلب التوثيق)، الموافقة من الـ Admin لم تُنفَّذ بعد
-
-### المتطلب
-توثيق الحسابات مع علامة التوثيق ✓
-
-### ما نُفِّذ
-- `POST /api/v1/profiles/me/verify-request` — إرسال طلب توثيق من المستخدم ✅
-- `is_verified` field موجود في جدول `profiles` ✅
-
-### ما ينقص
-- Admin endpoint للموافقة على طلب التوثيق ⬜ (Phase 12)
-
----
-
-## 17. التبليغات والشكاوى (Reports) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 11
-
-### المتطلب
-نظام تبليغ على محتوى أو حسابات مخالفة.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `reports` (migration 008)
-- **ما ينقص**:
-  - `report.service.ts` + controller + routes
-  - نقاط النهاية: POST /reports, GET /reports (admin only)
-
----
-
-## 18. لوحة التحكم — إدارة المستخدمين ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-Admin يشوف كل المستخدمين، يعطل/يفعل حساب، يوثق حساب.
-
-### ما ينقص
-- `src/routes/admin/users.routes.ts`
-- نقاط النهاية: GET /admin/users, PATCH /admin/users/:id/ban, PATCH /admin/users/:id/verify
-- `admin.middleware.ts` موجود مسبقاً ✅ — يمنع الوصول إلا للأدمن
-
----
-
-## 19. لوحة التحكم — إدارة الإعلانات والعروض ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-Admin يراجع ويدير الإعلانات والعروض.
-
----
-
-## 20. لوحة التحكم — إدارة الاشتراكات والباقات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-Admin ينشئ ويعدل باقات الاشتراك.
-
-### ملاحظة
-- ربط الباقات بـ Stripe يعني: كل باقة لازم يكون لها `stripe_price_id` من Stripe Dashboard
-
----
-
-## 21. لوحة التحكم — إدارة المدفوعات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
----
-
-## 22. لوحة التحكم — التقارير والإحصائيات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-إحصائيات عامة: عدد المستخدمين، الاشتراكات النشطة، الإيرادات، ...
-
----
-
----
-
-## ملخص الحالة العامة
-
-| المتطلب | الحالة | Phase |
-|---------|--------|-------|
-| تسجيل الحسابات | ✅ مُنفَّذ | Phase 2 |
-| تسجيل الدخول (Email/Phone) | ✅ مُنفَّذ | Phase 2 |
-| تسجيل الدخول (Google/Apple) | ✅ مُنفَّذ | Phase 2 |
-| التحقق بـ OTP | ✅ مُنفَّذ | Phase 2 |
-| الملفات الشخصية | ✅ مُنفَّذ | Phase 3 |
-| نظام المتابعة | ✅ مُنفَّذ | Phase 4 |
-| نظام العروض | ✅ مُنفَّذ | Phase 5 |
-| نظام الإعلانات | ✅ مُنفَّذ | Phase 5 |
-| الاشتراكات والباقات + Stripe | ✅ مُنفَّذ | Phase 6 |
-| المحادثات (Chat) | ✅ مُنفَّذ | Phase 7 |
-| الإشعارات الفورية | ⬜ لم يُبدأ | Phase 8 |
-| رفع الملفات | ⬜ لم يُبدأ | Phase 9 |
-| البحث والتصنيفات | ⬜ لم يُبدأ | Phase 9 |
-| الحسابات المميزة (Featured) | ⬜ لم يُبدأ | Phase 10 |
-| إدارة المدفوعات | ⬜ لم يُبدأ | Phase 10 |
-| الحسابات الموثقة (جزئي) | 🔄 ناقص Admin | Phase 12 |
-| التبليغات والشكاوى | ⬜ لم يُبدأ | Phase 11 |
-| Admin — إدارة المستخدمين | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة الإعلانات/العروض | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة الاشتراكات | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة المدفوعات | ⬜ لم يُبدأ | Phase 12 |
-| Admin — التقارير والإحصائيات | ⬜ لم يُبدأ | Phase 12 |
-
----
-
-## ملاحظات معمارية مهمة
-
-### ✅ ما نحن عليه صح تماماً
-1. **4-Layer Architecture محترم 100%**: كل module فيه validator → service → controller → route. لا يوجد أي استثناء.
-2. **Supabase RLS نشط**: كل جدول محمي بـ Row Level Security — المستخدم لا يصل إلا لبياناته.
-3. **Stripe Webhook يعمل بشكل صحيح**: Webhook مُسجَّل قبل `express.json()` في `app.ts` لأنه يحتاج raw body.
-4. **أنواع TypeScript صارمة**: لا يوجد `any` في الكود، `type-check` ينجح بدون أخطاء.
-5. **Pagination على كل القوائم**: كل endpoint يُرجع قائمة يدعم `?page=&limit=`.
-6. **Bilingual جاهز**: الـ DB فيه `name_ar` و `name_en` لكل الجداول التي تحتاجها.
-7. **Database جاهزة 100%**: كل 9 migrations مكتوبة — حتى الجداول الخاصة بـ Phase 8-12 موجودة.
-
-### ⚠️ ما يحتاج انتباه لاحقاً
-1. **FCM Integration**: `firebase.ts` جاهز لكن لم يُستخدم بعد — Phase 8 سيفعّله.
-2. **Stripe `stripe_customer_id`**: مفترض أن يكون في جدول `profiles`. يجب التحقق من وجوده في migration 001.
-3. **Chat Realtime**: الـ Backend جاهز، لكن الـ Realtime نفسه يعتمد على Supabase SDK في تطبيق الموبايل — لا يحتاج endpoint.
-4. **Admin routes**: `admin.middleware.ts` جاهز لكن لا يوجد routes بعد.
 </file>
 
 <file path="src/config/firebase.ts">
@@ -2700,6 +2296,48 @@ export class ProfileController {
 export const profileController = new ProfileController();
 </file>
 
+<file path="src/controllers/report.controller.ts">
+// ============================================
+// Promoo Backend — Report Controller
+// ============================================
+
+import { Response, NextFunction } from 'express';
+import { reportService } from '../services/report.service';
+import { apiResponse } from '../utils/apiResponse';
+import { IAuthRequest } from '../types/api.types';
+
+export class ReportController {
+  /**
+   * Submit a new report
+   */
+  async createReport(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await reportService.createReport(req.user!.id, req.body);
+      apiResponse.created(res, result, 'Report submitted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get my reports
+   */
+  async getMyReports(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await reportService.getMyReports(req.user!.id, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Reports retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const reportController = new ReportController();
+</file>
+
 <file path="src/controllers/search.controller.ts">
 // ============================================
 // Promoo Backend — Search Controller
@@ -3711,6 +3349,36 @@ router.post('/me/cover', validate(z.object({ body: z.object({ coverUrl: z.string
 
 // Verification Request
 router.post('/me/verify-request', validate(profileValidators.requestVerificationSchema), profileController.requestVerification);
+
+export default router;
+</file>
+
+<file path="src/routes/report.routes.ts">
+// ============================================
+// Promoo Backend — Report Routes
+// ============================================
+
+import { Router } from 'express';
+import { reportController } from '../controllers/report.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { createReportSchema } from '../validators/report.validator';
+
+const router = Router();
+
+// Only authenticated users can submit reports
+router.use(requireAuth);
+
+router.post(
+  '/',
+  validate(createReportSchema),
+  reportController.createReport
+);
+
+router.get(
+  '/me',
+  reportController.getMyReports
+);
 
 export default router;
 </file>
@@ -5223,6 +4891,103 @@ export class ProfileService {
 export const profileService = new ProfileService();
 </file>
 
+<file path="src/services/report.service.ts">
+// ============================================
+// Promoo Backend — Report Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+
+export interface ICreateReportPayload {
+  reported_id: string;
+  reported_type: 'profile' | 'offer' | 'ad' | 'message';
+  reason: string;
+  details?: string;
+}
+
+export class ReportService {
+  /**
+   * Submit a new report
+   */
+  async createReport(reporterId: string, payload: ICreateReportPayload) {
+    // Basic verification: don't let a user report themselves
+    if (payload.reported_type === 'profile' && payload.reported_id === reporterId) {
+      throw ApiError.badRequest('You cannot report yourself');
+    }
+
+    // Check if user already reported this exact item to prevent spam
+    const { data: existingReport } = await supabaseAdmin
+      .from('reports')
+      .select('id')
+      .eq('reporter_id', reporterId)
+      .eq('reported_id', payload.reported_id)
+      .in('status', ['pending', 'reviewed'])
+      .maybeSingle();
+
+    if (existingReport) {
+      throw ApiError.badRequest('You have already reported this item and it is currently under review');
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('reports')
+      .insert({
+        reporter_id: reporterId,
+        reported_id: payload.reported_id,
+        reported_type: payload.reported_type,
+        reason: payload.reason,
+        details: payload.details || null,
+        status: 'pending',
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw ApiError.internal(`Failed to submit report: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  /**
+   * Get my submitted reports
+   */
+  async getMyReports(reporterId: string, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    const { count } = await supabaseAdmin
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .eq('reporter_id', reporterId);
+
+    const total = count || 0;
+
+    const { data, error } = await supabaseAdmin
+      .from('reports')
+      .select('*')
+      .eq('reporter_id', reporterId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  // Admin methods (GET all reports, resolve report) will be implemented in Phase 12 (Admin Dashboard APIs).
+}
+
+export const reportService = new ReportService();
+</file>
+
 <file path="src/services/search.service.ts">
 // ============================================
 // Promoo Backend — Search Service
@@ -6704,6 +6469,23 @@ export const requestVerificationSchema = z.object({
 });
 </file>
 
+<file path="src/validators/report.validator.ts">
+// ============================================
+// Promoo Backend — Report Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const createReportSchema = z.object({
+  body: z.object({
+    reported_id: z.string().uuid('Invalid reported ID'),
+    reported_type: z.enum(['profile', 'offer', 'ad', 'message']),
+    reason: z.string().min(3, 'Reason must be at least 3 characters').max(255),
+    details: z.string().max(1000).optional(),
+  }),
+});
+</file>
+
 <file path="src/validators/search.validator.ts">
 // ============================================
 // Promoo Backend — Search Validator
@@ -7587,105 +7369,6 @@ coverage/
 .code-review-graph/
 </file>
 
-<file path="MEMORY_BANK.md">
-# Promoo Backend — Memory Bank
-
-> Dynamic project memory. Updated after every phase/milestone to track progress,
-> decisions, and context for continuity across sessions.
-
----
-
-## Project Status
-
-| Phase | Name | Status | Date |
-|-------|------|--------|------|
-| 0 | Foundation & Setup | ✅ Completed | 2026-06-14 |
-| 1 | Database Migrations | ✅ Completed | 2026-06-14 |
-| 2 | Authentication | ✅ Completed | 2026-06-14 |
-| 3 | Profiles | ✅ Completed | 2026-06-14 |
-| 4 | Follow System | ✅ Completed | 2026-06-14 |
-| 5 | Offers & Ads | ✅ Completed | 2026-06-14 |
-| 6 | Subscriptions & Stripe | ✅ Completed | 2026-06-14 |
-| 7 | Chat System | ✅ Completed | 2026-06-14 |
-| 8 | Notifications | ⬜ Not Started | — |
-| 9 | Upload & Search | ⬜ Not Started | — |
-| 10 | Featured & Payments | ⬜ Not Started | — |
-| 11 | Reports | ⬜ Not Started | — |
-| 12 | Admin Dashboard APIs | ⬜ Not Started | — |
-
----
-
-## Key Decisions Log
-
-| # | Decision | Reason | Date |
-|---|----------|--------|------|
-| 1 | Supabase as BaaS | Auth + Storage + Realtime built-in, saves dev time | 2026-06-14 |
-| 2 | 4-Layer Architecture | Controller → Service → Repository → DB for clean separation | 2026-06-14 |
-| 3 | TypeScript strict mode | Type safety, fewer runtime errors | 2026-06-14 |
-| 4 | Zod for validation | Runtime validation + TypeScript inference | 2026-06-14 |
-| 5 | 1-to-1 Chat only | Client requirement, no group chats needed | 2026-06-14 |
-| 6 | Bilingual (ar + en) | Accept-Language header, dual DB columns | 2026-06-14 |
-| 7 | Stripe Checkout Sessions | Standard flow, client has Stripe account ready | 2026-06-14 |
-| 8 | FCM for Push | Industry standard, works with React Native | 2026-06-14 |
-
----
-
-## Completed Work
-
-### Phase 4 — Follow System
-- [x] Follow, unfollow, check follow status endpoints.
-- [x] Get followers and following list endpoints with pagination.
-- [x] Full validation and integration.
-
-### Phase 5 — Offers & Ads
-- [x] Offer CRUD, detail view with views counting, and listing with filters.
-- [x] Ad creation, updating, activation toggle, and status-based query views.
-- [x] Public analytics tracking endpoints for recording impressions and clicks.
-
-### Phase 6 — Subscriptions & Stripe
-- [x] `stripe.service.ts` — Stripe customer management, Checkout Sessions, Customer Portal.
-- [x] `subscription.service.ts` — Plans listing, subscription checkout, webhook handler (upsert/cancel sync).
-- [x] `subscription.controller.ts` + `webhook.controller.ts` — API layer.
-- [x] `subscription.routes.ts` — Mounted at `/api/v1/subscriptions`.
-- [x] Stripe webhook mounted in `app.ts` with `express.raw()` before JSON parser.
-- [x] Cancel/Upgrade/Downgrade handled via Stripe Customer Portal (no custom endpoints needed).
-
-### Phase 7 — Chat System
-- [x] `chat.validator.ts` — Zod schemas for start chat, send message, get messages, mark read, delete.
-- [x] `chat.service.ts` — Start/open direct chat (reuses existing room), send message, get messages (paginated), chat list with last message + unread count, mark read, delete chat.
-- [x] `chat.controller.ts` — Full CRUD controller.
-- [x] `chat.routes.ts` — Mounted at `/api/v1/chats`.
-
----
-
-## Current Context
-
-**Currently working on**: Phase 8 — Notifications
-**Next up**: Phase 9 — Upload & Search
-**Blockers**: None
-**Notes**: Phase 7 (Chat System) completed. Direct chat rooms with message history, unread counts, and mark-as-read. Room deletion removes user from participants; empty rooms auto-cleanup. Next: Phase 8 (Notifications) — FCM push + in-app notification records.
-
----
-
-## API Endpoints Registry
-
-> Updated as endpoints are built.
-
-| Method | Path | Module | Status |
-|--------|------|--------|--------|
-| — | — | — | — |
-
----
-
-## Database Tables Registry
-
-> Updated as migrations are created.
-
-| Table | Migration File | Status |
-|-------|---------------|--------|
-| — | — | — |
-</file>
-
 <file path="package.json">
 {
   "name": "promo_backend",
@@ -7733,6 +7416,457 @@ coverage/
     "typescript": "^6.0.3"
   }
 }
+</file>
+
+<file path="REQUIREMENTS_STATUS.md">
+# Promoo Backend — Requirements Status
+> تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
+> آخر تحديث: 2026-06-16 | الوضع الحالي: Phase 10 مكتملة ✅
+
+---
+
+## الأيقونات المستخدمة
+| أيقونة | المعنى |
+|--------|--------|
+| ✅ | مُنفَّذ بالكامل |
+| 🔄 | مُنفَّذ جزئياً |
+| ⬜ | لم يُبدأ بعد |
+| ⚠️ | مُنفَّذ لكن يحتاج تحسين |
+
+---
+
+## 1. تسجيل وإنشاء الحسابات ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 2
+
+### المتطلب
+تسجيل حساب جديد لأي من الأنواع الأربعة: شركة، مؤثر، مقدم خدمة، مستخدم عادي.
+
+### كيف نُفِّذ
+- **الملفات**: `src/services/auth.service.ts` → `src/controllers/auth.controller.ts` → `src/routes/auth.routes.ts`
+- **نقطة النهاية**: `POST /api/v1/auth/register/email` و `POST /api/v1/auth/register/phone`
+- **اللوجيك**:
+  1. المستخدم يرسل (email أو phone) + password + fullName + accountType
+  2. يتم التحقق من البيانات عبر Zod Validator
+  3. يُستدعى `supabaseAdmin.auth.signUp()` لإنشاء المستخدم في Supabase Auth
+  4. Supabase يُطلق Database Trigger تلقائياً يُنشئ سجل في جدول `profiles`
+  5. يُرجع رمز JWT للمستخدم
+- **أنواع الحسابات**: مُعرَّفة في `src/types/enums.ts` كـ enum: `company | influencer | service_provider | user`
+
+---
+
+## 2. تسجيل الدخول بالبريد أو الهاتف ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 2
+
+### المتطلب
+تسجيل الدخول باستخدام البريد الإلكتروني أو رقم الهاتف + كلمة المرور.
+
+### كيف نُفِّذ
+- **نقاط النهاية**: `POST /api/v1/auth/login/email` و `POST /api/v1/auth/login/phone`
+- **اللوجيك**:
+  1. يُرسل المستخدم بيانات الدخول
+  2. `supabaseAdmin.auth.signInWithPassword()` تتحقق من الهوية
+  3. يُرجع `access_token` + `refresh_token`
+  4. كل الطلبات التالية تُرسل الـ token في `Authorization: Bearer <token>`
+  5. middleware `auth.middleware.ts` يتحقق من الـ token في كل route محمية
+
+---
+
+## 3. تسجيل الدخول بـ Google وApple ✅
+
+**الحالة**: مُنفَّذ — Phase 2
+
+### المتطلب
+OAuth عبر Google وApple.
+
+### كيف نُفِّذ
+- **نقطة النهاية**: `POST /api/v1/auth/oauth`
+- **اللوجيك**:
+  1. تطبيق الموبايل (React Native) يستخدم Supabase SDK لإطلاق OAuth Flow مباشرة
+  2. بعد نجاح OAuth، Supabase يُرجع token جاهز
+  3. الـ Backend يستقبل طلب التحقق من الـ token `POST /api/v1/auth/verify`
+  4. يُتحقق من صحته ويُرجع بيانات المستخدم
+- **ملاحظة**: Google/Apple OAuth يُدار في Supabase Dashboard مباشرة، لا يحتاج كود إضافي في الـ Backend
+
+---
+
+## 4. التحقق عبر OTP ✅
+
+**الحالة**: مُنفَّذ — Phase 2
+
+### المتطلب
+إرسال رمز OTP للهاتف أو البريد والتحقق منه.
+
+### كيف نُفِّذ
+- **نقاط النهاية**: `POST /api/v1/auth/otp/send` و `POST /api/v1/auth/otp/verify`
+- **اللوجيك**:
+  1. `supabase.auth.signInWithOtp()` يُرسل OTP عبر SMS أو Email
+  2. المستخدم يُرسل الكود المستلم + الهاتف/الإيميل
+  3. `supabase.auth.verifyOtp()` يتحقق ويُرجع session
+
+---
+
+## 5. الملفات الشخصية (Profiles) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 3
+
+### المتطلب
+ملف شخصي متكامل لكل نوع حساب مع إمكانية التعديل والعرض العام.
+
+### كيف نُفِّذ
+- **الملفات**: `src/services/profile.service.ts` → `src/controllers/profile.controller.ts`
+- **الجدول**: `profiles` (migration 001)
+- **الحقول**: id, full_name, username, bio, avatar_url, cover_url, account_type, website, location, is_verified, is_active, stripe_customer_id, ...
+- **نقاط النهاية**:
+  - `GET /api/v1/profiles/me` — عرض ملفي الشخصي
+  - `PUT /api/v1/profiles/me` — تحديث ملفي
+  - `GET /api/v1/profiles/:id` — عرض ملف عام بالـ ID
+  - `POST /api/v1/profiles/me/avatar` — رفع صورة شخصية
+  - `POST /api/v1/profiles/me/cover` — رفع صورة غلاف
+  - `POST /api/v1/profiles/me/verify-request` — طلب التوثيق
+  - `DELETE /api/v1/profiles/me` — حذف الحساب
+- **اللوجيك الأساسي**:
+  - الملف الشخصي يُنشأ تلقائياً عبر Trigger في Supabase عند التسجيل
+  - RLS تضمن أن كل مستخدم يرى فقط بياناته الخاصة ما عدا البيانات العامة
+  - `account_type` يحدد نوع الحساب ويُستخدم لفلترة المحتوى لاحقاً
+
+---
+
+## 6. نظام المتابعة (Follow System) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 4
+
+### المتطلب
+متابعة وإلغاء متابعة الحسابات، وعرض قوائم المتابعين والمتابَعين.
+
+### كيف نُفِّذ
+- **الجدول**: `follows` (migration 003)
+- **نقاط النهاية**:
+  - `POST /api/v1/follows/:profileId` — متابعة حساب
+  - `DELETE /api/v1/follows/:profileId` — إلغاء المتابعة
+  - `GET /api/v1/profiles/:id/followers` — قائمة المتابعين (مع pagination)
+  - `GET /api/v1/profiles/:id/following` — قائمة المتابَعين (مع pagination)
+  - `GET /api/v1/follows/:profileId/status` — هل أنا أتابعه؟
+- **اللوجيك**:
+  - لا يمكن متابعة نفسك (validation في الـ service)
+  - لا يمكن المتابعة مرتين (UNIQUE constraint في DB)
+  - الـ followers/following count مُحسوبة في وقت الطلب بـ JOIN
+
+---
+
+## 7. نظام العروض (Offers) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 5
+
+### المتطلب
+إنشاء عروض خدمات، وعرضها وتصفيتها وتعديلها وحذفها.
+
+### كيف نُفِّذ
+- **الجدول**: `offers` (migration 004)
+- **نقاط النهاية**:
+  - `POST /api/v1/offers` — إنشاء عرض
+  - `PUT /api/v1/offers/:id` — تعديل عرض
+  - `DELETE /api/v1/offers/:id` — حذف عرض (صاحبه فقط)
+  - `GET /api/v1/offers/:id` — تفاصيل عرض + زيادة views_count
+  - `GET /api/v1/offers` — قائمة العروض مع فلاتر (category, price range, location) + pagination
+  - `GET /api/v1/profiles/:id/offers` — عروض مستخدم معين
+- **اللوجيك**:
+  - عند فتح تفاصيل عرض: يُزاد `views_count` تلقائياً
+  - الفلترة: حسب category_id, min_price, max_price, location, account_type
+  - التحقق من الملكية: فقط صاحب العرض يقدر يعدل أو يحذف
+
+---
+
+## 8. نظام الإعلانات (Ads) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 5
+
+### المتطلب
+إنشاء إعلانات مع تتبع الانطباعات والنقرات وإدارة الحالة.
+
+### كيف نُفِّذ
+- **الجدول**: `ads` (migration 004)
+- **نقاط النهاية**:
+  - `POST /api/v1/ads` — إنشاء إعلان
+  - `PUT /api/v1/ads/:id` — تعديل إعلان
+  - `PATCH /api/v1/ads/:id/toggle` — تفعيل/إيقاف الإعلان
+  - `GET /api/v1/ads/:id/stats` — إحصائيات (impressions, clicks, CTR)
+  - `POST /api/v1/ads/:id/impression` — تسجيل ظهور (من التطبيق)
+  - `POST /api/v1/ads/:id/click` — تسجيل نقرة (من التطبيق)
+- **اللوجيك**:
+  - `impressions_count` و `clicks_count` تُزاد مباشرة في DB عند كل طلب
+  - CTR = (clicks / impressions) × 100 — مُحسوب في الـ service
+  - الإعلان له status: active/paused/expired
+
+---
+
+## 9. نظام الاشتراكات والباقات (Subscriptions) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 6
+
+### المتطلب
+باقات اشتراك مدفوعة عبر Stripe مع إدارة الاشتراكات.
+
+### كيف نُفِّذ
+- **الجداول**: `subscription_plans` + `subscriptions` (migration 005)
+- **الملفات**: `stripe.service.ts` + `subscription.service.ts`
+- **نقاط النهاية**:
+  - `GET /api/v1/subscriptions/plans` — عرض الباقات المتاحة (عام)
+  - `POST /api/v1/subscriptions` — إنشاء Checkout Session للدفع
+  - `GET /api/v1/subscriptions/me` — اشتراكي الحالي
+  - `POST /api/v1/subscriptions/manage` — بوابة Stripe لإلغاء/ترقية
+  - `POST /api/v1/webhooks/stripe` — Webhook لاستقبال أحداث Stripe
+- **اللوجيك**:
+  1. المستخدم يختار باقة → Backend ينشئ Stripe Checkout Session
+  2. المستخدم يدفع في صفحة Stripe
+  3. Stripe يُرسل webhook → Backend يُحدِّث جدول `subscriptions`
+  4. الإلغاء/الترقية يتم عبر Stripe Customer Portal (لا كود مخصص)
+  5. كل تغيير في Stripe يُزامَن تلقائياً عبر Webhook
+
+---
+
+## 10. نظام المحادثات (Chat) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 7
+
+### المتطلب
+محادثات مباشرة 1-to-1 بين المستخدمين داخل التطبيق.
+
+### كيف نُفِّذ
+- **الجداول**: `chat_rooms` + `chat_participants` + `messages` (migration 006)
+- **الملفات**: `chat.service.ts` + `chat.controller.ts`
+- **نقاط النهاية**:
+  - `POST /api/v1/chats` — بدء محادثة أو فتح محادثة موجودة
+  - `POST /api/v1/chats/:roomId/messages` — إرسال رسالة
+  - `GET /api/v1/chats/:roomId/messages` — قراءة الرسائل (مع pagination)
+  - `GET /api/v1/chats` — قائمة محادثاتي (مع آخر رسالة وعدد غير المقروء)
+  - `PATCH /api/v1/chats/:roomId/read` — تحديد الرسائل كمقروءة
+  - `DELETE /api/v1/chats/:roomId` — حذف محادثة
+- **اللوجيك**:
+  1. عند `POST /chats`: يتحقق هل توجد غرفة مشتركة بين المستخدمَين → يعيدها إذا وُجدت
+  2. الغرف الجديدة تُنشأ مع إضافة المشاركَين في `chat_participants`
+  3. عند حذف محادثة: يُزيل المستخدم من `chat_participants` فقط، لا يحذف الغرفة كلها
+  4. إذا لم يتبق أي مشارك → تُحذف الغرفة تلقائياً
+  5. عدد الرسائل غير المقروءة = رسائل بعد `last_read_at` من المشارك الآخر
+- **Realtime**: الـ Backend جاهز للـ Realtime — التطبيق يتصل مباشرة بـ Supabase Realtime عبر SDK
+
+---
+
+## 11. نظام الإشعارات الفورية (Push Notifications) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 8
+
+### المتطلب
+إشعارات فورية عبر FCM + سجلات إشعارات داخل التطبيق.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول جاهزة**: `notifications` + `fcm_tokens` (migration 007)
+- **Firebase Config**: `src/config/firebase.ts` جاهز
+- **ما ينقص**:
+  - `notification.service.ts` — منطق إرسال الإشعارات
+  - `notification.controller.ts`
+  - `notification.routes.ts`
+  - نقاط النهاية: GET, PATCH read, DELETE, POST token
+  - إرسال FCM عند حدث معين (رسالة جديدة، متابعة جديدة، إلخ)
+
+---
+
+## 12. رفع الصور والفيديوهات والمرفقات (File Upload) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 9
+
+### المتطلب
+رفع الملفات (صور، فيديو، مرفقات) وتخزينها وإدارتها.
+
+### ما تم تجهيزه مسبقاً
+- **Supabase Storage**: مُجهَّز في الـ config
+- **Buckets المخططة**: avatars, covers, offers, ads, chat-media
+- **الجداول**: `media` (migration 008)
+- **ما ينقص**:
+  - `upload.middleware.ts` — Multer config
+  - `upload.service.ts` — رفع لـ Supabase Storage
+  - `upload.controller.ts` + `upload.routes.ts`
+  - نقاط النهاية: POST /upload/image, /upload/video, /upload/file
+  - حدود الأحجام: صورة 5MB، فيديو 50MB، مرفق 10MB
+
+---
+
+## 13. البحث والتصنيفات (Search & Categories) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 9
+
+### المتطلب
+بحث عام بكلمة مفتاحية وتصفية حسب التصنيفات.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `categories` (migration 002) — التصنيفات جاهزة مع Seed data
+- **ما ينقص**:
+  - `search.service.ts` — بحث في profiles, offers, ads
+  - `category.service.ts` — قائمة التصنيفات ومحتواها
+  - نقاط النهاية: GET /search?q=&type=, GET /categories, GET /categories/:id/content
+
+---
+
+## 14. الحسابات المميزة والظهور المدفوع (Featured) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 10
+
+### المتطلب
+دفع مقابل ظهور مميز في البحث أو الصفحة الرئيسية.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `featured_listings` (migration 009)
+- **ما ينقص**:
+  - `payment.service.ts` — دفعة مباشرة عبر Stripe PaymentIntent
+  - منطق الظهور المميز: الحسابات/العروض المميزة تُعطى أولوية في نتائج البحث
+  - نقاط النهاية: POST /featured, GET /featured
+
+---
+
+## 15. إدارة المدفوعات (Payments) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 10
+
+### المتطلب
+ربط كامل مع Stripe لمعالجة المدفوعات وإدارة سجلاتها.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `payments` (migration 009)
+- **ما ينقص**:
+  - `payment.service.ts` — سجل الدفعات، تاريخ المعاملات
+  - نقطة النهاية: GET /payments/history
+
+---
+
+## 16. الحسابات الموثقة (Verified Accounts) ✅ / ⬜
+
+**الحالة**: جزء منه مُنفَّذ (طلب التوثيق)، الموافقة من الـ Admin لم تُنفَّذ بعد
+
+### المتطلب
+توثيق الحسابات مع علامة التوثيق ✓
+
+### ما نُفِّذ
+- `POST /api/v1/profiles/me/verify-request` — إرسال طلب توثيق من المستخدم ✅
+- `is_verified` field موجود في جدول `profiles` ✅
+
+### ما ينقص
+- Admin endpoint للموافقة على طلب التوثيق ⬜ (Phase 12)
+
+---
+
+## 17. التبليغات والشكاوى (Reports) ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 11
+
+### المتطلب
+نظام تبليغ على محتوى أو حسابات مخالفة.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `reports` (migration 008)
+- **ما ينقص**:
+  - `report.service.ts` + controller + routes
+  - نقاط النهاية: POST /reports, GET /reports (admin only)
+
+---
+
+## 18. لوحة التحكم — إدارة المستخدمين ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+Admin يشوف كل المستخدمين، يعطل/يفعل حساب، يوثق حساب.
+
+### ما ينقص
+- `src/routes/admin/users.routes.ts`
+- نقاط النهاية: GET /admin/users, PATCH /admin/users/:id/ban, PATCH /admin/users/:id/verify
+- `admin.middleware.ts` موجود مسبقاً ✅ — يمنع الوصول إلا للأدمن
+
+---
+
+## 19. لوحة التحكم — إدارة الإعلانات والعروض ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+Admin يراجع ويدير الإعلانات والعروض.
+
+---
+
+## 20. لوحة التحكم — إدارة الاشتراكات والباقات ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+Admin ينشئ ويعدل باقات الاشتراك.
+
+### ملاحظة
+- ربط الباقات بـ Stripe يعني: كل باقة لازم يكون لها `stripe_price_id` من Stripe Dashboard
+
+---
+
+## 21. لوحة التحكم — إدارة المدفوعات ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+---
+
+## 22. لوحة التحكم — التقارير والإحصائيات ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+إحصائيات عامة: عدد المستخدمين، الاشتراكات النشطة، الإيرادات، ...
+
+---
+
+---
+
+## ملخص الحالة العامة
+
+| المتطلب | الحالة | Phase |
+|---------|--------|-------|
+| تسجيل الحسابات | ✅ مُنفَّذ | Phase 2 |
+| تسجيل الدخول (Email/Phone) | ✅ مُنفَّذ | Phase 2 |
+| تسجيل الدخول (Google/Apple) | ✅ مُنفَّذ | Phase 2 |
+| التحقق بـ OTP | ✅ مُنفَّذ | Phase 2 |
+| الملفات الشخصية | ✅ مُنفَّذ | Phase 3 |
+| نظام المتابعة | ✅ مُنفَّذ | Phase 4 |
+| نظام العروض | ✅ مُنفَّذ | Phase 5 |
+| نظام الإعلانات | ✅ مُنفَّذ | Phase 5 |
+| الاشتراكات والباقات + Stripe | ✅ مُنفَّذ | Phase 6 |
+| المحادثات (Chat) | ✅ مُنفَّذ | Phase 7 |
+| الإشعارات الفورية | ✅ مُنفَّذ | Phase 8 |
+| رفع الملفات | ✅ مُنفَّذ | Phase 9 |
+| البحث والتصنيفات | ✅ مُنفَّذ | Phase 9 |
+| الحسابات المميزة (Featured) | ✅ مُنفَّذ | Phase 10 |
+| إدارة المدفوعات | ✅ مُنفَّذ | Phase 10 |
+| الحسابات الموثقة (جزئي) | 🔄 ناقص Admin | Phase 12 |
+| التبليغات والشكاوى | ⬜ لم يُبدأ | Phase 11 |
+| Admin — إدارة المستخدمين | ⬜ لم يُبدأ | Phase 12 |
+| Admin — إدارة الإعلانات/العروض | ⬜ لم يُبدأ | Phase 12 |
+| Admin — إدارة الاشتراكات | ⬜ لم يُبدأ | Phase 12 |
+| Admin — إدارة المدفوعات | ⬜ لم يُبدأ | Phase 12 |
+| Admin — التقارير والإحصائيات | ⬜ لم يُبدأ | Phase 12 |
+
+---
+
+## ملاحظات معمارية مهمة
+
+### ✅ ما نحن عليه صح تماماً
+1. **4-Layer Architecture محترم 100%**: كل module فيه validator → service → controller → route. لا يوجد أي استثناء.
+2. **Supabase RLS نشط**: كل جدول محمي بـ Row Level Security — المستخدم لا يصل إلا لبياناته.
+3. **Stripe Webhook يعمل بشكل صحيح**: Webhook مُسجَّل قبل `express.json()` في `app.ts` لأنه يحتاج raw body.
+4. **أنواع TypeScript صارمة**: لا يوجد `any` في الكود، `type-check` ينجح بدون أخطاء.
+5. **Pagination على كل القوائم**: كل endpoint يُرجع قائمة يدعم `?page=&limit=`.
+6. **Bilingual جاهز**: الـ DB فيه `name_ar` و `name_en` لكل الجداول التي تحتاجها.
+7. **Database جاهزة 100%**: كل 9 migrations مكتوبة — حتى الجداول الخاصة بـ Phase 8-12 موجودة.
+
+### ⚠️ ما يحتاج انتباه لاحقاً
+1. **FCM Integration**: `firebase.ts` جاهز لكن لم يُستخدم بعد — Phase 8 سيفعّله.
+2. **Stripe `stripe_customer_id`**: مفترض أن يكون في جدول `profiles`. يجب التحقق من وجوده في migration 001.
+3. **Chat Realtime**: الـ Backend جاهز، لكن الـ Realtime نفسه يعتمد على Supabase SDK في تطبيق الموبايل — لا يحتاج endpoint.
+4. **Admin routes**: `admin.middleware.ts` جاهز لكن لا يوجد routes بعد.
 </file>
 
 <file path="src/app.ts">
@@ -8394,6 +8528,121 @@ export class FollowService {
 export const followService = new FollowService();
 </file>
 
+<file path="MEMORY_BANK.md">
+# Promoo Backend — Memory Bank
+
+> Dynamic project memory. Updated after every phase/milestone to track progress,
+> decisions, and context for continuity across sessions.
+
+---
+
+## Project Status
+
+| Phase | Name | Status | Date |
+|-------|------|--------|------|
+| 0 | Foundation & Setup | ✅ Completed | 2026-06-14 |
+| 1 | Database Migrations | ✅ Completed | 2026-06-14 |
+| 2 | Authentication | ✅ Completed | 2026-06-14 |
+| 3 | Profiles | ✅ Completed | 2026-06-14 |
+| 4 | Follow System | ✅ Completed | 2026-06-14 |
+| 5 | Offers & Ads | ✅ Completed | 2026-06-14 |
+| 6 | Subscriptions & Stripe | ✅ Completed | 2026-06-14 |
+| 7 | Chat System | ✅ Completed | 2026-06-14 |
+| 8 | Notifications | ✅ Completed | 2026-06-15 |
+| 9 | Upload & Search | ✅ Completed | 2026-06-15 |
+| 10 | Featured & Payments | ✅ Completed | 2026-06-16 |
+| 11 | Reports | ⬜ Not Started | — |
+| 12 | Admin Dashboard APIs | ⬜ Not Started | — |
+
+---
+
+## Key Decisions Log
+
+| # | Decision | Reason | Date |
+|---|----------|--------|------|
+| 1 | Supabase as BaaS | Auth + Storage + Realtime built-in, saves dev time | 2026-06-14 |
+| 2 | 4-Layer Architecture | Controller → Service → Repository → DB for clean separation | 2026-06-14 |
+| 3 | TypeScript strict mode | Type safety, fewer runtime errors | 2026-06-14 |
+| 4 | Zod for validation | Runtime validation + TypeScript inference | 2026-06-14 |
+| 5 | 1-to-1 Chat only | Client requirement, no group chats needed | 2026-06-14 |
+| 6 | Bilingual (ar + en) | Accept-Language header, dual DB columns | 2026-06-14 |
+| 7 | Stripe Checkout Sessions | Standard flow, client has Stripe account ready | 2026-06-14 |
+| 8 | FCM for Push | Industry standard, works with React Native | 2026-06-14 |
+
+---
+
+## Completed Work
+
+### Phase 4 — Follow System
+- [x] Follow, unfollow, check follow status endpoints.
+- [x] Get followers and following list endpoints with pagination.
+- [x] Full validation and integration.
+
+### Phase 5 — Offers & Ads
+- [x] Offer CRUD, detail view with views counting, and listing with filters.
+- [x] Ad creation, updating, activation toggle, and status-based query views.
+- [x] Public analytics tracking endpoints for recording impressions and clicks.
+
+### Phase 6 — Subscriptions & Stripe
+- [x] `stripe.service.ts` — Stripe customer management, Checkout Sessions, Customer Portal.
+- [x] `subscription.service.ts` — Plans listing, subscription checkout, webhook handler (upsert/cancel sync).
+- [x] `subscription.controller.ts` + `webhook.controller.ts` — API layer.
+- [x] `subscription.routes.ts` — Mounted at `/api/v1/subscriptions`.
+- [x] Stripe webhook mounted in `app.ts` with `express.raw()` before JSON parser.
+- [x] Cancel/Upgrade/Downgrade handled via Stripe Customer Portal (no custom endpoints needed).
+
+### Phase 7 — Chat System
+- [x] `chat.validator.ts` — Zod schemas for start chat, send message, get messages, mark read, delete.
+- [x] `chat.service.ts` — Start/open direct chat (reuses existing room), send message, get messages (paginated), chat list with last message + unread count, mark read, delete chat.
+- [x] `chat.controller.ts` — Full CRUD controller.
+- [x] `chat.routes.ts` — Mounted at `/api/v1/chats`.
+
+### Phase 8 — Notifications
+- [x] FCM Token registration endpoint.
+- [x] In-app notification endpoints (Get, Mark as read, Delete).
+- [x] Integrated push notifications into follow and chat services using Firebase Admin.
+
+### Phase 9 — Upload & Search
+- [x] File upload via Multer memory storage direct to Supabase Storage.
+- [x] Created `media` database records for tracking uploads.
+- [x] Global search endpoint returning profiles, offers, and ads in parallel.
+- [x] Categories retrieval and related content.
+
+### Phase 10 — Featured & Payments
+- [x] Stripe Checkout Sessions for requesting featured status.
+- [x] Featured listings retrieval logic filtered by `is_active` and dates.
+- [x] Payment history and Stripe Customer Portal integration for card management.
+
+---
+
+## Current Context
+
+**Currently working on**: Phase 11 — Reports
+**Next up**: Phase 12 — Admin Dashboard APIs
+**Blockers**: None
+**Notes**: Completed major feature blocks (Notifications, Upload, Search, Payments). The app core functionality is fully operational. Proceeding to moderation features (Reports).
+
+---
+
+## API Endpoints Registry
+
+> Updated as endpoints are built.
+
+| Method | Path | Module | Status |
+|--------|------|--------|--------|
+| — | — | — | — |
+
+---
+
+## Database Tables Registry
+
+> Updated as migrations are created.
+
+| Table | Migration File | Status |
+|-------|---------------|--------|
+| — | — | — |
+</file>
+
 <file path="src/routes/index.ts">
 // ============================================
 // Promoo Backend — Route Aggregator
@@ -8477,8 +8726,10 @@ import paymentRoutes from './payment.routes';
 router.use('/featured', featuredRoutes);
 router.use('/payments', paymentRoutes);
 
+import reportRoutes from './report.routes';
+
 // Phase 11: Reports
-// router.use('/reports', reportRoutes);
+router.use('/reports', reportRoutes);
 
 // Phase 12: Admin
 // router.use('/admin', adminRoutes);

@@ -420,13 +420,26 @@ Admin ينشئ ويعدل باقات الاشتراك.
 | البحث والتصنيفات | ✅ مُنفَّذ | Phase 9 |
 | الحسابات المميزة (Featured) | ✅ مُنفَّذ | Phase 10 |
 | إدارة المدفوعات | ✅ مُنفَّذ | Phase 10 |
-| الحسابات الموثقة (جزئي) | 🔄 ناقص Admin | Phase 12 |
-| التبليغات والشكاوى | ⬜ لم يُبدأ | Phase 11 |
-| Admin — إدارة المستخدمين | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة الإعلانات/العروض | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة الاشتراكات | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة المدفوعات | ⬜ لم يُبدأ | Phase 12 |
-| Admin — التقارير والإحصائيات | ⬜ لم يُبدأ | Phase 12 |
+| الحسابات الموثقة (جزئي) | ✅ مُنفَّذ | Phase 12 |
+| التبليغات والشكاوى | ✅ مُنفَّذ | Phase 11 |
+| Admin — إدارة المستخدمين | ✅ مُنفَّذ | Phase 12 |
+| Admin — إدارة الإعلانات/العروض | ✅ مُنفَّذ | Phase 12 |
+| Admin — إدارة الاشتراكات | ✅ مُنفَّذ | Phase 12 |
+| Admin — إدارة المدفوعات | ✅ مُنفَّذ | Phase 12 |
+| Admin — التقارير والإحصائيات | ✅ مُنفَّذ | Phase 12 |
+
+---
+
+## 12. Phase 12: Admin Dashboard APIs (Current & Final)
+
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| 12.1 | Admin Stats API (Totals) | Core | ✅ Completed |
+| 12.2 | User Management (Ban/Verify) | Core | ✅ Completed |
+| 12.3 | Global Content Management | Core | ✅ Completed |
+| 12.4 | Payment History & Subscription Plans | Core | ✅ Completed |
+| 12.5 | Reports Management | Core | ✅ Completed |
+| 12.6 | Category Management | Core | ✅ Completed |
 
 ---
 
