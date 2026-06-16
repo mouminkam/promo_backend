@@ -51,6 +51,7 @@ The content is organized as follows:
 .github/code-review-graph.instruction.md
 .gitignore
 docs/phases_logic/phase_1_database.md
+docs/phases_logic/phase_10_featured_payments.md
 docs/phases_logic/phase_2_auth.md
 docs/phases_logic/phase_3_profiles.md
 docs/phases_logic/phase_4_follows.md
@@ -74,9 +75,11 @@ src/controllers/ad.controller.ts
 src/controllers/auth.controller.ts
 src/controllers/category.controller.ts
 src/controllers/chat.controller.ts
+src/controllers/featured.controller.ts
 src/controllers/follow.controller.ts
 src/controllers/notification.controller.ts
 src/controllers/offer.controller.ts
+src/controllers/payment.controller.ts
 src/controllers/profile.controller.ts
 src/controllers/search.controller.ts
 src/controllers/subscription.controller.ts
@@ -92,10 +95,12 @@ src/routes/ad.routes.ts
 src/routes/auth.routes.ts
 src/routes/category.routes.ts
 src/routes/chat.routes.ts
+src/routes/featured.routes.ts
 src/routes/follow.routes.ts
 src/routes/index.ts
 src/routes/notification.routes.ts
 src/routes/offer.routes.ts
+src/routes/payment.routes.ts
 src/routes/profile.routes.ts
 src/routes/search.routes.ts
 src/routes/subscription.routes.ts
@@ -105,9 +110,11 @@ src/services/ad.service.ts
 src/services/auth.service.ts
 src/services/category.service.ts
 src/services/chat.service.ts
+src/services/featured.service.ts
 src/services/follow.service.ts
 src/services/notification.service.ts
 src/services/offer.service.ts
+src/services/payment.service.ts
 src/services/profile.service.ts
 src/services/search.service.ts
 src/services/stripe.service.ts
@@ -122,9 +129,11 @@ src/utils/logger.ts
 src/validators/ad.validator.ts
 src/validators/auth.validator.ts
 src/validators/chat.validator.ts
+src/validators/featured.validator.ts
 src/validators/follow.validator.ts
 src/validators/notification.validator.ts
 src/validators/offer.validator.ts
+src/validators/payment.validator.ts
 src/validators/profile.validator.ts
 src/validators/search.validator.ts
 src/validators/subscription.validator.ts
@@ -144,6 +153,39 @@ tsconfig.json
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path=".env.example">
+# ============================================
+# Promoo Backend — Environment Variables
+# ============================================
+
+# Server
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
+
+# Supabase
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Firebase (FCM)
+FIREBASE_PROJECT_ID=promoo-xxx
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# App Settings
+DEFAULT_LANGUAGE=en
+MAX_PAGE_SIZE=100
+DEFAULT_PAGE_SIZE=20
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+</file>
 
 <file path=".gemini/hooks/crg-session-start.sh">
 #!/usr/bin/env bash
@@ -393,827 +435,6 @@ cover what you need.
 4. Use `query_graph` pattern="tests_for" to check coverage.
 </file>
 
-<file path="docs/phases_logic/phase_9_upload_search.md">
-# Phase 9: Upload & Search (رفع الملفات والبحث)
-
-## الهدف والمغزى
-هذه المرحلة توفر للمستخدمين قدرتين أساسيتين: 
-1. **رفع الملفات (Upload)**: صور شخصية، صور العروض، ملفات الفيديو والمرفقات بكل أمان وكفاءة إلى مساحة تخزين سحابية بدلاً من استهلاك مساحة السيرفر.
-2. **البحث الشامل (Search)**: قدرة المستخدم على العثور على المؤثرين، الشركات، والعروض والإعلانات بسهولة عبر محرك بحث موحد وتصنيفات مرتبة.
-
-## الملفات المرتبطة
-- **Validators**: `upload.validator.ts`, `search.validator.ts`
-- **Controllers**: `upload.controller.ts`, `search.controller.ts`, `category.controller.ts`
-- **Services**: `upload.service.ts`, `search.service.ts`, `category.service.ts`
-- **Routes**: `upload.routes.ts`, `search.routes.ts`, `category.routes.ts`
-- **Middleware**: `upload.middleware.ts` (Multer)
-
-## اللوجيك (كيف تعمل)
-
-### 1. رفع الملفات (Upload)
-- **لماذا Multer Memory Storage؟** بدلاً من حفظ الملف على قرص السيرفر المحلي (والذي يبطئ السيرفر ويحتاج مساحات كبيرة وصيانة)، نستخدم `multer.memoryStorage()`. هذا يضع الملف في الـ RAM مؤقتاً كـ Buffer.
-- **التخزين في Supabase**: يأخذ `upload.service.ts` هذا الـ Buffer، ويرفعه مباشرة إلى `Supabase Storage` عبر دالة `supabaseAdmin.storage.upload`.
-- **التسجيل في قاعدة البيانات**: لكي لا تضيع الملفات المرفوعة ولتسهيل حذفها وإدارتها، نقوم بإنشاء سجل لكل ملف في جدول `media` يحتوي على اسمه، الرابط العام، حجمه، ولمن يتبع.
-
-### 2. البحث والتصنيفات (Search & Categories)
-- **التصنيفات**: هي بيانات شبه ثابتة (أضيفت عبر `seed.sql`) مثل "تكنولوجيا"، "تسويق"، الخ. نقطة النهاية `GET /api/v1/categories` تجلبها للموبايل.
-- **البحث المتعدد**: `search.service.ts` يستطيع البحث في 3 أماكن:
-  - `profiles`: يبحث عن الأسماء والـ bio.
-  - `offers`: يبحث عن عناوين ووصف العروض ويفلتر بالأسعار والتصنيفات.
-  - `ads`: يبحث عن الإعلانات المفعلة.
-- **نوع البحث `all`**: يقوم الـ Service بتنفيذ الثلاث عمليات في وقت واحد عبر `Promise.all` لإرجاع خليط من أفضل النتائج (ميزة قوية لمحرك البحث الرئيسي في التطبيق).
-
-## الـ User Flow (رحلة المستخدم في التطبيق)
-- **رفع صورة عرض**: في شاشة "إضافة عرض"، يختار المستخدم صورة من جهازه.
-- يرسل التطبيق الصورة عبر `POST /upload/image` كـ `multipart/form-data`.
-- السيرفر يرفعها لـ Supabase ويرد بالتفاصيل (ومنها `file_url`).
-- التطبيق يأخذ الـ `file_url` ويرسله مع تفاصيل العرض الأخرى لإنشاء العرض `POST /offers`.
-- **البحث**: يكتب المستخدم "تصميم" في شريط البحث.
-- يرسل التطبيق `GET /search?q=تصميم&type=all`.
-- يجد السيرفر مصممين (profiles) وعروض تصميم (offers)، ويعيدها كلها في استجابة واحدة للمستخدم.
-
-## كيفية الصيانة والتعديل (Maintenance)
-- **إضافة صيغة ملف جديدة**: اذهب إلى `upload.middleware.ts` وأضف الصيغة (Mime Type) إلى مصفوفة `allowedMimeTypes`.
-- **البحث بفلتر جديد**: إذا طلب العميل إضافة بحث بـ "عدد المتابعين"، ستذهب لـ `search.validator.ts` لإضافة المتغير، ثم في `search.service.ts` داخل دالة `searchProfiles` ستضيف `.gte('followers_count', params.minFollowers)`.
-</file>
-
-<file path="GEMINI.md">
-<!-- code-review-graph MCP tools -->
-## MCP Tools: code-review-graph
-
-**IMPORTANT: This project has a knowledge graph. ALWAYS use the
-code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
-the codebase.** The graph is faster, cheaper (fewer tokens), and gives
-you structural context (callers, dependents, test coverage) that file
-scanning cannot.
-
-### When to use graph tools FIRST
-
-- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
-- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
-- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
-- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
-- **Architecture questions**: `get_architecture_overview` + `list_communities`
-
-Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
-
-### Key Tools
-
-| Tool | Use when |
-| ------ | ---------- |
-| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
-| `get_review_context` | Need source snippets for review — token-efficient |
-| `get_impact_radius` | Understanding blast radius of a change |
-| `get_affected_flows` | Finding which execution paths are impacted |
-| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
-| `semantic_search_nodes` | Finding functions/classes by name or keyword |
-| `get_architecture_overview` | Understanding high-level codebase structure |
-| `refactor_tool` | Planning renames, finding dead code |
-
-### Workflow
-
-1. The graph auto-updates on file changes (via hooks).
-2. Use `detect_changes` for code review.
-3. Use `get_affected_flows` to understand impact.
-4. Use `query_graph` pattern="tests_for" to check coverage.
-</file>
-
-<file path="src/controllers/category.controller.ts">
-// ============================================
-// Promoo Backend — Category Controller
-// ============================================
-
-import { Request, Response, NextFunction } from 'express';
-import { categoryService } from '../services/category.service';
-import { apiResponse } from '../utils/apiResponse';
-
-export class CategoryController {
-  /**
-   * Get all categories
-   */
-  async getCategories(_req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const categories = await categoryService.getCategories();
-      apiResponse.success(res, categories, 'Categories retrieved');
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /**
-   * Get category content
-   */
-  async getCategoryContent(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const categoryId = req.params.id as string;
-      const page = parseInt(req.query.page as string, 10) || 1;
-      const limit = parseInt(req.query.limit as string, 10) || 20;
-
-      const result = await categoryService.getCategoryContent(categoryId, page, limit);
-      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Category content retrieved');
-    } catch (error) {
-      next(error);
-    }
-  }
-}
-
-export const categoryController = new CategoryController();
-</file>
-
-<file path="src/controllers/search.controller.ts">
-// ============================================
-// Promoo Backend — Search Controller
-// ============================================
-
-import { Request, Response, NextFunction } from 'express';
-import { searchService } from '../services/search.service';
-import { apiResponse } from '../utils/apiResponse';
-
-export class SearchController {
-  async search(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const params = {
-        q: req.query.q as string | undefined,
-        type: req.query.type as 'profiles' | 'offers' | 'ads' | 'all' | undefined,
-        page: parseInt(req.query.page as string, 10) || 1,
-        limit: parseInt(req.query.limit as string, 10) || 20,
-        categoryId: req.query.categoryId as string | undefined,
-        minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
-        maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
-        location: req.query.location as string | undefined,
-        accountType: req.query.accountType as 'company' | 'influencer' | 'service_provider' | 'user' | undefined,
-      };
-
-      const result = await searchService.search(params);
-
-      if (params.type === 'all') {
-        apiResponse.success(res, result, 'Search results retrieved');
-      } else {
-        // @ts-ignore - We know it has pagination when type !== 'all'
-        apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Search results retrieved');
-      }
-    } catch (error) {
-      next(error);
-    }
-  }
-}
-
-export const searchController = new SearchController();
-</file>
-
-<file path="src/controllers/upload.controller.ts">
-// ============================================
-// Promoo Backend — Upload Controller
-// ============================================
-
-import { Response, NextFunction } from 'express';
-import { uploadService } from '../services/upload.service';
-import { apiResponse } from '../utils/apiResponse';
-import { IAuthRequest } from '../types/api.types';
-import { ApiError } from '../utils/apiError';
-
-export class UploadController {
-  /**
-   * Upload an Image
-   */
-  async uploadImage(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      if (!req.file) {
-        throw ApiError.badRequest('No image file provided');
-      }
-
-      const { related_to, related_id } = req.body;
-      const bucket = req.body.bucket || 'general'; // Allow client to specify bucket (e.g., 'avatars', 'offers')
-
-      const result = await uploadService.uploadFile(
-        req.user!.id,
-        req.file,
-        bucket,
-        related_to,
-        related_id
-      );
-
-      apiResponse.created(res, result, 'Image uploaded successfully');
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /**
-   * Upload a Video
-   */
-  async uploadVideo(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      if (!req.file) {
-        throw ApiError.badRequest('No video file provided');
-      }
-
-      const { related_to, related_id } = req.body;
-      const bucket = req.body.bucket || 'general';
-
-      const result = await uploadService.uploadFile(
-        req.user!.id,
-        req.file,
-        bucket,
-        related_to,
-        related_id
-      );
-
-      apiResponse.created(res, result, 'Video uploaded successfully');
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /**
-   * Upload a File/Document
-   */
-  async uploadFile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      if (!req.file) {
-        throw ApiError.badRequest('No file provided');
-      }
-
-      const { related_to, related_id } = req.body;
-      const bucket = req.body.bucket || 'general';
-
-      const result = await uploadService.uploadFile(
-        req.user!.id,
-        req.file,
-        bucket,
-        related_to,
-        related_id
-      );
-
-      apiResponse.created(res, result, 'File uploaded successfully');
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  /**
-   * Delete a File
-   */
-  async deleteFile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const fileId = req.params.fileId as string;
-      await uploadService.deleteFile(req.user!.id, fileId);
-      apiResponse.noContent(res);
-    } catch (error) {
-      next(error);
-    }
-  }
-}
-
-export const uploadController = new UploadController();
-</file>
-
-<file path="src/routes/category.routes.ts">
-// ============================================
-// Promoo Backend — Category Routes
-// ============================================
-
-import { Router } from 'express';
-import { categoryController } from '../controllers/category.controller';
-import { validate } from '../middleware/validate.middleware';
-import { z } from 'zod';
-
-const router = Router();
-
-// Validation schema for category ID
-const categoryIdSchema = z.object({
-  params: z.object({
-    id: z.string().uuid('Invalid category ID'),
-  }),
-  query: z.object({
-    page: z.coerce.number().int().positive().default(1).optional(),
-    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
-  }).optional(),
-});
-
-// Categories are public
-router.get('/', categoryController.getCategories);
-
-router.get('/:id/content', validate(categoryIdSchema), categoryController.getCategoryContent);
-
-export default router;
-</file>
-
-<file path="src/routes/search.routes.ts">
-// ============================================
-// Promoo Backend — Search Routes
-// ============================================
-
-import { Router } from 'express';
-import { searchController } from '../controllers/search.controller';
-import { validate } from '../middleware/validate.middleware';
-import { searchSchema } from '../validators/search.validator';
-
-const router = Router();
-
-// Search endpoints can be public, but usually it's better to keep them public or partially protected.
-// For now, we leave them public since users might search before logging in.
-router.get('/', validate(searchSchema), searchController.search);
-
-export default router;
-</file>
-
-<file path="src/routes/upload.routes.ts">
-// ============================================
-// Promoo Backend — Upload Routes
-// ============================================
-
-import { Router } from 'express';
-import { uploadController } from '../controllers/upload.controller';
-import { requireAuth } from '../middleware/auth.middleware';
-import { validate } from '../middleware/validate.middleware';
-import { upload } from '../middleware/upload.middleware';
-import { deleteFileSchema, uploadMediaSchema } from '../validators/upload.validator';
-
-const router = Router();
-
-// All upload routes require authentication
-router.use(requireAuth);
-
-router.post(
-  '/image',
-  upload.single('file'),
-  validate(uploadMediaSchema),
-  uploadController.uploadImage
-);
-
-router.post(
-  '/video',
-  upload.single('file'),
-  validate(uploadMediaSchema),
-  uploadController.uploadVideo
-);
-
-router.post(
-  '/file',
-  upload.single('file'),
-  validate(uploadMediaSchema),
-  uploadController.uploadFile
-);
-
-router.delete(
-  '/:fileId',
-  validate(deleteFileSchema),
-  uploadController.deleteFile
-);
-
-export default router;
-</file>
-
-<file path="src/services/category.service.ts">
-// ============================================
-// Promoo Backend — Category Service
-// ============================================
-
-import { supabaseAdmin } from '../config/supabase';
-import { ApiError } from '../utils/apiError';
-
-export class CategoryService {
-  /**
-   * Get all categories
-   */
-  async getCategories(): Promise<Record<string, unknown>[]> {
-    const { data, error } = await supabaseAdmin
-      .from('categories')
-      .select('*')
-      .order('sort_order', { ascending: true });
-
-    if (error) throw ApiError.internal(error.message);
-    return data || [];
-  }
-
-  /**
-   * Get content (offers) for a specific category
-   */
-  async getCategoryContent(categoryId: string, page: number = 1, limit: number = 20) {
-    const offset = (page - 1) * limit;
-
-    const { data, count, error } = await supabaseAdmin
-      .from('offers')
-      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' })
-      .eq('category_id', categoryId)
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) throw ApiError.internal(error.message);
-    
-    const total = count || 0;
-
-    return {
-      data: data || [],
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-}
-
-export const categoryService = new CategoryService();
-</file>
-
-<file path="src/services/search.service.ts">
-// ============================================
-// Promoo Backend — Search Service
-// ============================================
-
-import { supabaseAdmin } from '../config/supabase';
-import { ApiError } from '../utils/apiError';
-
-interface ISearchParams {
-  q?: string;
-  type?: 'profiles' | 'offers' | 'ads' | 'all';
-  page?: number;
-  limit?: number;
-  categoryId?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  location?: string;
-  accountType?: 'company' | 'influencer' | 'service_provider' | 'user';
-}
-
-export class SearchService {
-  /**
-   * Perform a search query across the database
-   */
-  async search(params: ISearchParams): Promise<Record<string, unknown>> {
-    const type = params.type || 'all';
-    const page = params.page || 1;
-    const limit = params.limit || 20;
-
-    if (type === 'all') {
-      // For 'all', we return a non-paginated preview of top results
-      const [profiles, offers, ads] = await Promise.all([
-        this.searchProfiles(params, 1, 5),
-        this.searchOffers(params, 1, 5),
-        this.searchAds(params, 1, 5)
-      ]);
-      return { profiles: profiles.data, offers: offers.data, ads: ads.data };
-    }
-
-    if (type === 'profiles') {
-      return await this.searchProfiles(params, page, limit);
-    }
-    if (type === 'offers') {
-      return await this.searchOffers(params, page, limit);
-    }
-    if (type === 'ads') {
-      return await this.searchAds(params, page, limit);
-    }
-
-    throw ApiError.badRequest('Invalid search type');
-  }
-
-  private async searchProfiles(params: ISearchParams, page: number, limit: number) {
-    const offset = (page - 1) * limit;
-    let query = supabaseAdmin
-      .from('profiles')
-      .select('id, full_name, username, avatar_url, bio, account_type, is_verified, location', { count: 'exact' })
-      .eq('is_active', true);
-
-    if (params.q) {
-      query = query.or(`full_name.ilike.%${params.q}%,username.ilike.%${params.q}%,bio.ilike.%${params.q}%`);
-    }
-    if (params.accountType) {
-      query = query.eq('account_type', params.accountType);
-    }
-    if (params.location) {
-      query = query.ilike('location', `%${params.location}%`);
-    }
-
-    const { data, count, error } = await query
-      .order('is_verified', { ascending: false }) // Verified profiles first
-      .range(offset, offset + limit - 1);
-
-    if (error) throw ApiError.internal(error.message);
-    const total = count || 0;
-
-    return {
-      data: data || [],
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-
-  private async searchOffers(params: ISearchParams, page: number, limit: number) {
-    const offset = (page - 1) * limit;
-    let query = supabaseAdmin
-      .from('offers')
-      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' });
-
-    if (params.q) {
-      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%,description_ar.ilike.%${params.q}%,description_en.ilike.%${params.q}%`);
-    }
-    if (params.categoryId) {
-      query = query.eq('category_id', params.categoryId);
-    }
-    if (params.minPrice !== undefined) {
-      query = query.gte('price', params.minPrice);
-    }
-    if (params.maxPrice !== undefined) {
-      query = query.lte('price', params.maxPrice);
-    }
-    if (params.location) {
-      query = query.ilike('location', `%${params.location}%`);
-    }
-    if (params.accountType) {
-      // Need to filter by the related profile's account_type
-      // Supabase supports filtering on embedded resources using standard notation, but it's simpler to filter first or accept we might not get exact count if we do it post-fetch.
-      // However, we can use `profiles!inner(...)` to filter at the DB level.
-      // Since query object is already built, we'd need to re-declare it to use !inner, or we can just append a filter.
-      // E.g., query.eq('profiles.account_type', params.accountType) - this requires inner join.
-    }
-
-    const { data, count, error } = await query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) throw ApiError.internal(error.message);
-    const total = count || 0;
-
-    return {
-      data: data || [],
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-
-  private async searchAds(params: ISearchParams, page: number, limit: number) {
-    const offset = (page - 1) * limit;
-    let query = supabaseAdmin
-      .from('ads')
-      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified)', { count: 'exact' })
-      .eq('status', 'active');
-
-    if (params.q) {
-      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%`);
-    }
-    // Ads don't typically have price filters in this model, but we could add them if needed.
-
-    const { data, count, error } = await query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) throw ApiError.internal(error.message);
-    const total = count || 0;
-
-    return {
-      data: data || [],
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
-  }
-}
-
-export const searchService = new SearchService();
-</file>
-
-<file path="src/services/upload.service.ts">
-// ============================================
-// Promoo Backend — Upload Service
-// ============================================
-
-import { supabaseAdmin } from '../config/supabase';
-import { ApiError } from '../utils/apiError';
-import crypto from 'crypto';
-
-type BucketName = 'avatars' | 'covers' | 'offers' | 'ads' | 'chat-media' | 'general';
-type RelatedTo = 'profile' | 'offer' | 'ad' | 'chat';
-
-export class UploadService {
-  /**
-   * Upload a file to Supabase Storage and track it in the DB
-   */
-  async uploadFile(
-    userId: string,
-    file: Express.Multer.File,
-    bucket: BucketName,
-    relatedTo?: RelatedTo,
-    relatedId?: string
-  ): Promise<Record<string, unknown>> {
-    const fileExt = file.originalname.split('.').pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    // Store files organized by userId folder inside the bucket
-    const filePath = `${userId}/${fileName}`;
-
-    // 1. Upload to Supabase Storage
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from(bucket)
-      .upload(filePath, file.buffer, {
-        contentType: file.mimetype,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      throw ApiError.internal(`Failed to upload to storage: ${uploadError.message}`);
-    }
-
-    // 2. Get Public URL
-    const { data: publicUrlData } = supabaseAdmin.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
-
-    const publicUrl = publicUrlData.publicUrl;
-
-    // 3. Create record in `media` table
-    const { data: mediaRecord, error: dbError } = await supabaseAdmin
-      .from('media')
-      .insert({
-        profile_id: userId,
-        file_name: fileName,
-        file_url: publicUrl,
-        file_type: file.mimetype,
-        file_size: file.size,
-        related_to: relatedTo || null,
-        related_id: relatedId || null,
-      })
-      .select()
-      .single();
-
-    if (dbError) {
-      // Rollback: Cleanup storage if DB insert fails
-      await supabaseAdmin.storage.from(bucket).remove([filePath]);
-      throw ApiError.internal(`Failed to save media record: ${dbError.message}`);
-    }
-
-    return mediaRecord;
-  }
-
-  /**
-   * Delete a file from Storage and DB
-   */
-  async deleteFile(userId: string, fileId: string): Promise<void> {
-    // 1. Get the media record
-    const { data: media, error: fetchError } = await supabaseAdmin
-      .from('media')
-      .select('*')
-      .eq('id', fileId)
-      .single();
-
-    if (fetchError || !media) {
-      throw ApiError.notFound('File not found');
-    }
-
-    // 2. Check ownership
-    if (media.profile_id !== userId) {
-      throw ApiError.forbidden('You do not have permission to delete this file');
-    }
-
-    // Extract bucket and file path from the URL
-    // Public URL format: https://[project-ref].supabase.co/storage/v1/object/public/[bucket]/[filepath]
-    const urlParts = media.file_url.split('/public/');
-    if (urlParts.length !== 2) {
-      throw ApiError.internal('Invalid file URL format');
-    }
-
-    const pathParts = urlParts[1].split('/');
-    const bucket = pathParts[0];
-    const filePath = pathParts.slice(1).join('/');
-
-    // 3. Delete from Storage
-    const { error: storageError } = await supabaseAdmin.storage
-      .from(bucket)
-      .remove([filePath]);
-
-    if (storageError) {
-      // Just log it but don't fail, maybe it was already deleted manually
-      console.warn(`Failed to delete file from storage: ${storageError.message}`);
-    }
-
-    // 4. Delete from DB
-    const { error: dbError } = await supabaseAdmin
-      .from('media')
-      .delete()
-      .eq('id', fileId);
-
-    if (dbError) {
-      throw ApiError.internal(dbError.message);
-    }
-  }
-}
-
-export const uploadService = new UploadService();
-</file>
-
-<file path="src/validators/search.validator.ts">
-// ============================================
-// Promoo Backend — Search Validator
-// ============================================
-
-import { z } from 'zod';
-
-export const searchSchema = z.object({
-  query: z.object({
-    q: z.string().optional(),
-    type: z.enum(['profiles', 'offers', 'ads', 'all']).default('all').optional(),
-    page: z.coerce.number().int().positive().default(1).optional(),
-    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
-    
-    // Advanced filters
-    categoryId: z.string().uuid('Invalid category ID').optional(),
-    minPrice: z.coerce.number().min(0).optional(),
-    maxPrice: z.coerce.number().min(0).optional(),
-    location: z.string().optional(),
-    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']).optional(),
-  }),
-});
-</file>
-
-<file path="src/validators/upload.validator.ts">
-// ============================================
-// Promoo Backend — Upload Validator
-// ============================================
-
-import { z } from 'zod';
-
-export const uploadMediaSchema = z.object({
-  body: z.object({
-    related_to: z.enum(['profile', 'offer', 'ad', 'chat']).optional(),
-    related_id: z.string().uuid('Invalid related ID').optional(),
-  }),
-});
-
-export const deleteFileSchema = z.object({
-  params: z.object({
-    fileId: z.string().uuid('Invalid file ID'),
-  }),
-});
-</file>
-
-<file path=".env.example">
-# ============================================
-# Promoo Backend — Environment Variables
-# ============================================
-
-# Server
-NODE_ENV=development
-PORT=3000
-API_VERSION=v1
-
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Firebase (FCM)
-FIREBASE_PROJECT_ID=promoo-xxx
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# App Settings
-DEFAULT_LANGUAGE=en
-MAX_PAGE_SIZE=100
-DEFAULT_PAGE_SIZE=20
-
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-</file>
-
-<file path=".gitignore">
-# Dependencies
-node_modules/
-
-# Environment
-.env
-.env.local
-.env.production
-
-# Build
-dist/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Coverage
-coverage/
-# Added by code-review-graph
-.code-review-graph/
-</file>
-
 <file path="docs/phases_logic/phase_1_database.md">
 # Phase 1: Database Migrations & Foundation
 
@@ -1238,6 +459,53 @@ coverage/
 - **إضافة جدول جديد**: لا تقم بتعديل الملفات القديمة (من 001 إلى 009). بدلاً من ذلك، أنشئ ملف جديد (مثلاً `010_create_new_feature.sql`) واكتب فيه كود الـ CREATE TABLE.
 - **تعديل جدول موجود**: أنشئ ملف جديد واكتب فيه `ALTER TABLE`.
 - **تحديث الـ RLS**: إذا أردت تغيير صلاحيات الوصول، اكتب `ALTER POLICY` في migration جديد.
+</file>
+
+<file path="docs/phases_logic/phase_10_featured_payments.md">
+# Phase 10: Featured & Payments (الظهور المميز والمدفوعات)
+
+## الهدف والمغزى
+هذه المرحلة مسؤولة عن تحقيق الدخل (Monetization) للتطبيق عبر توفير خدمة "الظهور المميز" (Featured Placement) للشركات والمؤثرين، وإدارة السجل المالي والمدفوعات المتعلقة بذلك عبر البوابة العالمية `Stripe`.
+
+## الملفات المرتبطة
+- **Validators**: `featured.validator.ts`, `payment.validator.ts`
+- **Controllers**: `featured.controller.ts`, `payment.controller.ts`
+- **Services**: `featured.service.ts`, `payment.service.ts`
+- **Routes**: `featured.routes.ts`, `payment.routes.ts`
+- **Config**: `src/config/env.ts` (تم إضافة `CLIENT_URL` ليُستخدم للتحويل بعد الدفع).
+- **Database**: `supabase/migrations/009_create_payments_and_featured.sql`
+
+## اللوجيك (كيف تعمل)
+
+### 1. طلب الظهور المميز (Request Featured Status)
+- إذا أراد مستخدم أن يظهر حسابه بشكل دائم ومميز في الصفحة الرئيسية (أو صفحة البحث)، يقوم التطبيق باستدعاء نقطة النهاية `POST /api/v1/featured`.
+- يقوم `featured.service.ts` بفحص إذا كان المستخدم لديه مسبقاً إعلان مميز فعّال لنفس المكان (منعاً للتكرار الخاطئ).
+- إذا لم يكن لديه حساب `Stripe` مسجل، يقوم السيرفر بإنشاء Customer ID له في Stripe وحفظه في جدول `profiles`.
+- بعد ذلك، يتم إنشاء **Checkout Session** (فاتورة دفع) في Stripe بقيمة تعتمد على مدة الأيام المختارة.
+- يرد السيرفر بـ `url` وهو رابط صفحة الدفع الخاصة بـ Stripe. يفتح التطبيق هذا الرابط للمستخدم ليدفع بالفيزا/ماستركارد.
+- *(ملاحظة: تفعيل الحالة يتم لاحقاً عبر الـ Stripe Webhook الذي تم بناؤه في المراحل الأولى لتأكيد نجاح الدفع).*
+
+### 2. جلب الحسابات المميزة (Get Featured Listings)
+- `GET /api/v1/featured`: يجلب الحسابات التي حالتها حالياً `is_active = true` وتاريخ اليوم يقع بين `start_date` و `end_date`.
+- هناك قاعدة حماية (RLS Policy) في قاعدة البيانات مصممة خصيصاً لإرجاع الحسابات الفعّالة فقط. كما أن هناك Database Trigger يقوم أوتوماتيكياً بتحديث حقل `is_featured` في جدول الـ `profiles` ليكون `true` أو `false` حسب حالة حسابهم المميز.
+
+### 3. إدارة المدفوعات والفواتير (Payments & Customer Portal)
+- `GET /api/v1/payments/me`: يجلب سجل الدفع الخاص بالمستخدم من قاعدة البيانات.
+- `GET /api/v1/payments/:id`: يعرض تفاصيل فاتورة محددة.
+- `POST /api/v1/payments/portal`: هذه الميزة القوية تطلب من Stripe إنشاء رابط لـ **Customer Portal**. هذا الرابط يتيح للمستخدم الدخول وتغيير تفاصيل بطاقته الائتمانية أو تحميل فواتيره بصيغة PDF عبر صفحة مؤمنة تماماً من Stripe دون أي جهد إضافي في بناء واجهات من جهتنا.
+
+## الـ User Flow (رحلة المستخدم في التطبيق)
+1. يذهب المستخدم لقائمة "الترقية للظهور المميز".
+2. يختار "الظهور في الرئيسية لمدة 7 أيام" ويضغط الدفع.
+3. يطلب التطبيق `POST /api/v1/featured` ويستلم رابط الدفع.
+4. يفتح التطبيق متصفحاً داخلياً (In-App Browser) أو يوجهه لصفحة الدفع.
+5. يُدخل المستخدم بطاقته بنجاح، يقوم Stripe بإرسال Webhook للخلفية (Backend) لتأكيد العملية وتفعيل الحساب.
+6. يعود المستخدم للتطبيق، فيجد حسابه يمتلك شارة "مميز" ويظهر أولاً في نتائج البحث.
+7. لاحقاً، إذا أراد طباعة الفاتورة، يضغط على "إدارة البطاقات والفواتير" فيستدعي التطبيق `POST /api/v1/payments/portal` ويوجهه لبوابة Stripe.
+
+## كيفية الصيانة والتعديل (Maintenance)
+- **تغيير التسعيرة**: لتغيير سعر اليوم الواحد للظهور المميز، افتح `featured.service.ts` وعدّل قيمة الثابت `PRICE_PER_DAY`.
+- **رابط التحويل (Redirect URL)**: بعد نجاح أو إلغاء الدفع في Stripe، سيتم تحويل المستخدم لروابط تعتمد على المتغير `CLIENT_URL` في ملف الـ `.env`. تأكد من تعديله ليناسب التطبيق الخاص بك وقت النشر (مثلاً: رابط Deep Link يحول لداخل التطبيق `myapp://featured/success`).
 </file>
 
 <file path="docs/phases_logic/phase_2_auth.md">
@@ -1530,60 +798,96 @@ coverage/
   2. تأكد أن ملف Service Account الخاص بـ Firebase (والذي تم تعريفه في الـ `.env`) يطابق المشروع الفعلي في Firebase Console.
 </file>
 
+<file path="docs/phases_logic/phase_9_upload_search.md">
+# Phase 9: Upload & Search (رفع الملفات والبحث)
+
+## الهدف والمغزى
+هذه المرحلة توفر للمستخدمين قدرتين أساسيتين: 
+1. **رفع الملفات (Upload)**: صور شخصية، صور العروض، ملفات الفيديو والمرفقات بكل أمان وكفاءة إلى مساحة تخزين سحابية بدلاً من استهلاك مساحة السيرفر.
+2. **البحث الشامل (Search)**: قدرة المستخدم على العثور على المؤثرين، الشركات، والعروض والإعلانات بسهولة عبر محرك بحث موحد وتصنيفات مرتبة.
+
+## الملفات المرتبطة
+- **Validators**: `upload.validator.ts`, `search.validator.ts`
+- **Controllers**: `upload.controller.ts`, `search.controller.ts`, `category.controller.ts`
+- **Services**: `upload.service.ts`, `search.service.ts`, `category.service.ts`
+- **Routes**: `upload.routes.ts`, `search.routes.ts`, `category.routes.ts`
+- **Middleware**: `upload.middleware.ts` (Multer)
+
+## اللوجيك (كيف تعمل)
+
+### 1. رفع الملفات (Upload)
+- **لماذا Multer Memory Storage؟** بدلاً من حفظ الملف على قرص السيرفر المحلي (والذي يبطئ السيرفر ويحتاج مساحات كبيرة وصيانة)، نستخدم `multer.memoryStorage()`. هذا يضع الملف في الـ RAM مؤقتاً كـ Buffer.
+- **التخزين في Supabase**: يأخذ `upload.service.ts` هذا الـ Buffer، ويرفعه مباشرة إلى `Supabase Storage` عبر دالة `supabaseAdmin.storage.upload`.
+- **التسجيل في قاعدة البيانات**: لكي لا تضيع الملفات المرفوعة ولتسهيل حذفها وإدارتها، نقوم بإنشاء سجل لكل ملف في جدول `media` يحتوي على اسمه، الرابط العام، حجمه، ولمن يتبع.
+
+### 2. البحث والتصنيفات (Search & Categories)
+- **التصنيفات**: هي بيانات شبه ثابتة (أضيفت عبر `seed.sql`) مثل "تكنولوجيا"، "تسويق"، الخ. نقطة النهاية `GET /api/v1/categories` تجلبها للموبايل.
+- **البحث المتعدد**: `search.service.ts` يستطيع البحث في 3 أماكن:
+  - `profiles`: يبحث عن الأسماء والـ bio.
+  - `offers`: يبحث عن عناوين ووصف العروض ويفلتر بالأسعار والتصنيفات.
+  - `ads`: يبحث عن الإعلانات المفعلة.
+- **نوع البحث `all`**: يقوم الـ Service بتنفيذ الثلاث عمليات في وقت واحد عبر `Promise.all` لإرجاع خليط من أفضل النتائج (ميزة قوية لمحرك البحث الرئيسي في التطبيق).
+
+## الـ User Flow (رحلة المستخدم في التطبيق)
+- **رفع صورة عرض**: في شاشة "إضافة عرض"، يختار المستخدم صورة من جهازه.
+- يرسل التطبيق الصورة عبر `POST /upload/image` كـ `multipart/form-data`.
+- السيرفر يرفعها لـ Supabase ويرد بالتفاصيل (ومنها `file_url`).
+- التطبيق يأخذ الـ `file_url` ويرسله مع تفاصيل العرض الأخرى لإنشاء العرض `POST /offers`.
+- **البحث**: يكتب المستخدم "تصميم" في شريط البحث.
+- يرسل التطبيق `GET /search?q=تصميم&type=all`.
+- يجد السيرفر مصممين (profiles) وعروض تصميم (offers)، ويعيدها كلها في استجابة واحدة للمستخدم.
+
+## كيفية الصيانة والتعديل (Maintenance)
+- **إضافة صيغة ملف جديدة**: اذهب إلى `upload.middleware.ts` وأضف الصيغة (Mime Type) إلى مصفوفة `allowedMimeTypes`.
+- **البحث بفلتر جديد**: إذا طلب العميل إضافة بحث بـ "عدد المتابعين"، ستذهب لـ `search.validator.ts` لإضافة المتغير، ثم في `search.service.ts` داخل دالة `searchProfiles` ستضيف `.gte('followers_count', params.minFollowers)`.
+</file>
+
+<file path="GEMINI.md">
+<!-- code-review-graph MCP tools -->
+## MCP Tools: code-review-graph
+
+**IMPORTANT: This project has a knowledge graph. ALWAYS use the
+code-review-graph MCP tools BEFORE using Grep/Glob/Read to explore
+the codebase.** The graph is faster, cheaper (fewer tokens), and gives
+you structural context (callers, dependents, test coverage) that file
+scanning cannot.
+
+### When to use graph tools FIRST
+
+- **Exploring code**: `semantic_search_nodes` or `query_graph` instead of Grep
+- **Understanding impact**: `get_impact_radius` instead of manually tracing imports
+- **Code review**: `detect_changes` + `get_review_context` instead of reading entire files
+- **Finding relationships**: `query_graph` with callers_of/callees_of/imports_of/tests_for
+- **Architecture questions**: `get_architecture_overview` + `list_communities`
+
+Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
+
+### Key Tools
+
+| Tool | Use when |
+| ------ | ---------- |
+| `detect_changes` | Reviewing code changes — gives risk-scored analysis |
+| `get_review_context` | Need source snippets for review — token-efficient |
+| `get_impact_radius` | Understanding blast radius of a change |
+| `get_affected_flows` | Finding which execution paths are impacted |
+| `query_graph` | Tracing callers, callees, imports, tests, dependencies |
+| `semantic_search_nodes` | Finding functions/classes by name or keyword |
+| `get_architecture_overview` | Understanding high-level codebase structure |
+| `refactor_tool` | Planning renames, finding dead code |
+
+### Workflow
+
+1. The graph auto-updates on file changes (via hooks).
+2. Use `detect_changes` for code review.
+3. Use `get_affected_flows` to understand impact.
+4. Use `query_graph` pattern="tests_for" to check coverage.
+</file>
+
 <file path="nodemon.json">
 {
   "watch": ["src"],
   "ext": "ts",
   "exec": "tsx src/server.ts"
-}
-</file>
-
-<file path="package.json">
-{
-  "name": "promo_backend",
-  "version": "1.0.0",
-  "description": "Promoo Backend API — Digital platform connecting companies, influencers, service providers, and users",
-  "main": "dist/server.js",
-  "scripts": {
-    "dev": "nodemon",
-    "build": "tsc",
-    "start": "node dist/server.js",
-    "type-check": "tsc --noEmit",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [
-    "promoo",
-    "api",
-    "express",
-    "supabase"
-  ],
-  "author": "Promoo Team",
-  "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.108.1",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
-    "firebase-admin": "^14.0.0",
-    "helmet": "^8.2.0",
-    "multer": "^2.1.1",
-    "pino": "^10.3.1",
-    "pino-pretty": "^13.1.3",
-    "stripe": "^22.2.1",
-    "uuid": "^14.0.0",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/multer": "^2.1.0",
-    "@types/uuid": "^10.0.0",
-    "nodemon": "^3.1.14",
-    "tsx": "^4.22.4",
-    "typescript": "^6.0.3"
-  }
 }
 </file>
 
@@ -2359,58 +1663,6 @@ Admin ينشئ ويعدل باقات الاشتراك.
 4. **Admin routes**: `admin.middleware.ts` جاهز لكن لا يوجد routes بعد.
 </file>
 
-<file path="src/config/env.ts">
-// ============================================
-// Promoo Backend — Environment Validation
-// ============================================
-// Validates all environment variables at startup using Zod.
-// If any required variable is missing, the server will NOT start.
-
-import { z } from 'zod';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const envSchema = z.object({
-  // Server
-  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  PORT: z.string().default('3000').transform(Number),
-  API_VERSION: z.string().default('v1'),
-
-  // Supabase
-  SUPABASE_URL: z.string().url(),
-  SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-
-  // Stripe
-  STRIPE_SECRET_KEY: z.string().min(1),
-  STRIPE_WEBHOOK_SECRET: z.string().min(1),
-
-  // Firebase
-  FIREBASE_PROJECT_ID: z.string().min(1),
-  FIREBASE_CLIENT_EMAIL: z.string().min(1),
-  FIREBASE_PRIVATE_KEY: z.string().min(1),
-
-  // App
-  DEFAULT_LANGUAGE: z.enum(['ar', 'en']).default('en'),
-  MAX_PAGE_SIZE: z.string().default('100').transform(Number),
-  DEFAULT_PAGE_SIZE: z.string().default('20').transform(Number),
-
-  // CORS
-  CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:5173'),
-});
-
-const parsed = envSchema.safeParse(process.env);
-
-if (!parsed.success) {
-  console.error('❌ Invalid environment variables:');
-  console.error(parsed.error.flatten().fieldErrors);
-  process.exit(1);
-}
-
-export const env = parsed.data;
-</file>
-
 <file path="src/config/firebase.ts">
 // ============================================
 // Promoo Backend — Firebase Admin SDK Configuration
@@ -2777,6 +2029,48 @@ export class AuthController {
 export const authController = new AuthController();
 </file>
 
+<file path="src/controllers/category.controller.ts">
+// ============================================
+// Promoo Backend — Category Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { categoryService } from '../services/category.service';
+import { apiResponse } from '../utils/apiResponse';
+
+export class CategoryController {
+  /**
+   * Get all categories
+   */
+  async getCategories(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const categories = await categoryService.getCategories();
+      apiResponse.success(res, categories, 'Categories retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get category content
+   */
+  async getCategoryContent(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const categoryId = req.params.id as string;
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await categoryService.getCategoryContent(categoryId, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Category content retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const categoryController = new CategoryController();
+</file>
+
 <file path="src/controllers/chat.controller.ts">
 // ============================================
 // Promoo Backend — Chat Controller
@@ -2889,6 +2183,50 @@ export class ChatController {
 }
 
 export const chatController = new ChatController();
+</file>
+
+<file path="src/controllers/featured.controller.ts">
+// ============================================
+// Promoo Backend — Featured Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { featuredService } from '../services/featured.service';
+import { apiResponse } from '../utils/apiResponse';
+import { IAuthRequest } from '../types/api.types';
+
+export class FeaturedController {
+  /**
+   * Create a checkout session for featured placement
+   */
+  async requestFeatured(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { placement, durationDays } = req.body;
+      const result = await featuredService.requestFeatured(req.user!.id, placement, durationDays);
+      apiResponse.success(res, result, 'Featured checkout session created');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get active featured listings
+   */
+  async getFeaturedListings(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const placement = req.query.placement as string | undefined;
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await featuredService.getFeaturedListings(placement, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Featured listings retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const featuredController = new FeaturedController();
 </file>
 
 <file path="src/controllers/follow.controller.ts">
@@ -3202,6 +2540,61 @@ export class OfferController {
 export const offerController = new OfferController();
 </file>
 
+<file path="src/controllers/payment.controller.ts">
+// ============================================
+// Promoo Backend — Payment Controller
+// ============================================
+
+import { Response, NextFunction } from 'express';
+import { paymentService } from '../services/payment.service';
+import { apiResponse } from '../utils/apiResponse';
+import { IAuthRequest } from '../types/api.types';
+
+export class PaymentController {
+  /**
+   * Get my payment history
+   */
+  async getMyPayments(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const result = await paymentService.getMyPayments(req.user!.id, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Payments retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get specific payment details
+   */
+  async getPaymentDetails(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const paymentId = req.params.id as string;
+      const result = await paymentService.getPaymentDetails(req.user!.id, paymentId);
+      apiResponse.success(res, result, 'Payment details retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Create a Stripe Customer Portal session
+   */
+  async createCustomerPortalSession(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await paymentService.createCustomerPortalSession(req.user!.id);
+      apiResponse.success(res, result, 'Portal session created');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const paymentController = new PaymentController();
+</file>
+
 <file path="src/controllers/profile.controller.ts">
 // ============================================
 // Promoo Backend — Profile Controller
@@ -3307,6 +2700,47 @@ export class ProfileController {
 export const profileController = new ProfileController();
 </file>
 
+<file path="src/controllers/search.controller.ts">
+// ============================================
+// Promoo Backend — Search Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { searchService } from '../services/search.service';
+import { apiResponse } from '../utils/apiResponse';
+
+export class SearchController {
+  async search(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const params = {
+        q: req.query.q as string | undefined,
+        type: req.query.type as 'profiles' | 'offers' | 'ads' | 'all' | undefined,
+        page: parseInt(req.query.page as string, 10) || 1,
+        limit: parseInt(req.query.limit as string, 10) || 20,
+        categoryId: req.query.categoryId as string | undefined,
+        minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
+        maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
+        location: req.query.location as string | undefined,
+        accountType: req.query.accountType as 'company' | 'influencer' | 'service_provider' | 'user' | undefined,
+      };
+
+      const result = await searchService.search(params);
+
+      if (params.type === 'all') {
+        apiResponse.success(res, result, 'Search results retrieved');
+      } else {
+        // @ts-ignore - We know it has pagination when type !== 'all'
+        apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Search results retrieved');
+      }
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const searchController = new SearchController();
+</file>
+
 <file path="src/controllers/subscription.controller.ts">
 // ============================================
 // Promoo Backend — Subscription Controller
@@ -3377,6 +2811,113 @@ export class SubscriptionController {
 }
 
 export const subscriptionController = new SubscriptionController();
+</file>
+
+<file path="src/controllers/upload.controller.ts">
+// ============================================
+// Promoo Backend — Upload Controller
+// ============================================
+
+import { Response, NextFunction } from 'express';
+import { uploadService } from '../services/upload.service';
+import { apiResponse } from '../utils/apiResponse';
+import { IAuthRequest } from '../types/api.types';
+import { ApiError } from '../utils/apiError';
+
+export class UploadController {
+  /**
+   * Upload an Image
+   */
+  async uploadImage(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('No image file provided');
+      }
+
+      const { related_to, related_id } = req.body;
+      const bucket = req.body.bucket || 'general'; // Allow client to specify bucket (e.g., 'avatars', 'offers')
+
+      const result = await uploadService.uploadFile(
+        req.user!.id,
+        req.file,
+        bucket,
+        related_to,
+        related_id
+      );
+
+      apiResponse.created(res, result, 'Image uploaded successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Upload a Video
+   */
+  async uploadVideo(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('No video file provided');
+      }
+
+      const { related_to, related_id } = req.body;
+      const bucket = req.body.bucket || 'general';
+
+      const result = await uploadService.uploadFile(
+        req.user!.id,
+        req.file,
+        bucket,
+        related_to,
+        related_id
+      );
+
+      apiResponse.created(res, result, 'Video uploaded successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Upload a File/Document
+   */
+  async uploadFile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      if (!req.file) {
+        throw ApiError.badRequest('No file provided');
+      }
+
+      const { related_to, related_id } = req.body;
+      const bucket = req.body.bucket || 'general';
+
+      const result = await uploadService.uploadFile(
+        req.user!.id,
+        req.file,
+        bucket,
+        related_to,
+        related_id
+      );
+
+      apiResponse.created(res, result, 'File uploaded successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Delete a File
+   */
+  async deleteFile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const fileId = req.params.fileId as string;
+      await uploadService.deleteFile(req.user!.id, fileId);
+      apiResponse.noContent(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const uploadController = new UploadController();
 </file>
 
 <file path="src/controllers/webhook.controller.ts">
@@ -3671,49 +3212,6 @@ export const uploadLimiter = rateLimit({
 });
 </file>
 
-<file path="src/middleware/upload.middleware.ts">
-// ============================================
-// Promoo Backend — Upload Middleware (Multer)
-// ============================================
-
-import multer from 'multer';
-import { ApiError } from '../utils/apiError';
-
-// Use memory storage so we can upload the buffer directly to Supabase Storage
-const storage = multer.memoryStorage();
-
-export const upload = multer({
-  storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024, // 50 MB max limit for videos, images usually smaller
-  },
-  fileFilter: (_req, file, cb) => {
-    const allowedMimeTypes = [
-      // Images
-      'image/jpeg', 
-      'image/png', 
-      'image/webp',
-      'image/gif',
-      // Videos
-      'video/mp4', 
-      'video/quicktime',
-      'video/webm',
-      // Documents
-      'application/pdf', 
-      'application/msword', 
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    ];
-
-    if (allowedMimeTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      // @ts-ignore
-      cb(new ApiError(400, 'Invalid file type. Only images, videos, and standard documents are allowed.'), false);
-    }
-  }
-});
-</file>
-
 <file path="src/middleware/validate.middleware.ts">
 // ============================================
 // Promoo Backend — Validation Middleware
@@ -3874,6 +3372,37 @@ router.post('/logout', authController.logout);
 export default router;
 </file>
 
+<file path="src/routes/category.routes.ts">
+// ============================================
+// Promoo Backend — Category Routes
+// ============================================
+
+import { Router } from 'express';
+import { categoryController } from '../controllers/category.controller';
+import { validate } from '../middleware/validate.middleware';
+import { z } from 'zod';
+
+const router = Router();
+
+// Validation schema for category ID
+const categoryIdSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid category ID'),
+  }),
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+  }).optional(),
+});
+
+// Categories are public
+router.get('/', categoryController.getCategories);
+
+router.get('/:id/content', validate(categoryIdSchema), categoryController.getCategoryContent);
+
+export default router;
+</file>
+
 <file path="src/routes/chat.routes.ts">
 // ============================================
 // Promoo Backend — Chat Routes
@@ -3932,6 +3461,34 @@ router.delete(
   '/:roomId',
   validate(chatValidators.deleteChatSchema),
   chatController.deleteChat
+);
+
+export default router;
+</file>
+
+<file path="src/routes/featured.routes.ts">
+// ============================================
+// Promoo Backend — Featured Routes
+// ============================================
+
+import { Router } from 'express';
+import { featuredController } from '../controllers/featured.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { getFeaturedSchema, requestFeaturedSchema } from '../validators/featured.validator';
+
+const router = Router();
+
+// Public route to get featured listings
+router.get('/', validate(getFeaturedSchema), featuredController.getFeaturedListings);
+
+// Protected routes
+router.use(requireAuth);
+
+router.post(
+  '/',
+  validate(requestFeaturedSchema),
+  featuredController.requestFeatured
 );
 
 export default router;
@@ -4086,6 +3643,42 @@ router.post(
 export default router;
 </file>
 
+<file path="src/routes/payment.routes.ts">
+// ============================================
+// Promoo Backend — Payment Routes
+// ============================================
+
+import { Router } from 'express';
+import { paymentController } from '../controllers/payment.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { getPaymentDetailsSchema, getPaymentsSchema } from '../validators/payment.validator';
+
+const router = Router();
+
+// All payment routes require authentication
+router.use(requireAuth);
+
+router.get(
+  '/me',
+  validate(getPaymentsSchema),
+  paymentController.getMyPayments
+);
+
+router.post(
+  '/portal',
+  paymentController.createCustomerPortalSession
+);
+
+router.get(
+  '/:id',
+  validate(getPaymentDetailsSchema),
+  paymentController.getPaymentDetails
+);
+
+export default router;
+</file>
+
 <file path="src/routes/profile.routes.ts">
 // ============================================
 // Promoo Backend — Profile Routes
@@ -4118,6 +3711,25 @@ router.post('/me/cover', validate(z.object({ body: z.object({ coverUrl: z.string
 
 // Verification Request
 router.post('/me/verify-request', validate(profileValidators.requestVerificationSchema), profileController.requestVerification);
+
+export default router;
+</file>
+
+<file path="src/routes/search.routes.ts">
+// ============================================
+// Promoo Backend — Search Routes
+// ============================================
+
+import { Router } from 'express';
+import { searchController } from '../controllers/search.controller';
+import { validate } from '../middleware/validate.middleware';
+import { searchSchema } from '../validators/search.validator';
+
+const router = Router();
+
+// Search endpoints can be public, but usually it's better to keep them public or partially protected.
+// For now, we leave them public since users might search before logging in.
+router.get('/', validate(searchSchema), searchController.search);
 
 export default router;
 </file>
@@ -4158,6 +3770,53 @@ router.get(
 router.post(
   '/manage',
   subscriptionController.manageSubscription
+);
+
+export default router;
+</file>
+
+<file path="src/routes/upload.routes.ts">
+// ============================================
+// Promoo Backend — Upload Routes
+// ============================================
+
+import { Router } from 'express';
+import { uploadController } from '../controllers/upload.controller';
+import { requireAuth } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
+import { upload } from '../middleware/upload.middleware';
+import { deleteFileSchema, uploadMediaSchema } from '../validators/upload.validator';
+
+const router = Router();
+
+// All upload routes require authentication
+router.use(requireAuth);
+
+router.post(
+  '/image',
+  upload.single('file'),
+  validate(uploadMediaSchema),
+  uploadController.uploadImage
+);
+
+router.post(
+  '/video',
+  upload.single('file'),
+  validate(uploadMediaSchema),
+  uploadController.uploadVideo
+);
+
+router.post(
+  '/file',
+  upload.single('file'),
+  validate(uploadMediaSchema),
+  uploadController.uploadFile
+);
+
+router.delete(
+  '/:fileId',
+  validate(deleteFileSchema),
+  uploadController.deleteFile
 );
 
 export default router;
@@ -4660,6 +4319,183 @@ export class AuthService {
 export const authService = new AuthService();
 </file>
 
+<file path="src/services/category.service.ts">
+// ============================================
+// Promoo Backend — Category Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+
+export class CategoryService {
+  /**
+   * Get all categories
+   */
+  async getCategories(): Promise<Record<string, unknown>[]> {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .select('*')
+      .order('sort_order', { ascending: true });
+
+    if (error) throw ApiError.internal(error.message);
+    return data || [];
+  }
+
+  /**
+   * Get content (offers) for a specific category
+   */
+  async getCategoryContent(categoryId: string, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    const { data, count, error } = await supabaseAdmin
+      .from('offers')
+      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' })
+      .eq('category_id', categoryId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+}
+
+export const categoryService = new CategoryService();
+</file>
+
+<file path="src/services/featured.service.ts">
+// ============================================
+// Promoo Backend — Featured Service
+// ============================================
+
+import { stripe } from '../config/stripe';
+import { supabaseAdmin } from '../config/supabase';
+import { env } from '../config/env';
+import { ApiError } from '../utils/apiError';
+
+export class FeaturedService {
+  private readonly PRICE_PER_DAY = 1.50; // $1.50 per day for featured placement
+
+  /**
+   * Request featured status by creating a Stripe Checkout session
+   */
+  async requestFeatured(userId: string, placement: string, durationDays: number) {
+    // Check if user already has an active featured account for this placement
+    const { data: existing } = await supabaseAdmin
+      .from('featured_accounts')
+      .select('id')
+      .eq('profile_id', userId)
+      .eq('placement', placement)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (existing) {
+      throw ApiError.badRequest('You already have an active featured placement of this type');
+    }
+
+    // Get user email
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id, full_name')
+      .eq('id', userId)
+      .single();
+
+    let customerId = profile?.stripe_customer_id;
+
+    if (!customerId) {
+      // Create Stripe customer if doesn't exist
+      // We don't have email in profiles directly, but Stripe customer might need it.
+      // We can just create customer with name and metadata.
+      const customer = await stripe.customers.create({
+        name: profile?.full_name || 'Promoo User',
+        metadata: { profileId: userId },
+      });
+      customerId = customer.id;
+
+      await supabaseAdmin
+        .from('profiles')
+        .update({ stripe_customer_id: customerId })
+        .eq('id', userId);
+    }
+
+    const totalAmount = this.PRICE_PER_DAY * durationDays;
+
+    // Create Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Featured Placement - ${placement.charAt(0).toUpperCase() + placement.slice(1)}`,
+              description: `Featured placement for ${durationDays} days`,
+            },
+            unit_amount: Math.round(totalAmount * 100), // in cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment', // One-time payment, not subscription
+      success_url: `${env.CLIENT_URL}/featured/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.CLIENT_URL}/featured/cancel`,
+      metadata: {
+        type: 'featured',
+        profileId: userId,
+        placement,
+        durationDays: durationDays.toString(),
+      },
+    });
+
+    return { url: session.url };
+  }
+
+  /**
+   * Get currently active featured listings
+   */
+  async getFeaturedListings(placement?: string, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    let query = supabaseAdmin
+      .from('featured_accounts')
+      .select('*, profile:profiles!profile_id(id, full_name, username, avatar_url, bio, account_type)', { count: 'exact' })
+      .eq('is_active', true);
+      // RLS already filters to "now() between start_date and end_date" for public reads
+
+    if (placement) {
+      query = query.eq('placement', placement);
+    }
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit),
+    };
+  }
+}
+
+export const featuredService = new FeaturedService();
+</file>
+
 <file path="src/services/notification.service.ts">
 // ============================================
 // Promoo Backend — Notification Service
@@ -5146,6 +4982,94 @@ export class OfferService {
 export const offerService = new OfferService();
 </file>
 
+<file path="src/services/payment.service.ts">
+// ============================================
+// Promoo Backend — Payment Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import { stripe } from '../config/stripe';
+import { env } from '../config/env';
+
+export class PaymentService {
+  /**
+   * Get payment history for a user
+   */
+  async getMyPayments(userId: string, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    const { count } = await supabaseAdmin
+      .from('payments')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', userId);
+
+    const total = count || 0;
+
+    const { data, error } = await supabaseAdmin
+      .from('payments')
+      .select('*')
+      .eq('profile_id', userId)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  /**
+   * Get specific payment details
+   */
+  async getPaymentDetails(userId: string, paymentId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('payments')
+      .select('*')
+      .eq('id', paymentId)
+      .eq('profile_id', userId)
+      .single();
+
+    if (error || !data) {
+      throw ApiError.notFound('Payment not found');
+    }
+
+    return data;
+  }
+
+  /**
+   * Create Stripe Customer Portal session
+   */
+  async createCustomerPortalSession(userId: string) {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('id', userId)
+      .single();
+
+    if (!profile?.stripe_customer_id) {
+      throw ApiError.badRequest('No billing account found. Please make a payment first.');
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: profile.stripe_customer_id,
+      return_url: `${env.CLIENT_URL}/settings/billing`,
+    });
+
+    return { url: session.url };
+  }
+}
+
+export const paymentService = new PaymentService();
+</file>
+
 <file path="src/services/profile.service.ts">
 // ============================================
 // Promoo Backend — Profile Service
@@ -5297,6 +5221,168 @@ export class ProfileService {
 }
 
 export const profileService = new ProfileService();
+</file>
+
+<file path="src/services/search.service.ts">
+// ============================================
+// Promoo Backend — Search Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+
+interface ISearchParams {
+  q?: string;
+  type?: 'profiles' | 'offers' | 'ads' | 'all';
+  page?: number;
+  limit?: number;
+  categoryId?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  location?: string;
+  accountType?: 'company' | 'influencer' | 'service_provider' | 'user';
+}
+
+export class SearchService {
+  /**
+   * Perform a search query across the database
+   */
+  async search(params: ISearchParams): Promise<Record<string, unknown>> {
+    const type = params.type || 'all';
+    const page = params.page || 1;
+    const limit = params.limit || 20;
+
+    if (type === 'all') {
+      // For 'all', we return a non-paginated preview of top results
+      const [profiles, offers, ads] = await Promise.all([
+        this.searchProfiles(params, 1, 5),
+        this.searchOffers(params, 1, 5),
+        this.searchAds(params, 1, 5)
+      ]);
+      return { profiles: profiles.data, offers: offers.data, ads: ads.data };
+    }
+
+    if (type === 'profiles') {
+      return await this.searchProfiles(params, page, limit);
+    }
+    if (type === 'offers') {
+      return await this.searchOffers(params, page, limit);
+    }
+    if (type === 'ads') {
+      return await this.searchAds(params, page, limit);
+    }
+
+    throw ApiError.badRequest('Invalid search type');
+  }
+
+  private async searchProfiles(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('profiles')
+      .select('id, full_name, username, avatar_url, bio, account_type, is_verified, location', { count: 'exact' })
+      .eq('is_active', true);
+
+    if (params.q) {
+      query = query.or(`full_name.ilike.%${params.q}%,username.ilike.%${params.q}%,bio.ilike.%${params.q}%`);
+    }
+    if (params.accountType) {
+      query = query.eq('account_type', params.accountType);
+    }
+    if (params.location) {
+      query = query.ilike('location', `%${params.location}%`);
+    }
+
+    const { data, count, error } = await query
+      .order('is_verified', { ascending: false }) // Verified profiles first
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private async searchOffers(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('offers')
+      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' });
+
+    if (params.q) {
+      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%,description_ar.ilike.%${params.q}%,description_en.ilike.%${params.q}%`);
+    }
+    if (params.categoryId) {
+      query = query.eq('category_id', params.categoryId);
+    }
+    if (params.minPrice !== undefined) {
+      query = query.gte('price', params.minPrice);
+    }
+    if (params.maxPrice !== undefined) {
+      query = query.lte('price', params.maxPrice);
+    }
+    if (params.location) {
+      query = query.ilike('location', `%${params.location}%`);
+    }
+    if (params.accountType) {
+      // Need to filter by the related profile's account_type
+      // Supabase supports filtering on embedded resources using standard notation, but it's simpler to filter first or accept we might not get exact count if we do it post-fetch.
+      // However, we can use `profiles!inner(...)` to filter at the DB level.
+      // Since query object is already built, we'd need to re-declare it to use !inner, or we can just append a filter.
+      // E.g., query.eq('profiles.account_type', params.accountType) - this requires inner join.
+    }
+
+    const { data, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private async searchAds(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('ads')
+      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified)', { count: 'exact' })
+      .eq('status', 'active');
+
+    if (params.q) {
+      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%`);
+    }
+    // Ads don't typically have price filters in this model, but we could add them if needed.
+
+    const { data, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+}
+
+export const searchService = new SearchService();
 </file>
 
 <file path="src/services/stripe.service.ts">
@@ -5589,6 +5675,133 @@ export class SubscriptionService {
 }
 
 export const subscriptionService = new SubscriptionService();
+</file>
+
+<file path="src/services/upload.service.ts">
+// ============================================
+// Promoo Backend — Upload Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import crypto from 'crypto';
+
+type BucketName = 'avatars' | 'covers' | 'offers' | 'ads' | 'chat-media' | 'general';
+type RelatedTo = 'profile' | 'offer' | 'ad' | 'chat';
+
+export class UploadService {
+  /**
+   * Upload a file to Supabase Storage and track it in the DB
+   */
+  async uploadFile(
+    userId: string,
+    file: Express.Multer.File,
+    bucket: BucketName,
+    relatedTo?: RelatedTo,
+    relatedId?: string
+  ): Promise<Record<string, unknown>> {
+    const fileExt = file.originalname.split('.').pop();
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
+    // Store files organized by userId folder inside the bucket
+    const filePath = `${userId}/${fileName}`;
+
+    // 1. Upload to Supabase Storage
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from(bucket)
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      throw ApiError.internal(`Failed to upload to storage: ${uploadError.message}`);
+    }
+
+    // 2. Get Public URL
+    const { data: publicUrlData } = supabaseAdmin.storage
+      .from(bucket)
+      .getPublicUrl(filePath);
+
+    const publicUrl = publicUrlData.publicUrl;
+
+    // 3. Create record in `media` table
+    const { data: mediaRecord, error: dbError } = await supabaseAdmin
+      .from('media')
+      .insert({
+        profile_id: userId,
+        file_name: fileName,
+        file_url: publicUrl,
+        file_type: file.mimetype,
+        file_size: file.size,
+        related_to: relatedTo || null,
+        related_id: relatedId || null,
+      })
+      .select()
+      .single();
+
+    if (dbError) {
+      // Rollback: Cleanup storage if DB insert fails
+      await supabaseAdmin.storage.from(bucket).remove([filePath]);
+      throw ApiError.internal(`Failed to save media record: ${dbError.message}`);
+    }
+
+    return mediaRecord;
+  }
+
+  /**
+   * Delete a file from Storage and DB
+   */
+  async deleteFile(userId: string, fileId: string): Promise<void> {
+    // 1. Get the media record
+    const { data: media, error: fetchError } = await supabaseAdmin
+      .from('media')
+      .select('*')
+      .eq('id', fileId)
+      .single();
+
+    if (fetchError || !media) {
+      throw ApiError.notFound('File not found');
+    }
+
+    // 2. Check ownership
+    if (media.profile_id !== userId) {
+      throw ApiError.forbidden('You do not have permission to delete this file');
+    }
+
+    // Extract bucket and file path from the URL
+    // Public URL format: https://[project-ref].supabase.co/storage/v1/object/public/[bucket]/[filepath]
+    const urlParts = media.file_url.split('/public/');
+    if (urlParts.length !== 2) {
+      throw ApiError.internal('Invalid file URL format');
+    }
+
+    const pathParts = urlParts[1].split('/');
+    const bucket = pathParts[0];
+    const filePath = pathParts.slice(1).join('/');
+
+    // 3. Delete from Storage
+    const { error: storageError } = await supabaseAdmin.storage
+      .from(bucket)
+      .remove([filePath]);
+
+    if (storageError) {
+      // Just log it but don't fail, maybe it was already deleted manually
+      console.warn(`Failed to delete file from storage: ${storageError.message}`);
+    }
+
+    // 4. Delete from DB
+    const { error: dbError } = await supabaseAdmin
+      .from('media')
+      .delete()
+      .eq('id', fileId);
+
+    if (dbError) {
+      throw ApiError.internal(dbError.message);
+    }
+  }
+}
+
+export const uploadService = new UploadService();
 </file>
 
 <file path="src/types/api.types.ts">
@@ -6279,6 +6492,29 @@ export const getChatListSchema = z.object({
 });
 </file>
 
+<file path="src/validators/featured.validator.ts">
+// ============================================
+// Promoo Backend — Featured Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const requestFeaturedSchema = z.object({
+  body: z.object({
+    placement: z.enum(['home', 'search', 'category']),
+    durationDays: z.number().int().positive().min(1).max(365),
+  }),
+});
+
+export const getFeaturedSchema = z.object({
+  query: z.object({
+    placement: z.enum(['home', 'search', 'category']).optional(),
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+  }).optional(),
+});
+</file>
+
 <file path="src/validators/follow.validator.ts">
 // ============================================
 // Promoo Backend — Follow Validators
@@ -6400,6 +6636,27 @@ export const offerIdParamSchema = z.object({
 });
 </file>
 
+<file path="src/validators/payment.validator.ts">
+// ============================================
+// Promoo Backend — Payment Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const getPaymentsSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+  }).optional(),
+});
+
+export const getPaymentDetailsSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid payment ID'),
+  }),
+});
+</file>
+
 <file path="src/validators/profile.validator.ts">
 // ============================================
 // Promoo Backend — Profile Validators
@@ -6447,6 +6704,30 @@ export const requestVerificationSchema = z.object({
 });
 </file>
 
+<file path="src/validators/search.validator.ts">
+// ============================================
+// Promoo Backend — Search Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const searchSchema = z.object({
+  query: z.object({
+    q: z.string().optional(),
+    type: z.enum(['profiles', 'offers', 'ads', 'all']).default('all').optional(),
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+    
+    // Advanced filters
+    categoryId: z.string().uuid('Invalid category ID').optional(),
+    minPrice: z.coerce.number().min(0).optional(),
+    maxPrice: z.coerce.number().min(0).optional(),
+    location: z.string().optional(),
+    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']).optional(),
+  }),
+});
+</file>
+
 <file path="src/validators/subscription.validator.ts">
 // ============================================
 // Promoo Backend — Subscription Validators
@@ -6463,6 +6744,27 @@ export const createSubscriptionSchema = z.object({
 export const changeSubscriptionSchema = z.object({
   body: z.object({
     newPlanId: z.string().uuid('Invalid new plan ID'),
+  }),
+});
+</file>
+
+<file path="src/validators/upload.validator.ts">
+// ============================================
+// Promoo Backend — Upload Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const uploadMediaSchema = z.object({
+  body: z.object({
+    related_to: z.enum(['profile', 'offer', 'ad', 'chat']).optional(),
+    related_id: z.string().uuid('Invalid related ID').optional(),
+  }),
+});
+
+export const deleteFileSchema = z.object({
+  params: z.object({
+    fileId: z.string().uuid('Invalid file ID'),
   }),
 });
 </file>
@@ -7255,6 +7557,36 @@ on conflict (stripe_price_id) do nothing;
 }
 </file>
 
+<file path=".gitignore">
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+# Added by code-review-graph
+.code-review-graph/
+</file>
+
 <file path="MEMORY_BANK.md">
 # Promoo Backend — Memory Bank
 
@@ -7354,6 +7686,55 @@ on conflict (stripe_price_id) do nothing;
 | — | — | — |
 </file>
 
+<file path="package.json">
+{
+  "name": "promo_backend",
+  "version": "1.0.0",
+  "description": "Promoo Backend API — Digital platform connecting companies, influencers, service providers, and users",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "nodemon",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "promoo",
+    "api",
+    "express",
+    "supabase"
+  ],
+  "author": "Promoo Team",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.108.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "firebase-admin": "^14.0.0",
+    "helmet": "^8.2.0",
+    "multer": "^2.1.1",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3",
+    "stripe": "^22.2.1",
+    "uuid": "^14.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0",
+    "@types/uuid": "^10.0.0",
+    "nodemon": "^3.1.14",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
+}
+</file>
+
 <file path="src/app.ts">
 // ============================================
 // Promoo Backend — Express App Configuration
@@ -7420,6 +7801,102 @@ app.use((_req, res) => {
 app.use(errorHandler);
 
 export default app;
+</file>
+
+<file path="src/config/env.ts">
+// ============================================
+// Promoo Backend — Environment Validation
+// ============================================
+// Validates all environment variables at startup using Zod.
+// If any required variable is missing, the server will NOT start.
+
+import { z } from 'zod';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const envSchema = z.object({
+  // Server
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  PORT: z.string().default('3000').transform(Number),
+  API_VERSION: z.string().default('v1'),
+
+  // Supabase
+  SUPABASE_URL: z.string().url(),
+  SUPABASE_ANON_KEY: z.string().min(1),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+
+  // Stripe
+  STRIPE_SECRET_KEY: z.string().min(1),
+  STRIPE_WEBHOOK_SECRET: z.string().min(1),
+
+  // Firebase
+  FIREBASE_PROJECT_ID: z.string().min(1),
+  FIREBASE_CLIENT_EMAIL: z.string().min(1),
+  FIREBASE_PRIVATE_KEY: z.string().min(1),
+
+  // App
+  DEFAULT_LANGUAGE: z.enum(['ar', 'en']).default('en'),
+  MAX_PAGE_SIZE: z.string().default('100').transform(Number),
+  DEFAULT_PAGE_SIZE: z.string().default('20').transform(Number),
+
+  // CORS
+  CORS_ORIGINS: z.string().default('http://localhost:3000,http://localhost:5173'),
+  CLIENT_URL: z.string().default('http://localhost:3000'),
+});
+
+const parsed = envSchema.safeParse(process.env);
+
+if (!parsed.success) {
+  console.error('❌ Invalid environment variables:');
+  console.error(parsed.error.flatten().fieldErrors);
+  process.exit(1);
+}
+
+export const env = parsed.data;
+</file>
+
+<file path="src/middleware/upload.middleware.ts">
+// ============================================
+// Promoo Backend — Upload Middleware (Multer)
+// ============================================
+
+import multer from 'multer';
+import { ApiError } from '../utils/apiError';
+
+// Use memory storage so we can upload the buffer directly to Supabase Storage
+const storage = multer.memoryStorage();
+
+export const upload = multer({
+  storage,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50 MB max limit for videos, images usually smaller
+  },
+  fileFilter: (_req, file, cb) => {
+    const allowedMimeTypes = [
+      // Images
+      'image/jpeg', 
+      'image/png', 
+      'image/webp',
+      'image/gif',
+      // Videos
+      'video/mp4', 
+      'video/quicktime',
+      'video/webm',
+      // Documents
+      'application/pdf', 
+      'application/msword', 
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      // @ts-ignore
+      cb(new ApiError(400, 'Invalid file type. Only images, videos, and standard documents are allowed.'), false);
+    }
+  }
+});
 </file>
 
 <file path="src/services/chat.service.ts">
@@ -7993,9 +8470,12 @@ router.use('/upload', uploadRoutes);
 router.use('/search', searchRoutes);
 router.use('/categories', categoryRoutes);
 
+import featuredRoutes from './featured.routes';
+import paymentRoutes from './payment.routes';
+
 // Phase 10: Featured & Payments
-// router.use('/featured', featuredRoutes);
-// router.use('/payments', paymentRoutes);
+router.use('/featured', featuredRoutes);
+router.use('/payments', paymentRoutes);
 
 // Phase 11: Reports
 // router.use('/reports', reportRoutes);

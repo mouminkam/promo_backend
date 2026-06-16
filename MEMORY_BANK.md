@@ -17,9 +17,9 @@
 | 5 | Offers & Ads | ✅ Completed | 2026-06-14 |
 | 6 | Subscriptions & Stripe | ✅ Completed | 2026-06-14 |
 | 7 | Chat System | ✅ Completed | 2026-06-14 |
-| 8 | Notifications | ⬜ Not Started | — |
-| 9 | Upload & Search | ⬜ Not Started | — |
-| 10 | Featured & Payments | ⬜ Not Started | — |
+| 8 | Notifications | ✅ Completed | 2026-06-15 |
+| 9 | Upload & Search | ✅ Completed | 2026-06-15 |
+| 10 | Featured & Payments | ✅ Completed | 2026-06-16 |
 | 11 | Reports | ⬜ Not Started | — |
 | 12 | Admin Dashboard APIs | ⬜ Not Started | — |
 
@@ -66,14 +66,30 @@
 - [x] `chat.controller.ts` — Full CRUD controller.
 - [x] `chat.routes.ts` — Mounted at `/api/v1/chats`.
 
+### Phase 8 — Notifications
+- [x] FCM Token registration endpoint.
+- [x] In-app notification endpoints (Get, Mark as read, Delete).
+- [x] Integrated push notifications into follow and chat services using Firebase Admin.
+
+### Phase 9 — Upload & Search
+- [x] File upload via Multer memory storage direct to Supabase Storage.
+- [x] Created `media` database records for tracking uploads.
+- [x] Global search endpoint returning profiles, offers, and ads in parallel.
+- [x] Categories retrieval and related content.
+
+### Phase 10 — Featured & Payments
+- [x] Stripe Checkout Sessions for requesting featured status.
+- [x] Featured listings retrieval logic filtered by `is_active` and dates.
+- [x] Payment history and Stripe Customer Portal integration for card management.
+
 ---
 
 ## Current Context
 
-**Currently working on**: Phase 8 — Notifications
-**Next up**: Phase 9 — Upload & Search
+**Currently working on**: Phase 11 — Reports
+**Next up**: Phase 12 — Admin Dashboard APIs
 **Blockers**: None
-**Notes**: Phase 7 (Chat System) completed. Direct chat rooms with message history, unread counts, and mark-as-read. Room deletion removes user from participants; empty rooms auto-cleanup. Next: Phase 8 (Notifications) — FCM push + in-app notification records.
+**Notes**: Completed major feature blocks (Notifications, Upload, Search, Payments). The app core functionality is fully operational. Proceeding to moderation features (Reports).
 
 ---
 

@@ -80,8 +80,10 @@ import paymentRoutes from './payment.routes';
 router.use('/featured', featuredRoutes);
 router.use('/payments', paymentRoutes);
 
+import reportRoutes from './report.routes';
+
 // Phase 11: Reports
-// router.use('/reports', reportRoutes);
+router.use('/reports', reportRoutes);
 
 // Phase 12: Admin
 // router.use('/admin', adminRoutes);
