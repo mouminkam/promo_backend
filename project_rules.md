@@ -30,7 +30,7 @@
 
 ## 2. Architecture Pattern
 
-We follow a **4-Layer Architecture**:
+We follow a **3-Layer Architecture**:
 
 ```
 This project follows a strict **3-Layer Architecture**:
