@@ -181,6 +181,8 @@ supabase/migrations/006_create_chat.sql
 supabase/migrations/007_create_notifications.sql
 supabase/migrations/008_create_reports_and_media.sql
 supabase/migrations/009_create_payments_and_featured.sql
+supabase/migrations/010_add_is_active_to_profiles.sql
+supabase/migrations/011_enable_realtime_chat.sql
 supabase/seed.sql
 tsconfig.json
 </directory_structure>
@@ -1028,327 +1030,6 @@ Fall back to Grep/Glob/Read **only** when the graph doesn't cover what you need.
   "ext": "ts",
   "exec": "tsx src/server.ts"
 }
-</file>
-
-<file path="project_rules.md">
-# Promoo Backend — Project Rules & Standards
-
-> This file is the **single source of truth** for all coding standards, architectural decisions,
-> and conventions used in this project. Every contributor and AI assistant must follow these rules.
-
----
-
-## 1. Project Overview
-
-| Key | Value |
-|-----|-------|
-| **Name** | Promoo Backend |
-| **Purpose** | REST API for a digital platform connecting companies, influencers, service providers, and regular users |
-| **Stack** | Node.js + Express.js + TypeScript |
-| **Database** | PostgreSQL via Supabase |
-| **Auth** | Supabase Auth (Email, Phone, Google, Apple, OTP) |
-| **Storage** | Supabase Storage (images, videos, attachments) |
-| **Realtime** | Supabase Realtime (1-to-1 chat) |
-| **Payments** | Stripe (Checkout Sessions + Webhooks) |
-| **Push Notifications** | Firebase Cloud Messaging (FCM) |
-| **Languages** | Bilingual: Arabic (ar) + English (en) |
-
-### Account Types
-- `company` — شركة
-- `influencer` — مؤثر
-- `service_provider` — مقدم خدمة
-- `user` — مستخدم عادي
-
----
-
-## 2. Architecture Pattern
-
-We follow a **4-Layer Architecture**:
-
-```
-Request → Route → Controller → Service → Repository → Supabase
-```
-
-| Layer | Responsibility | Rules |
-|-------|---------------|-------|
-| **Routes** | Define endpoints, attach middleware | NO business logic. Only `router.get/post/put/patch/delete` |
-| **Controllers** | Parse request, call service, send response | NO database calls. Only `req/res` handling |
-| **Services** | Business logic, orchestration | NO `req/res` objects. Pure functions. Can call multiple repositories |
-| **Repositories** | Data access via Supabase client | NO business logic. Only Supabase queries |
-
-### Rules:
-- Controllers NEVER call repositories directly
-- Services NEVER access `req` or `res`
-- Repositories NEVER contain business logic
-- Each module has its own route, controller, service, and repository file
-
----
-
-## 3. Project Structure
-
-```
-src/
-├── app.ts                    # Express app configuration
-├── server.ts                 # Entry point (starts server)
-├── config/                   # External service clients
-│   ├── supabase.ts           # Supabase client (singleton)
-│   ├── stripe.ts             # Stripe client
-│   ├── firebase.ts           # Firebase Admin SDK
-│   └── env.ts                # Env validation with Zod
-├── middleware/                # Express middleware
-├── routes/                   # Route definitions
-│   ├── index.ts              # Route aggregator
-│   └── admin/                # Admin-only routes
-├── controllers/              # Request handlers
-│   └── admin/
-├── services/                 # Business logic
-├── repositories/             # Data access layer
-├── validators/               # Zod schemas per module
-├── types/                    # TypeScript types & enums
-└── utils/                    # Shared utilities
-```
-
----
-
-## 4. Naming Conventions
-
-| Item | Convention | Example |
-|------|-----------|---------|
-| Files | `kebab-case` or `camelCase.type.ts` | `auth.controller.ts`, `auth.service.ts` |
-| Variables | `camelCase` | `userId`, `offerPrice` |
-| Constants | `UPPER_SNAKE_CASE` | `MAX_FILE_SIZE`, `DEFAULT_PAGE_SIZE` |
-| Classes | `PascalCase` | `ApiError`, `AuthService` |
-| Interfaces/Types | `PascalCase` with prefix | `IUser`, `TCreateOffer` |
-| Enums | `PascalCase` keys | `AccountType.Company` |
-| Database tables | `snake_case` | `subscription_plans`, `chat_rooms` |
-| Database columns | `snake_case` | `created_at`, `is_verified` |
-| API endpoints | `kebab-case` | `/api/auth/forgot-password` |
-| Environment vars | `UPPER_SNAKE_CASE` | `SUPABASE_URL`, `STRIPE_SECRET_KEY` |
-
----
-
-## 5. API Design Standards
-
-### Base URL
-```
-/api/v1/...
-```
-
-### Response Format — ALWAYS use this structure:
-```typescript
-// Success
-{
-  "success": true,
-  "data": { ... } | [...],
-  "message": "Operation completed successfully",
-  "meta": {                    // Only for paginated responses
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "totalPages": 8
-  }
-}
-
-// Error
-{
-  "success": false,
-  "data": null,
-  "message": "Human-readable error message",
-  "error": {
-    "code": "VALIDATION_ERROR",   // Machine-readable error code
-    "details": [...]              // Optional: field-level errors
-  }
-}
-```
-
-### HTTP Status Codes:
-| Code | Usage |
-|------|-------|
-| `200` | Success (GET, PUT, PATCH) |
-| `201` | Created (POST) |
-| `204` | No Content (DELETE) |
-| `400` | Bad Request / Validation Error |
-| `401` | Unauthorized (no token or expired) |
-| `403` | Forbidden (no permission) |
-| `404` | Not Found |
-| `409` | Conflict (duplicate) |
-| `422` | Unprocessable Entity |
-| `429` | Too Many Requests |
-| `500` | Internal Server Error |
-
-### Pagination:
-- All list endpoints MUST support pagination
-- Default: `page=1`, `limit=20`
-- Max limit: `100`
-- Query params: `?page=1&limit=20`
-
-### Internationalization (i18n):
-- Accept `Accept-Language` header (`ar` or `en`, default: `en`)
-- Return localized fields accordingly
-- Database stores both: `name_ar`, `name_en`
-
----
-
-## 6. TypeScript Rules
-
-- **Strict mode**: Always enabled (`strict: true` in tsconfig)
-- **No `any`**: Never use `any`. Use `unknown` if type is truly unknown
-- **Explicit return types**: All functions must have explicit return types
-- **Interfaces for objects**: Use `interface` for object shapes, `type` for unions/intersections
-- **Enums**: Use string enums for readability
-- **Null handling**: Always handle null/undefined cases explicitly
-
-```typescript
-// ✅ Good
-async function getUserById(id: string): Promise<IProfile | null> { ... }
-
-// ❌ Bad
-async function getUserById(id: any) { ... }
-```
-
----
-
-## 7. Coding Standards
-
-### Async/Await
-- ALWAYS use `async/await`. NEVER use callbacks or raw `.then()` chains
-- ALWAYS wrap controller logic in try/catch
-
-### Error Handling
-```typescript
-// In Controllers — use the centralized error handler
-const getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const user = await userService.getById(req.params.id);
-    res.status(200).json(apiResponse.success(user, 'User fetched'));
-  } catch (error) {
-    next(error); // Pass to error handler middleware
-  }
-};
-```
-
-### Validation
-- ALWAYS validate input using Zod schemas BEFORE processing
-- Define schemas in `validators/` directory
-- Use `validate` middleware to auto-validate requests
-
-```typescript
-// validators/auth.validator.ts
-export const registerSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    fullName: z.string().min(2).max(100),
-    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']),
-  }),
-});
-```
-
-### Imports
-- Use ES module imports (`import/export`)
-- Order: Node built-ins → External packages → Internal modules → Types
-- Use path aliases if configured
-
----
-
-## 8. Database Rules (Supabase)
-
-- **UUIDs**: All primary keys are UUIDs (`gen_random_uuid()`)
-- **Timestamps**: All tables have `created_at` (auto) and `updated_at` where applicable
-- **Soft deletes**: Use `deleted_at` timestamp instead of hard deletes for important data
-- **RLS**: Row Level Security enabled on ALL tables
-- **Service role**: Only used server-side in repositories, NEVER exposed
-- **Indexes**: Add indexes on frequently queried columns (foreign keys, status, created_at)
-- **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense
-
----
-
-## 9. Security Rules
-
-- NEVER expose `SUPABASE_SERVICE_ROLE_KEY` or `STRIPE_SECRET_KEY` in responses or logs
-- ALWAYS verify JWT in protected routes via `auth.middleware.ts`
-- ALWAYS sanitize user inputs (Zod handles this)
-- ALWAYS use parameterized queries (Supabase client does this automatically)
-- ALWAYS set security headers via `helmet`
-- ALWAYS apply rate limiting on auth endpoints
-- NEVER log sensitive data (passwords, tokens, card numbers)
-- Use CORS whitelist, not wildcard, in production
-
----
-
-## 10. File Upload Rules
-
-- Max image size: **5MB**
-- Max video size: **50MB**
-- Max attachment size: **10MB**
-- Allowed image types: `jpg, jpeg, png, webp, gif`
-- Allowed video types: `mp4, mov, webm`
-- Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`
-- File naming: `{userId}/{timestamp}_{originalName}`
-
----
-
-## 11. Git & Code Quality
-
-- Commit messages: `type(scope): message` (e.g., `feat(auth): add OTP verification`)
-- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`
-- One feature per branch
-- Always run linting before commit
-
----
-
-## 12. Environment Variables Required
-
-```env
-# Server
-NODE_ENV=development
-PORT=3000
-API_VERSION=v1
-
-# Supabase
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Firebase
-FIREBASE_PROJECT_ID=promoo-xxx
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# App
-DEFAULT_LANGUAGE=en
-MAX_PAGE_SIZE=100
-DEFAULT_PAGE_SIZE=20
-
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-```
-
----
-
-## 13. Testing Standards
-
-- Unit tests for services (mock repositories)
-- Integration tests for routes (test full request cycle)
-- Test files: `*.test.ts` or `*.spec.ts` next to source files or in `tests/` directory
-- Use descriptive test names: `should return 401 when token is missing`
-
----
-
-## 14. Module Checklist (for every new feature)
-
-When creating a new module, always create these files:
-1. `validators/{module}.validator.ts` — Zod schemas
-2. `repositories/{module}.repository.ts` — Data access
-3. `services/{module}.service.ts` — Business logic
-4. `controllers/{module}.controller.ts` — Request handling
-5. `routes/{module}.routes.ts` — Route definitions
-6. Register routes in `routes/index.ts`
-7. Add types to `types/` if needed
 </file>
 
 <file path="src/config/firebase.ts">
@@ -3421,41 +3102,6 @@ router.delete('/ads/:id', validate(idParamSchema), adminContentController.delete
 export default router;
 </file>
 
-<file path="src/routes/admin/index.ts">
-// ============================================
-// Promoo Backend — Admin Routes Entry Point
-// ============================================
-
-import { Router } from 'express';
-import { requireAdmin } from '../../middleware/admin.middleware';
-
-// Import all admin modules
-import statsRoutes from './stats.routes';
-import userRoutes from './user.routes';
-import contentRoutes from './content.routes';
-import planRoutes from './plan.routes';
-import paymentRoutes from './payment.routes';
-import reportRoutes from './report.routes';
-import categoryRoutes from './category.routes';
-
-const router = Router();
-
-// Protect ALL admin routes with the requireAdmin middleware
-// requireAdmin already uses requireAuth internally to verify the token first
-router.use(requireAdmin);
-
-// Mount Admin Modules
-router.use('/stats', statsRoutes);
-router.use('/users', userRoutes);
-router.use('/content', contentRoutes);
-router.use('/plans', planRoutes);
-router.use('/payments', paymentRoutes);
-router.use('/reports', reportRoutes);
-router.use('/categories', categoryRoutes);
-
-export default router;
-</file>
-
 <file path="src/routes/admin/payment.routes.ts">
 // ============================================
 // Promoo Backend — Admin Payment Routes
@@ -4777,292 +4423,6 @@ export class AdminStatsService {
 export const adminStatsService = new AdminStatsService();
 </file>
 
-<file path="src/services/admin/user.service.ts">
-// ============================================
-// Promoo Backend — Admin User Service
-// ============================================
-
-import { supabaseAdmin } from '../../config/supabase';
-import { ApiError } from '../../utils/apiError';
-
-export class AdminUserService {
-  /**
-   * Get all users with filters and pagination
-   */
-  async getUsers(filters: any, page: number = 1, limit: number = 20) {
-    const offset = (page - 1) * limit;
-
-    let query = supabaseAdmin
-      .from('profiles')
-      .select('*', { count: 'exact' });
-
-    if (filters.search) {
-      query = query.or(`full_name.ilike.%${filters.search}%,username.ilike.%${filters.search}%`);
-    }
-    if (filters.accountType) {
-      query = query.eq('account_type', filters.accountType);
-    }
-    if (filters.isVerified !== undefined) {
-      query = query.eq('is_verified', filters.isVerified === 'true');
-    }
-    if (filters.isActive !== undefined) {
-      query = query.eq('is_active', filters.isActive === 'true');
-    }
-
-    const { data, error, count } = await query
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-
-    return {
-      data: data || [],
-      total: count || 0,
-      page,
-      limit,
-      totalPages: Math.ceil((count || 0) / limit),
-    };
-  }
-
-  /**
-   * Get user details
-   */
-  async getUserDetails(userId: string) {
-    const { data, error } = await supabaseAdmin
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error || !data) {
-      throw ApiError.notFound('User not found');
-    }
-
-    return data;
-  }
-
-  /**
-   * Toggle user active/banned status
-   */
-  async toggleBan(userId: string, isActive: boolean) {
-    const { data, error } = await supabaseAdmin
-      .from('profiles')
-      .update({ is_active: isActive })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-
-    return data;
-  }
-
-  /**
-   * Toggle user verification status
-   */
-  async toggleVerify(userId: string, isVerified: boolean) {
-    const { data, error } = await supabaseAdmin
-      .from('profiles')
-      .update({ is_verified: isVerified })
-      .eq('id', userId)
-      .select()
-      .single();
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-
-    return data;
-  }
-
-  /**
-   * Delete user permanently
-   */
-  async deleteUser(userId: string) {
-    // Delete from Supabase Auth; this will trigger cascade deletion in public.profiles
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-
-    return { success: true };
-  }
-}
-
-export const adminUserService = new AdminUserService();
-</file>
-
-<file path="src/services/auth.service.ts">
-// ============================================
-// Promoo Backend — Auth Service
-// ============================================
-
-import { supabaseAdmin } from '../config/supabase';
-import { ApiError } from '../utils/apiError';
-import { AccountType } from '../types/enums';
-
-export class AuthService {
-  /**
-   * Register with Email and Password
-   */
-  async registerWithEmail(email: string, password: string, fullName: string, accountType: AccountType) {
-    const { data, error } = await supabaseAdmin.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          account_type: accountType,
-        },
-      },
-    });
-
-    if (error) {
-      throw ApiError.badRequest(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Register with Phone and Password
-   */
-  async registerWithPhone(phone: string, password: string, fullName: string, accountType: AccountType) {
-    const { data, error } = await supabaseAdmin.auth.signUp({
-      phone,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          account_type: accountType,
-        },
-      },
-    });
-
-    if (error) {
-      throw ApiError.badRequest(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Login with Email
-   */
-  async loginWithEmail(email: string, password: string) {
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      throw ApiError.unauthorized(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Login with Phone
-   */
-  async loginWithPhone(phone: string, password: string) {
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
-      phone,
-      password,
-    });
-
-    if (error) {
-      throw ApiError.unauthorized(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Verify OTP (for email signup, phone signup, or password recovery)
-   */
-  async verifyOtp(email: string | undefined, phone: string | undefined, token: string, type: any) {
-    const payload: any = { token, type };
-    if (email) payload.email = email;
-    if (phone) payload.phone = phone;
-
-    const { data, error } = await supabaseAdmin.auth.verifyOtp(payload);
-
-    if (error) {
-      throw ApiError.badRequest(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Refresh Token
-   */
-  async refreshToken(refresh_token: string) {
-    const { data, error } = await supabaseAdmin.auth.refreshSession({ refresh_token });
-
-    if (error) {
-      throw ApiError.unauthorized(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Logout (Invalidate token)
-   */
-  async logout(token: string) {
-    const { error } = await supabaseAdmin.auth.admin.signOut(token);
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-    return true;
-  }
-
-  /**
-   * Send Password Reset Email
-   */
-  async forgotPassword(email: string) {
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
-    if (error) {
-      throw ApiError.badRequest(error.message);
-    }
-    return true;
-  }
-
-  /**
-   * Update Password (requires auth user)
-   */
-  async resetPassword(password: string, userId: string) {
-    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-      password,
-    });
-    
-    if (error) {
-      throw ApiError.badRequest(error.message);
-    }
-    return true;
-  }
-
-  /**
-   * OAuth Login (ID Token from Mobile App)
-   */
-  async signInWithIdToken(provider: 'google' | 'apple', idToken: string, nonce?: string) {
-    const { data, error } = await supabaseAdmin.auth.signInWithIdToken({
-      provider,
-      token: idToken,
-      nonce,
-    });
-
-    if (error) {
-      throw ApiError.unauthorized(error.message);
-    }
-    return data;
-  }
-}
-
-export const authService = new AuthService();
-</file>
-
 <file path="src/services/category.service.ts">
 // ============================================
 // Promoo Backend — Category Service
@@ -6322,200 +5682,6 @@ export class StripeService {
 }
 
 export const stripeService = new StripeService();
-</file>
-
-<file path="src/services/subscription.service.ts">
-// ============================================
-// Promoo Backend — Subscription Service
-// ============================================
-
-import { supabaseAdmin } from '../config/supabase';
-import { ApiError } from '../utils/apiError';
-import { stripeService } from './stripe.service';
-
-export class SubscriptionService {
-  /**
-   * Get all active subscription plans
-   */
-  async getPlans() {
-    const { data, error } = await supabaseAdmin
-      .from('subscription_plans')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order', { ascending: true });
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Get an active plan by ID
-   */
-  async getPlanById(planId: string) {
-    const { data, error } = await supabaseAdmin
-      .from('subscription_plans')
-      .select('*')
-      .eq('id', planId)
-      .eq('is_active', true)
-      .single();
-
-    if (error || !data) {
-      throw ApiError.notFound('Plan not found or inactive');
-    }
-    return data;
-  }
-
-  /**
-   * Create a Subscription Checkout Session
-   */
-  async createSubscriptionCheckout(userId: string, planId: string, returnUrl: string) {
-    // 1. Get Plan details (to get Stripe Price ID)
-    const plan = await this.getPlanById(planId);
-    
-    if (!plan.stripe_price_id) {
-      throw ApiError.internal('Plan does not have a linked Stripe price');
-    }
-
-    // 2. Get or create Stripe Customer for the user
-    const customerId = await stripeService.getOrCreateCustomer(userId);
-
-    // 3. Check if user already has an active subscription
-    const { data: existingSub } = await supabaseAdmin
-      .from('subscriptions')
-      .select('status')
-      .eq('profile_id', userId)
-      .in('status', ['active', 'trialing'])
-      .maybeSingle();
-
-    if (existingSub) {
-      throw ApiError.badRequest('You already have an active subscription');
-    }
-
-    // 4. Create Stripe Checkout Session
-    const session = await stripeService.createSubscriptionCheckout(
-      customerId,
-      plan.stripe_price_id,
-      `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,
-      `${returnUrl}?canceled=true`
-    );
-
-    return { url: session.url };
-  }
-
-  /**
-   * Get the current user's active subscription
-   */
-  async getMySubscription(userId: string) {
-    const { data, error } = await supabaseAdmin
-      .from('subscriptions')
-      .select('*, plan:subscription_plans(*)')
-      .eq('profile_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (error) {
-      throw ApiError.internal(error.message);
-    }
-    return data;
-  }
-
-  /**
-   * Cancel Subscription (creates a customer portal session to manage it)
-   */
-  async getCustomerPortalUrl(userId: string, returnUrl: string) {
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('stripe_customer_id')
-      .eq('id', userId)
-      .single();
-
-    if (!profile || !profile.stripe_customer_id) {
-      throw ApiError.badRequest('No billing account found');
-    }
-
-    const session = await stripeService.createPortalSession(profile.stripe_customer_id, returnUrl);
-    
-    return { url: session.url };
-  }
-
-  /**
-   * Handle Stripe Webhook to sync subscription data
-   */
-  async handleStripeWebhook(event: any) {
-    // Handling logic will be processed here (e.g., checkout.session.completed, customer.subscription.created/updated/deleted)
-    const type = event.type;
-    const data = event.data.object;
-
-    if (type === 'customer.subscription.created' || type === 'customer.subscription.updated') {
-      const customerId = data.customer;
-      const stripeSubId = data.id;
-      const status = data.status; // e.g., 'active', 'past_due', 'canceled'
-      const currentPeriodStart = new Date(data.current_period_start * 1000).toISOString();
-      const currentPeriodEnd = new Date(data.current_period_end * 1000).toISOString();
-      const cancelAt = data.canceled_at ? new Date(data.canceled_at * 1000).toISOString() : null;
-      const priceId = data.items.data[0].price.id;
-
-      // 1. Find profile by stripe_customer_id
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('id')
-        .eq('stripe_customer_id', customerId)
-        .single();
-
-      if (!profile) return; // User not found, ignore
-
-      // 2. Find plan by stripe_price_id
-      const { data: plan } = await supabaseAdmin
-        .from('subscription_plans')
-        .select('id')
-        .eq('stripe_price_id', priceId)
-        .single();
-
-      if (!plan) return; // Plan not found, ignore
-
-      // 3. Upsert Subscription
-      const payload = {
-        profile_id: profile.id,
-        plan_id: plan.id,
-        stripe_subscription_id: stripeSubId,
-        status: status,
-        current_period_start: currentPeriodStart,
-        current_period_end: currentPeriodEnd,
-        canceled_at: cancelAt,
-      };
-
-      // We need to check if it exists first because we only UPSERT by stripe_subscription_id
-      // but PostgREST upsert needs the conflict target to be unique
-      const { data: existingSub } = await supabaseAdmin
-        .from('subscriptions')
-        .select('id')
-        .eq('stripe_subscription_id', stripeSubId)
-        .maybeSingle();
-
-      if (existingSub) {
-        await supabaseAdmin
-          .from('subscriptions')
-          .update(payload)
-          .eq('id', existingSub.id);
-      } else {
-        await supabaseAdmin
-          .from('subscriptions')
-          .insert(payload);
-      }
-    } else if (type === 'customer.subscription.deleted') {
-      const stripeSubId = data.id;
-      await supabaseAdmin
-        .from('subscriptions')
-        .update({ status: 'canceled', canceled_at: new Date().toISOString() })
-        .eq('stripe_subscription_id', stripeSubId);
-    }
-  }
-}
-
-export const subscriptionService = new SubscriptionService();
 </file>
 
 <file path="src/services/upload.service.ts">
@@ -8508,6 +7674,25 @@ create index idx_featured_profile on public.featured_accounts(profile_id);
 create index idx_featured_dates on public.featured_accounts(start_date, end_date);
 </file>
 
+<file path="supabase/migrations/010_add_is_active_to_profiles.sql">
+-- ==========================================
+-- 010_add_is_active_to_profiles.sql
+-- ==========================================
+
+-- Add the missing is_active column for the User Ban feature
+alter table public.profiles add column if not exists is_active boolean default true;
+</file>
+
+<file path="supabase/migrations/011_enable_realtime_chat.sql">
+-- ==========================================
+-- 011_enable_realtime_chat.sql
+-- ==========================================
+
+-- Enable Supabase Realtime for chat modules
+alter publication supabase_realtime add table public.chat_rooms;
+alter publication supabase_realtime add table public.messages;
+</file>
+
 <file path="supabase/seed.sql">
 -- ==========================================
 -- seed.sql
@@ -8668,6 +7853,324 @@ coverage/
     "typescript": "^6.0.3"
   }
 }
+</file>
+
+<file path="project_rules.md">
+# Promoo Backend — Project Rules & Standards
+
+> This file is the **single source of truth** for all coding standards, architectural decisions,
+> and conventions used in this project. Every contributor and AI assistant must follow these rules.
+
+---
+
+## 1. Project Overview
+
+| Key | Value |
+|-----|-------|
+| **Name** | Promoo Backend |
+| **Purpose** | REST API for a digital platform connecting companies, influencers, service providers, and regular users |
+| **Stack** | Node.js + Express.js + TypeScript |
+| **Database** | PostgreSQL via Supabase |
+| **Auth** | Supabase Auth (Email, Phone, Google, Apple, OTP) |
+| **Storage** | Supabase Storage (images, videos, attachments) |
+| **Realtime** | Supabase Realtime (1-to-1 chat) |
+| **Payments** | Stripe (Checkout Sessions + Webhooks) |
+| **Push Notifications** | Firebase Cloud Messaging (FCM) |
+| **Languages** | Bilingual: Arabic (ar) + English (en) |
+
+### Account Types
+- `company` — شركة
+- `influencer` — مؤثر
+- `service_provider` — مقدم خدمة
+- `user` — مستخدم عادي
+
+---
+
+## 2. Architecture Pattern
+
+We follow a **4-Layer Architecture**:
+
+```
+This project follows a strict **3-Layer Architecture**:
+1. **Routes**: Define API endpoints and attach middleware/validators.
+2. **Controllers**: Handle HTTP requests/responses, extract parameters, and call services.
+3. **Services**: Contain all core business logic and interact directly with Supabase/Database.
+
+**Note on Data Access:** 
+Since Supabase acts as a powerful query builder and Backend-as-a-Service, the `Service` layer directly queries Supabase. We do not use a separate `Repository` layer to avoid unnecessary abstraction overhead and keep the architecture pragmatic.
+
+### Rules:
+- Controllers NEVER call the database directly
+- Services NEVER access `req` or `res` objects
+- Each module has its own route, controller, and service file
+
+---
+
+## 3. Project Structure
+
+```
+src/
+├── app.ts                    # Express app configuration
+├── server.ts                 # Entry point (starts server)
+├── config/                   # External service clients
+│   ├── supabase.ts           # Supabase client (singleton)
+│   ├── stripe.ts             # Stripe client
+│   ├── firebase.ts           # Firebase Admin SDK
+│   └── env.ts                # Env validation with Zod
+├── middleware/                # Express middleware
+├── routes/                   # Route definitions
+│   ├── index.ts              # Route aggregator
+│   └── admin/                # Admin-only routes
+├── controllers/              # Request handlers
+│   └── admin/
+├── services/                 # Business logic
+├── repositories/             # Data access layer
+├── validators/               # Zod schemas per module
+├── types/                    # TypeScript types & enums
+└── utils/                    # Shared utilities
+```
+
+---
+
+## 4. Naming Conventions
+
+| Item | Convention | Example |
+|------|-----------|---------|
+| Files | `kebab-case` or `camelCase.type.ts` | `auth.controller.ts`, `auth.service.ts` |
+| Variables | `camelCase` | `userId`, `offerPrice` |
+| Constants | `UPPER_SNAKE_CASE` | `MAX_FILE_SIZE`, `DEFAULT_PAGE_SIZE` |
+| Classes | `PascalCase` | `ApiError`, `AuthService` |
+| Interfaces/Types | `PascalCase` with prefix | `IUser`, `TCreateOffer` |
+| Enums | `PascalCase` keys | `AccountType.Company` |
+| Database tables | `snake_case` | `subscription_plans`, `chat_rooms` |
+| Database columns | `snake_case` | `created_at`, `is_verified` |
+| API endpoints | `kebab-case` | `/api/auth/forgot-password` |
+| Environment vars | `UPPER_SNAKE_CASE` | `SUPABASE_URL`, `STRIPE_SECRET_KEY` |
+
+---
+
+## 5. API Design Standards
+
+### Base URL
+```
+/api/v1/...
+```
+
+### Response Format — ALWAYS use this structure:
+```typescript
+// Success
+{
+  "success": true,
+  "data": { ... } | [...],
+  "message": "Operation completed successfully",
+  "meta": {                    // Only for paginated responses
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+
+// Error
+{
+  "success": false,
+  "data": null,
+  "message": "Human-readable error message",
+  "error": {
+    "code": "VALIDATION_ERROR",   // Machine-readable error code
+    "details": [...]              // Optional: field-level errors
+  }
+}
+```
+
+### HTTP Status Codes:
+| Code | Usage |
+|------|-------|
+| `200` | Success (GET, PUT, PATCH) |
+| `201` | Created (POST) |
+| `204` | No Content (DELETE) |
+| `400` | Bad Request / Validation Error |
+| `401` | Unauthorized (no token or expired) |
+| `403` | Forbidden (no permission) |
+| `404` | Not Found |
+| `409` | Conflict (duplicate) |
+| `422` | Unprocessable Entity |
+| `429` | Too Many Requests |
+| `500` | Internal Server Error |
+
+### Pagination:
+- All list endpoints MUST support pagination
+- Default: `page=1`, `limit=20`
+- Max limit: `100`
+- Query params: `?page=1&limit=20`
+
+### Internationalization (i18n):
+- Accept `Accept-Language` header (`ar` or `en`, default: `en`)
+- Return localized fields accordingly
+- Database stores both: `name_ar`, `name_en`
+
+---
+
+## 6. TypeScript Rules
+
+- **Strict mode**: Always enabled (`strict: true` in tsconfig)
+- **No `any`**: Never use `any`. Use `unknown` if type is truly unknown
+- **Explicit return types**: All functions must have explicit return types
+- **Interfaces for objects**: Use `interface` for object shapes, `type` for unions/intersections
+- **Enums**: Use string enums for readability
+- **Null handling**: Always handle null/undefined cases explicitly
+
+```typescript
+// ✅ Good
+async function getUserById(id: string): Promise<IProfile | null> { ... }
+
+// ❌ Bad
+async function getUserById(id: any) { ... }
+```
+
+---
+
+## 7. Coding Standards
+
+### Async/Await
+- ALWAYS use `async/await`. NEVER use callbacks or raw `.then()` chains
+- ALWAYS wrap controller logic in try/catch
+
+### Error Handling
+```typescript
+// In Controllers — use the centralized error handler
+const getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = await userService.getById(req.params.id);
+    res.status(200).json(apiResponse.success(user, 'User fetched'));
+  } catch (error) {
+    next(error); // Pass to error handler middleware
+  }
+};
+```
+
+### Validation
+- ALWAYS validate input using Zod schemas BEFORE processing
+- Define schemas in `validators/` directory
+- Use `validate` middleware to auto-validate requests
+
+```typescript
+// validators/auth.validator.ts
+export const registerSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+    fullName: z.string().min(2).max(100),
+    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']),
+  }),
+});
+```
+
+### Imports
+- Use ES module imports (`import/export`)
+- Order: Node built-ins → External packages → Internal modules → Types
+- Use path aliases if configured
+
+---
+
+## 8. Database Rules (Supabase)
+
+- **UUIDs**: All primary keys are UUIDs (`gen_random_uuid()`)
+- **Timestamps**: All tables have `created_at` (auto) and `updated_at` where applicable
+- **Soft deletes**: Use `deleted_at` timestamp instead of hard deletes for important data
+- **RLS**: Row Level Security enabled on ALL tables
+- **Service role**: Only used server-side in repositories, NEVER exposed
+- **Indexes**: Add indexes on frequently queried columns (foreign keys, status, created_at)
+- **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense
+
+---
+
+## 9. Security Rules
+
+- NEVER expose `SUPABASE_SERVICE_ROLE_KEY` or `STRIPE_SECRET_KEY` in responses or logs
+- ALWAYS verify JWT in protected routes via `auth.middleware.ts`
+- ALWAYS sanitize user inputs (Zod handles this)
+- ALWAYS use parameterized queries (Supabase client does this automatically)
+- ALWAYS set security headers via `helmet`
+- ALWAYS apply rate limiting on auth endpoints
+- NEVER log sensitive data (passwords, tokens, card numbers)
+- Use CORS whitelist, not wildcard, in production
+
+---
+
+## 10. File Upload Rules
+
+- Max image size: **5MB**
+- Max video size: **50MB**
+- Max attachment size: **10MB**
+- Allowed image types: `jpg, jpeg, png, webp, gif`
+- Allowed video types: `mp4, mov, webm`
+- Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`
+- File naming: `{userId}/{timestamp}_{originalName}`
+
+---
+
+## 11. Git & Code Quality
+
+- Commit messages: `type(scope): message` (e.g., `feat(auth): add OTP verification`)
+- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`
+- One feature per branch
+- Always run linting before commit
+
+---
+
+## 12. Environment Variables Required
+
+```env
+# Server
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
+
+# Supabase
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Firebase
+FIREBASE_PROJECT_ID=promoo-xxx
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# App
+DEFAULT_LANGUAGE=en
+MAX_PAGE_SIZE=100
+DEFAULT_PAGE_SIZE=20
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+---
+
+## 13. Testing Standards
+
+- Unit tests for services (mock repositories)
+- Integration tests for routes (test full request cycle)
+- Test files: `*.test.ts` or `*.spec.ts` next to source files or in `tests/` directory
+- Use descriptive test names: `should return 401 when token is missing`
+
+---
+
+## 14. Module Checklist (for every new feature)
+
+When creating a new module, always create these files:
+1. `validators/{module}.validator.ts` — Zod schemas
+2. `repositories/{module}.repository.ts` — Data access
+3. `services/{module}.service.ts` — Business logic
+4. `controllers/{module}.controller.ts` — Request handling
+5. `routes/{module}.routes.ts` — Route definitions
+6. Register routes in `routes/index.ts`
+7. Add types to `types/` if needed
 </file>
 
 <file path="src/app.ts">
@@ -8832,6 +8335,361 @@ export const upload = multer({
     }
   }
 });
+</file>
+
+<file path="src/routes/admin/index.ts">
+// ============================================
+// Promoo Backend — Admin Routes Entry Point
+// ============================================
+
+import { Router } from 'express';
+import { requireAuth } from '../../middleware/auth.middleware';
+import { requireAdmin } from '../../middleware/admin.middleware';
+
+// Import all admin modules
+import statsRoutes from './stats.routes';
+import userRoutes from './user.routes';
+import contentRoutes from './content.routes';
+import planRoutes from './plan.routes';
+import paymentRoutes from './payment.routes';
+import reportRoutes from './report.routes';
+import categoryRoutes from './category.routes';
+
+const router = Router();
+
+// Protect ALL admin routes
+// requireAuth parses the token and sets req.user, requireAdmin checks the is_admin flag
+router.use(requireAuth, requireAdmin);
+
+// Mount Admin Modules
+router.use('/stats', statsRoutes);
+router.use('/users', userRoutes);
+router.use('/content', contentRoutes);
+router.use('/plans', planRoutes);
+router.use('/payments', paymentRoutes);
+router.use('/reports', reportRoutes);
+router.use('/categories', categoryRoutes);
+
+export default router;
+</file>
+
+<file path="src/services/admin/user.service.ts">
+// ============================================
+// Promoo Backend — Admin User Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminUserService {
+  /**
+   * Get all users with filters and pagination
+   */
+  async getUsers(filters: any, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    let query = supabaseAdmin
+      .from('profiles')
+      .select('*', { count: 'exact' });
+
+    if (filters.search) {
+      query = query.or(`full_name.ilike.%${filters.search}%,username.ilike.%${filters.search}%`);
+    }
+    if (filters.accountType) {
+      query = query.eq('account_type', filters.accountType);
+    }
+    if (filters.isVerified !== undefined) {
+      query = query.eq('is_verified', filters.isVerified === 'true');
+    }
+    if (filters.isActive !== undefined) {
+      query = query.eq('is_active', filters.isActive === 'true');
+    }
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit),
+    };
+  }
+
+  /**
+   * Get user details
+   */
+  async getUserDetails(userId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      throw ApiError.notFound('User not found');
+    }
+
+    return data;
+  }
+
+  /**
+   * Toggle user active/banned status
+   */
+  async toggleBan(userId: string, isActive: boolean) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ is_active: isActive })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    // If banning the user, revoke their active sessions globally
+    if (isActive === false) {
+      await supabaseAdmin.auth.admin.signOut(userId, 'global');
+    }
+
+    return data;
+  }
+
+  /**
+   * Toggle user verification status
+   */
+  async toggleVerify(userId: string, isVerified: boolean) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ is_verified: isVerified })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return data;
+  }
+
+  /**
+   * Delete user permanently
+   */
+  async deleteUser(userId: string) {
+    // Delete from Supabase Auth; this will trigger cascade deletion in public.profiles
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return { success: true };
+  }
+}
+
+export const adminUserService = new AdminUserService();
+</file>
+
+<file path="src/services/auth.service.ts">
+// ============================================
+// Promoo Backend — Auth Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import { AccountType } from '../types/enums';
+
+export class AuthService {
+  /**
+   * Register with Email and Password
+   */
+  async registerWithEmail(email: string, password: string, fullName: string, accountType: AccountType) {
+    const { data, error } = await supabaseAdmin.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          account_type: accountType,
+        },
+      },
+    });
+
+    if (error) {
+      throw ApiError.badRequest(error.message);
+    }
+    return data;
+  }
+
+  /**
+   * Register with Phone and Password
+   */
+  async registerWithPhone(phone: string, password: string, fullName: string, accountType: AccountType) {
+    const { data, error } = await supabaseAdmin.auth.signUp({
+      phone,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+          account_type: accountType,
+        },
+      },
+    });
+
+    if (error) {
+      throw ApiError.badRequest(error.message);
+    }
+    return data;
+  }
+
+  /**
+   * Login with Email
+   */
+  async loginWithEmail(email: string, password: string) {
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw ApiError.unauthorized(error.message);
+    }
+
+    // Check if user is banned
+    if (data.user) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('is_active')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profile && profile.is_active === false) {
+        throw ApiError.unauthorized('Account is banned');
+      }
+    }
+
+    return data;
+  }
+
+  /**
+   * Login with Phone
+   */
+  async loginWithPhone(phone: string, password: string) {
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+      phone,
+      password,
+    });
+
+    if (error) {
+      throw ApiError.unauthorized(error.message);
+    }
+
+    // Check if user is banned
+    if (data.user) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('is_active')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profile && profile.is_active === false) {
+        throw ApiError.unauthorized('Account is banned');
+      }
+    }
+
+    return data;
+  }
+
+  /**
+   * Verify OTP (for email signup, phone signup, or password recovery)
+   */
+  async verifyOtp(email: string | undefined, phone: string | undefined, token: string, type: any) {
+    const payload: any = { token, type };
+    if (email) payload.email = email;
+    if (phone) payload.phone = phone;
+
+    const { data, error } = await supabaseAdmin.auth.verifyOtp(payload);
+
+    if (error) {
+      throw ApiError.badRequest(error.message);
+    }
+    return data;
+  }
+
+  /**
+   * Refresh Token
+   */
+  async refreshToken(refresh_token: string) {
+    const { data, error } = await supabaseAdmin.auth.refreshSession({ refresh_token });
+
+    if (error) {
+      throw ApiError.unauthorized(error.message);
+    }
+    return data;
+  }
+
+  /**
+   * Logout (Invalidate token)
+   */
+  async logout(token: string) {
+    const { error } = await supabaseAdmin.auth.admin.signOut(token);
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return true;
+  }
+
+  /**
+   * Send Password Reset Email
+   */
+  async forgotPassword(email: string) {
+    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
+    if (error) {
+      throw ApiError.badRequest(error.message);
+    }
+    return true;
+  }
+
+  /**
+   * Update Password (requires auth user)
+   */
+  async resetPassword(password: string, userId: string) {
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, {
+      password,
+    });
+    
+    if (error) {
+      throw ApiError.badRequest(error.message);
+    }
+    return true;
+  }
+
+  /**
+   * OAuth Login (ID Token from Mobile App)
+   */
+  async signInWithIdToken(provider: 'google' | 'apple', idToken: string, nonce?: string) {
+    const { data, error } = await supabaseAdmin.auth.signInWithIdToken({
+      provider,
+      token: idToken,
+      nonce,
+    });
+
+    if (error) {
+      throw ApiError.unauthorized(error.message);
+    }
+    return data;
+  }
+}
+
+export const authService = new AuthService();
 </file>
 
 <file path="src/services/chat.service.ts">
@@ -9327,6 +9185,284 @@ export class FollowService {
 }
 
 export const followService = new FollowService();
+</file>
+
+<file path="src/services/subscription.service.ts">
+// ============================================
+// Promoo Backend — Subscription Service
+// ============================================
+
+import { supabaseAdmin } from '../config/supabase';
+import { ApiError } from '../utils/apiError';
+import { stripeService } from './stripe.service';
+
+export class SubscriptionService {
+  /**
+   * Get all active subscription plans
+   */
+  async getPlans() {
+    const { data, error } = await supabaseAdmin
+      .from('subscription_plans')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true });
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return data;
+  }
+
+  /**
+   * Get an active plan by ID
+   */
+  async getPlanById(planId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('subscription_plans')
+      .select('*')
+      .eq('id', planId)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !data) {
+      throw ApiError.notFound('Plan not found or inactive');
+    }
+    return data;
+  }
+
+  /**
+   * Create a Subscription Checkout Session
+   */
+  async createSubscriptionCheckout(userId: string, planId: string, returnUrl: string) {
+    // 1. Get Plan details (to get Stripe Price ID)
+    const plan = await this.getPlanById(planId);
+    
+    if (!plan.stripe_price_id) {
+      throw ApiError.internal('Plan does not have a linked Stripe price');
+    }
+
+    // 2. Get or create Stripe Customer for the user
+    const customerId = await stripeService.getOrCreateCustomer(userId);
+
+    // 3. Check if user already has an active subscription
+    const { data: existingSub } = await supabaseAdmin
+      .from('subscriptions')
+      .select('status')
+      .eq('profile_id', userId)
+      .in('status', ['active', 'trialing'])
+      .maybeSingle();
+
+    if (existingSub) {
+      throw ApiError.badRequest('You already have an active subscription');
+    }
+
+    // 4. Create Stripe Checkout Session
+    const session = await stripeService.createSubscriptionCheckout(
+      customerId,
+      plan.stripe_price_id,
+      `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      `${returnUrl}?canceled=true`
+    );
+
+    return { url: session.url };
+  }
+
+  /**
+   * Get the current user's active subscription
+   */
+  async getMySubscription(userId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('subscriptions')
+      .select('*, plan:subscription_plans(*)')
+      .eq('profile_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return data;
+  }
+
+  /**
+   * Cancel Subscription (creates a customer portal session to manage it)
+   */
+  async getCustomerPortalUrl(userId: string, returnUrl: string) {
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('id', userId)
+      .single();
+
+    if (!profile || !profile.stripe_customer_id) {
+      throw ApiError.badRequest('No billing account found');
+    }
+
+    const session = await stripeService.createPortalSession(profile.stripe_customer_id, returnUrl);
+    
+    return { url: session.url };
+  }
+
+  /**
+   * Handle Stripe Webhook to sync subscription data
+   */
+  async handleStripeWebhook(event: any) {
+    // Handling logic will be processed here (e.g., checkout.session.completed, customer.subscription.created/updated/deleted)
+    const type = event.type;
+    const data = event.data.object;
+
+    if (type === 'checkout.session.completed') {
+      const session = event.data.object;
+      
+      // We only process one-time payments here. Subscriptions are handled by invoice.payment_succeeded
+      if (session.mode === 'payment') {
+        const stripePaymentId = session.id;
+        
+        // Idempotency check: does this payment already exist?
+        const { data: existingPayment } = await supabaseAdmin
+          .from('payments')
+          .select('id')
+          .eq('stripe_payment_id', stripePaymentId)
+          .maybeSingle();
+
+        if (!existingPayment) {
+          const profileId = session.metadata?.profileId;
+          const amount = session.amount_total / 100;
+          const paymentType = session.metadata?.type || 'ad';
+
+          if (profileId) {
+            // Insert payment
+            await supabaseAdmin.from('payments').insert({
+              profile_id: profileId,
+              stripe_payment_id: stripePaymentId,
+              amount: amount,
+              type: paymentType,
+              status: 'succeeded',
+              metadata: session.metadata || {}
+            });
+
+            // Activate Featured Account if applicable
+            if (paymentType === 'featured') {
+              const placement = session.metadata?.placement;
+              const durationDays = parseInt(session.metadata?.durationDays || '0', 10);
+              
+              if (placement && durationDays > 0) {
+                const startDate = new Date();
+                const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+                
+                await supabaseAdmin.from('featured_accounts').insert({
+                  profile_id: profileId,
+                  placement: placement,
+                  start_date: startDate.toISOString(),
+                  end_date: endDate.toISOString(),
+                  amount_paid: amount,
+                  is_active: true
+                });
+              }
+            }
+          }
+        }
+      }
+    } else if (type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object;
+      const stripePaymentId = invoice.id;
+
+      // Idempotency check
+      const { data: existingPayment } = await supabaseAdmin
+        .from('payments')
+        .select('id')
+        .eq('stripe_payment_id', stripePaymentId)
+        .maybeSingle();
+
+      if (!existingPayment) {
+        // Find profile by customer
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('stripe_customer_id', invoice.customer)
+          .single();
+
+        if (profile && invoice.amount_paid > 0) {
+          await supabaseAdmin.from('payments').insert({
+            profile_id: profile.id,
+            stripe_payment_id: stripePaymentId,
+            amount: invoice.amount_paid / 100,
+            type: 'subscription',
+            status: 'succeeded',
+            metadata: {
+              invoice_url: invoice.hosted_invoice_url,
+              subscription_id: invoice.subscription
+            }
+          });
+        }
+      }
+    } else if (type === 'customer.subscription.created' || type === 'customer.subscription.updated') {
+      const customerId = data.customer;
+      const stripeSubId = data.id;
+      const status = data.status; // e.g., 'active', 'past_due', 'canceled'
+      const currentPeriodStart = new Date(data.current_period_start * 1000).toISOString();
+      const currentPeriodEnd = new Date(data.current_period_end * 1000).toISOString();
+      const cancelAt = data.canceled_at ? new Date(data.canceled_at * 1000).toISOString() : null;
+      const priceId = data.items.data[0].price.id;
+
+      // 1. Find profile by stripe_customer_id
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('stripe_customer_id', customerId)
+        .single();
+
+      if (!profile) return; // User not found, ignore
+
+      // 2. Find plan by stripe_price_id
+      const { data: plan } = await supabaseAdmin
+        .from('subscription_plans')
+        .select('id')
+        .eq('stripe_price_id', priceId)
+        .single();
+
+      if (!plan) return; // Plan not found, ignore
+
+      // 3. Upsert Subscription
+      const payload = {
+        profile_id: profile.id,
+        plan_id: plan.id,
+        stripe_subscription_id: stripeSubId,
+        status: status,
+        current_period_start: currentPeriodStart,
+        current_period_end: currentPeriodEnd,
+        canceled_at: cancelAt,
+      };
+
+      // We need to check if it exists first because we only UPSERT by stripe_subscription_id
+      const { data: existingSub } = await supabaseAdmin
+        .from('subscriptions')
+        .select('id')
+        .eq('stripe_subscription_id', stripeSubId)
+        .maybeSingle();
+
+      if (existingSub) {
+        await supabaseAdmin
+          .from('subscriptions')
+          .update(payload)
+          .eq('id', existingSub.id);
+      } else {
+        await supabaseAdmin
+          .from('subscriptions')
+          .insert(payload);
+      }
+    } else if (type === 'customer.subscription.deleted') {
+      const stripeSubId = data.id;
+      await supabaseAdmin
+        .from('subscriptions')
+        .update({ status: 'canceled', canceled_at: new Date().toISOString() })
+        .eq('stripe_subscription_id', stripeSubId);
+    }
+  }
+}
+
+export const subscriptionService = new SubscriptionService();
 </file>
 
 <file path="REQUIREMENTS_STATUS.md">
