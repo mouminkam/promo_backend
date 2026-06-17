@@ -41,13 +41,6 @@ The content is organized as follows:
 
 <directory_structure>
 .env.example
-.gemini/hooks/crg-session-start.sh
-.gemini/hooks/crg-update.sh
-.gemini/settings.json
-.gemini/skills/debug-issue/SKILL.md
-.gemini/skills/explore-codebase/SKILL.md
-.gemini/skills/refactor-safely/SKILL.md
-.gemini/skills/review-changes/SKILL.md
 .github/code-review-graph.instruction.md
 .gitignore
 docs/phases_logic/phase_1_database.md
@@ -189,238 +182,6 @@ tsconfig.json
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path=".env.example">
-# ============================================
-# Promoo Backend — Environment Variables
-# ============================================
-
-# Server
-NODE_ENV=development
-PORT=3000
-API_VERSION=v1
-
-# Supabase
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Firebase (FCM)
-FIREBASE_PROJECT_ID=promoo-xxx
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# App Settings
-DEFAULT_LANGUAGE=en
-MAX_PAGE_SIZE=100
-DEFAULT_PAGE_SIZE=20
-
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-</file>
-
-<file path=".gemini/hooks/crg-session-start.sh">
-#!/usr/bin/env bash
-# code-review-graph: session start status (Gemini CLI hook)
-# Must output ONLY JSON on stdout. Logs go to stderr. Never blocks the session.
-set -euo pipefail
-
-cat > /dev/null || true
-
-msg="$(code-review-graph status --repo "E:/Personal Work Projects/promo_backend" 2>&1 | head -n 1 || true)"
-
-CRG_MSG="$msg" python3 -c '
-import json,os
-m=os.environ.get("CRG_MSG","")
-print(json.dumps({"systemMessage":m,"suppressOutput":True}))
-' 2>/dev/null || echo '{"suppressOutput": true}'
-exit 0
-</file>
-
-<file path=".gemini/hooks/crg-update.sh">
-#!/usr/bin/env bash
-# code-review-graph: incremental update after write/replace (Gemini CLI hook)
-# Must output ONLY JSON on stdout. Low-noise: no systemMessage.
-set -euo pipefail
-
-cat > /dev/null || true
-
-code-review-graph update --skip-flows --repo "E:/Personal Work Projects/promo_backend" >/dev/null 2>&1 || true
-echo '{"suppressOutput": true}'
-exit 0
-</file>
-
-<file path=".gemini/settings.json">
-{
-  "mcpServers": {
-    "code-review-graph": {
-      "command": "C:\\Users\\MO2MIN\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
-      "args": [
-        "-m",
-        "code_review_graph",
-        "serve"
-      ],
-      "cwd": "E:\\Personal Work Projects\\promo_backend"
-    }
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .gemini/hooks/crg-session-start.sh",
-            "name": "code-review-graph status",
-            "timeout": 10000
-          }
-        ]
-      }
-    ],
-    "AfterTool": [
-      {
-        "matcher": "write_file|replace",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .gemini/hooks/crg-update.sh",
-            "name": "code-review-graph update",
-            "timeout": 30000
-          }
-        ]
-      }
-    ]
-  }
-}
-</file>
-
-<file path=".gemini/skills/debug-issue/SKILL.md">
----
-name: debug-issue
-description: Systematically debug issues using graph-powered code navigation
----
-
-## Debug Issue
-
-Use the knowledge graph to systematically trace and debug issues.
-
-### Steps
-
-1. Use `semantic_search_nodes` to find code related to the issue.
-2. Use `query_graph` with `callers_of` and `callees_of` to trace call chains.
-3. Use `get_flow` to see full execution paths through suspected areas.
-4. Run `detect_changes` to check if recent changes caused the issue.
-5. Use `get_impact_radius` on suspected files to see what else is affected.
-
-### Tips
-
-- Check both callers and callees to understand the full context.
-- Look at affected flows to find the entry point that triggers the bug.
-- Recent changes are the most common source of new issues.
-
-## Token Efficiency Rules
-- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
-- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
-- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
-</file>
-
-<file path=".gemini/skills/explore-codebase/SKILL.md">
----
-name: explore-codebase
-description: Navigate and understand codebase structure using the knowledge graph
----
-
-## Explore Codebase
-
-Use the code-review-graph MCP tools to explore and understand the codebase.
-
-### Steps
-
-1. Run `list_graph_stats` to see overall codebase metrics.
-2. Run `get_architecture_overview` for high-level community structure.
-3. Use `list_communities` to find major modules, then `get_community` for details.
-4. Use `semantic_search_nodes` to find specific functions or classes.
-5. Use `query_graph` with patterns like `callers_of`, `callees_of`, `imports_of` to trace relationships.
-6. Use `list_flows` and `get_flow` to understand execution paths.
-
-### Tips
-
-- Start broad (stats, architecture) then narrow down to specific areas.
-- Use `children_of` on a file to see all its functions and classes.
-- Use `find_large_functions` to identify complex code.
-
-## Token Efficiency Rules
-- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
-- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
-- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
-</file>
-
-<file path=".gemini/skills/refactor-safely/SKILL.md">
----
-name: refactor-safely
-description: Plan and execute safe refactoring using dependency analysis
----
-
-## Refactor Safely
-
-Use the knowledge graph to plan and execute refactoring with confidence.
-
-### Steps
-
-1. Use `refactor_tool` with mode="suggest" for community-driven refactoring suggestions.
-2. Use `refactor_tool` with mode="dead_code" to find unreferenced code.
-3. For renames, use `refactor_tool` with mode="rename" to preview all affected locations.
-4. Use `apply_refactor_tool` with the refactor_id to apply renames.
-5. After changes, run `detect_changes` to verify the refactoring impact.
-
-### Safety Checks
-
-- Always preview before applying (rename mode gives you an edit list).
-- Check `get_impact_radius` before major refactors.
-- Use `get_affected_flows` to ensure no critical paths are broken.
-- Run `find_large_functions` to identify decomposition targets.
-
-## Token Efficiency Rules
-- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
-- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
-- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
-</file>
-
-<file path=".gemini/skills/review-changes/SKILL.md">
----
-name: review-changes
-description: Perform a structured code review using change detection and impact
----
-
-## Review Changes
-
-Perform a thorough, risk-aware code review using the knowledge graph.
-
-### Steps
-
-1. Run `detect_changes` to get risk-scored change analysis.
-2. Run `get_affected_flows` to find impacted execution paths.
-3. For each high-risk function, run `query_graph` with pattern="tests_for" to check test coverage.
-4. Run `get_impact_radius` to understand the blast radius.
-5. For any untested changes, suggest specific test cases.
-
-### Output Format
-
-Provide findings grouped by risk level (high/medium/low) with:
-- What changed and why it matters
-- Test coverage status
-- Suggested improvements
-- Overall merge recommendation
-
-## Token Efficiency Rules
-- ALWAYS start with `get_minimal_context(task="<your task>")` before any other graph tool.
-- Use `detail_level="minimal"` on all calls. Only escalate to "standard" when minimal is insufficient.
-- Target: complete any review/debug/refactor task in ≤5 tool calls and ≤800 total output tokens.
-</file>
 
 <file path=".github/code-review-graph.instruction.md">
 ---
@@ -7776,34 +7537,37 @@ on conflict (stripe_price_id) do nothing;
 }
 </file>
 
-<file path=".gitignore">
-# Dependencies
-node_modules/
+<file path=".env.example">
+# ============================================
+# Promoo Backend — Environment Variables
+# ============================================
 
-# Environment
-.env
-.env.local
-.env.production
+# Server
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
 
-# Build
-dist/
+# Supabase
+SUPABASE_URL=https://mqklargyjispbcyxzdjo.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xa2xhcmd5amlzcGJjeXh6ZGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MjQ3NzUsImV4cCI6MjA5NzIwMDc3NX0.fJOsJy5AK5Uvn8SR-P6ajqtd1h4osNE8vlJ1XrFWXFI
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xa2xhcmd5amlzcGJjeXh6ZGpvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MTYyNDc3NSwiZXhwIjoyMDk3MjAwNzc1fQ.Pt0Lx-MR-FzT3c7tqy3uqANAtbX1P02orYN7UVVGxlU
 
-# IDE
-.vscode/
-.idea/
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
 
-# OS
-.DS_Store
-Thumbs.db
+# Firebase (FCM)
+FIREBASE_PROJECT_ID=promoo-xxx
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 
-# Logs
-*.log
-logs/
+# App Settings
+DEFAULT_LANGUAGE=en
+MAX_PAGE_SIZE=100
+DEFAULT_PAGE_SIZE=20
 
-# Coverage
-coverage/
-# Added by code-review-graph
-.code-review-graph/
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 </file>
 
 <file path="package.json">
@@ -7853,324 +7617,6 @@ coverage/
     "typescript": "^6.0.3"
   }
 }
-</file>
-
-<file path="project_rules.md">
-# Promoo Backend — Project Rules & Standards
-
-> This file is the **single source of truth** for all coding standards, architectural decisions,
-> and conventions used in this project. Every contributor and AI assistant must follow these rules.
-
----
-
-## 1. Project Overview
-
-| Key | Value |
-|-----|-------|
-| **Name** | Promoo Backend |
-| **Purpose** | REST API for a digital platform connecting companies, influencers, service providers, and regular users |
-| **Stack** | Node.js + Express.js + TypeScript |
-| **Database** | PostgreSQL via Supabase |
-| **Auth** | Supabase Auth (Email, Phone, Google, Apple, OTP) |
-| **Storage** | Supabase Storage (images, videos, attachments) |
-| **Realtime** | Supabase Realtime (1-to-1 chat) |
-| **Payments** | Stripe (Checkout Sessions + Webhooks) |
-| **Push Notifications** | Firebase Cloud Messaging (FCM) |
-| **Languages** | Bilingual: Arabic (ar) + English (en) |
-
-### Account Types
-- `company` — شركة
-- `influencer` — مؤثر
-- `service_provider` — مقدم خدمة
-- `user` — مستخدم عادي
-
----
-
-## 2. Architecture Pattern
-
-We follow a **4-Layer Architecture**:
-
-```
-This project follows a strict **3-Layer Architecture**:
-1. **Routes**: Define API endpoints and attach middleware/validators.
-2. **Controllers**: Handle HTTP requests/responses, extract parameters, and call services.
-3. **Services**: Contain all core business logic and interact directly with Supabase/Database.
-
-**Note on Data Access:** 
-Since Supabase acts as a powerful query builder and Backend-as-a-Service, the `Service` layer directly queries Supabase. We do not use a separate `Repository` layer to avoid unnecessary abstraction overhead and keep the architecture pragmatic.
-
-### Rules:
-- Controllers NEVER call the database directly
-- Services NEVER access `req` or `res` objects
-- Each module has its own route, controller, and service file
-
----
-
-## 3. Project Structure
-
-```
-src/
-├── app.ts                    # Express app configuration
-├── server.ts                 # Entry point (starts server)
-├── config/                   # External service clients
-│   ├── supabase.ts           # Supabase client (singleton)
-│   ├── stripe.ts             # Stripe client
-│   ├── firebase.ts           # Firebase Admin SDK
-│   └── env.ts                # Env validation with Zod
-├── middleware/                # Express middleware
-├── routes/                   # Route definitions
-│   ├── index.ts              # Route aggregator
-│   └── admin/                # Admin-only routes
-├── controllers/              # Request handlers
-│   └── admin/
-├── services/                 # Business logic
-├── repositories/             # Data access layer
-├── validators/               # Zod schemas per module
-├── types/                    # TypeScript types & enums
-└── utils/                    # Shared utilities
-```
-
----
-
-## 4. Naming Conventions
-
-| Item | Convention | Example |
-|------|-----------|---------|
-| Files | `kebab-case` or `camelCase.type.ts` | `auth.controller.ts`, `auth.service.ts` |
-| Variables | `camelCase` | `userId`, `offerPrice` |
-| Constants | `UPPER_SNAKE_CASE` | `MAX_FILE_SIZE`, `DEFAULT_PAGE_SIZE` |
-| Classes | `PascalCase` | `ApiError`, `AuthService` |
-| Interfaces/Types | `PascalCase` with prefix | `IUser`, `TCreateOffer` |
-| Enums | `PascalCase` keys | `AccountType.Company` |
-| Database tables | `snake_case` | `subscription_plans`, `chat_rooms` |
-| Database columns | `snake_case` | `created_at`, `is_verified` |
-| API endpoints | `kebab-case` | `/api/auth/forgot-password` |
-| Environment vars | `UPPER_SNAKE_CASE` | `SUPABASE_URL`, `STRIPE_SECRET_KEY` |
-
----
-
-## 5. API Design Standards
-
-### Base URL
-```
-/api/v1/...
-```
-
-### Response Format — ALWAYS use this structure:
-```typescript
-// Success
-{
-  "success": true,
-  "data": { ... } | [...],
-  "message": "Operation completed successfully",
-  "meta": {                    // Only for paginated responses
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "totalPages": 8
-  }
-}
-
-// Error
-{
-  "success": false,
-  "data": null,
-  "message": "Human-readable error message",
-  "error": {
-    "code": "VALIDATION_ERROR",   // Machine-readable error code
-    "details": [...]              // Optional: field-level errors
-  }
-}
-```
-
-### HTTP Status Codes:
-| Code | Usage |
-|------|-------|
-| `200` | Success (GET, PUT, PATCH) |
-| `201` | Created (POST) |
-| `204` | No Content (DELETE) |
-| `400` | Bad Request / Validation Error |
-| `401` | Unauthorized (no token or expired) |
-| `403` | Forbidden (no permission) |
-| `404` | Not Found |
-| `409` | Conflict (duplicate) |
-| `422` | Unprocessable Entity |
-| `429` | Too Many Requests |
-| `500` | Internal Server Error |
-
-### Pagination:
-- All list endpoints MUST support pagination
-- Default: `page=1`, `limit=20`
-- Max limit: `100`
-- Query params: `?page=1&limit=20`
-
-### Internationalization (i18n):
-- Accept `Accept-Language` header (`ar` or `en`, default: `en`)
-- Return localized fields accordingly
-- Database stores both: `name_ar`, `name_en`
-
----
-
-## 6. TypeScript Rules
-
-- **Strict mode**: Always enabled (`strict: true` in tsconfig)
-- **No `any`**: Never use `any`. Use `unknown` if type is truly unknown
-- **Explicit return types**: All functions must have explicit return types
-- **Interfaces for objects**: Use `interface` for object shapes, `type` for unions/intersections
-- **Enums**: Use string enums for readability
-- **Null handling**: Always handle null/undefined cases explicitly
-
-```typescript
-// ✅ Good
-async function getUserById(id: string): Promise<IProfile | null> { ... }
-
-// ❌ Bad
-async function getUserById(id: any) { ... }
-```
-
----
-
-## 7. Coding Standards
-
-### Async/Await
-- ALWAYS use `async/await`. NEVER use callbacks or raw `.then()` chains
-- ALWAYS wrap controller logic in try/catch
-
-### Error Handling
-```typescript
-// In Controllers — use the centralized error handler
-const getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const user = await userService.getById(req.params.id);
-    res.status(200).json(apiResponse.success(user, 'User fetched'));
-  } catch (error) {
-    next(error); // Pass to error handler middleware
-  }
-};
-```
-
-### Validation
-- ALWAYS validate input using Zod schemas BEFORE processing
-- Define schemas in `validators/` directory
-- Use `validate` middleware to auto-validate requests
-
-```typescript
-// validators/auth.validator.ts
-export const registerSchema = z.object({
-  body: z.object({
-    email: z.string().email(),
-    password: z.string().min(8),
-    fullName: z.string().min(2).max(100),
-    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']),
-  }),
-});
-```
-
-### Imports
-- Use ES module imports (`import/export`)
-- Order: Node built-ins → External packages → Internal modules → Types
-- Use path aliases if configured
-
----
-
-## 8. Database Rules (Supabase)
-
-- **UUIDs**: All primary keys are UUIDs (`gen_random_uuid()`)
-- **Timestamps**: All tables have `created_at` (auto) and `updated_at` where applicable
-- **Soft deletes**: Use `deleted_at` timestamp instead of hard deletes for important data
-- **RLS**: Row Level Security enabled on ALL tables
-- **Service role**: Only used server-side in repositories, NEVER exposed
-- **Indexes**: Add indexes on frequently queried columns (foreign keys, status, created_at)
-- **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense
-
----
-
-## 9. Security Rules
-
-- NEVER expose `SUPABASE_SERVICE_ROLE_KEY` or `STRIPE_SECRET_KEY` in responses or logs
-- ALWAYS verify JWT in protected routes via `auth.middleware.ts`
-- ALWAYS sanitize user inputs (Zod handles this)
-- ALWAYS use parameterized queries (Supabase client does this automatically)
-- ALWAYS set security headers via `helmet`
-- ALWAYS apply rate limiting on auth endpoints
-- NEVER log sensitive data (passwords, tokens, card numbers)
-- Use CORS whitelist, not wildcard, in production
-
----
-
-## 10. File Upload Rules
-
-- Max image size: **5MB**
-- Max video size: **50MB**
-- Max attachment size: **10MB**
-- Allowed image types: `jpg, jpeg, png, webp, gif`
-- Allowed video types: `mp4, mov, webm`
-- Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`
-- File naming: `{userId}/{timestamp}_{originalName}`
-
----
-
-## 11. Git & Code Quality
-
-- Commit messages: `type(scope): message` (e.g., `feat(auth): add OTP verification`)
-- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`
-- One feature per branch
-- Always run linting before commit
-
----
-
-## 12. Environment Variables Required
-
-```env
-# Server
-NODE_ENV=development
-PORT=3000
-API_VERSION=v1
-
-# Supabase
-SUPABASE_URL=https://xxx.supabase.co
-SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# Firebase
-FIREBASE_PROJECT_ID=promoo-xxx
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-# App
-DEFAULT_LANGUAGE=en
-MAX_PAGE_SIZE=100
-DEFAULT_PAGE_SIZE=20
-
-# CORS
-CORS_ORIGINS=http://localhost:3000,http://localhost:5173
-```
-
----
-
-## 13. Testing Standards
-
-- Unit tests for services (mock repositories)
-- Integration tests for routes (test full request cycle)
-- Test files: `*.test.ts` or `*.spec.ts` next to source files or in `tests/` directory
-- Use descriptive test names: `should return 401 when token is missing`
-
----
-
-## 14. Module Checklist (for every new feature)
-
-When creating a new module, always create these files:
-1. `validators/{module}.validator.ts` — Zod schemas
-2. `repositories/{module}.repository.ts` — Data access
-3. `services/{module}.service.ts` — Business logic
-4. `controllers/{module}.controller.ts` — Request handling
-5. `routes/{module}.routes.ts` — Route definitions
-6. Register routes in `routes/index.ts`
-7. Add types to `types/` if needed
 </file>
 
 <file path="src/app.ts">
@@ -9465,10 +8911,361 @@ export class SubscriptionService {
 export const subscriptionService = new SubscriptionService();
 </file>
 
+<file path=".gitignore">
+# Dependencies
+node_modules/
+
+.gemini/
+
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Build
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Coverage
+coverage/
+# Added by code-review-graph
+.code-review-graph/
+</file>
+
+<file path="project_rules.md">
+# Promoo Backend — Project Rules & Standards
+
+> This file is the **single source of truth** for all coding standards, architectural decisions,
+> and conventions used in this project. Every contributor and AI assistant must follow these rules.
+
+---
+
+## 1. Project Overview
+
+| Key | Value |
+|-----|-------|
+| **Name** | Promoo Backend |
+| **Purpose** | REST API for a digital platform connecting companies, influencers, service providers, and regular users |
+| **Stack** | Node.js + Express.js + TypeScript |
+| **Database** | PostgreSQL via Supabase |
+| **Auth** | Supabase Auth (Email, Phone, Google, Apple, OTP) |
+| **Storage** | Supabase Storage (images, videos, attachments) |
+| **Realtime** | Supabase Realtime (1-to-1 chat) |
+| **Payments** | Stripe (Checkout Sessions + Webhooks) |
+| **Push Notifications** | Firebase Cloud Messaging (FCM) |
+| **Languages** | Bilingual: Arabic (ar) + English (en) |
+
+### Account Types
+- `company` — شركة
+- `influencer` — مؤثر
+- `service_provider` — مقدم خدمة
+- `user` — مستخدم عادي
+
+---
+
+## 2. Architecture Pattern
+
+We follow a **3-Layer Architecture**:
+
+```
+This project follows a strict **3-Layer Architecture**:
+1. **Routes**: Define API endpoints and attach middleware/validators.
+2. **Controllers**: Handle HTTP requests/responses, extract parameters, and call services.
+3. **Services**: Contain all core business logic and interact directly with Supabase/Database.
+
+**Note on Data Access:** 
+Since Supabase acts as a powerful query builder and Backend-as-a-Service, the `Service` layer directly queries Supabase. We do not use a separate `Repository` layer to avoid unnecessary abstraction overhead and keep the architecture pragmatic.
+
+### Rules:
+- Controllers NEVER call the database directly
+- Services NEVER access `req` or `res` objects
+- Each module has its own route, controller, and service file
+
+---
+
+## 3. Project Structure
+
+```
+src/
+├── app.ts                    # Express app configuration
+├── server.ts                 # Entry point (starts server)
+├── config/                   # External service clients
+│   ├── supabase.ts           # Supabase client (singleton)
+│   ├── stripe.ts             # Stripe client
+│   ├── firebase.ts           # Firebase Admin SDK
+│   └── env.ts                # Env validation with Zod
+├── middleware/                # Express middleware
+├── routes/                   # Route definitions
+│   ├── index.ts              # Route aggregator
+│   └── admin/                # Admin-only routes
+├── controllers/              # Request handlers
+│   └── admin/
+├── services/                 # Business logic
+├── repositories/             # Data access layer
+├── validators/               # Zod schemas per module
+├── types/                    # TypeScript types & enums
+└── utils/                    # Shared utilities
+```
+
+---
+
+## 4. Naming Conventions
+
+| Item | Convention | Example |
+|------|-----------|---------|
+| Files | `kebab-case` or `camelCase.type.ts` | `auth.controller.ts`, `auth.service.ts` |
+| Variables | `camelCase` | `userId`, `offerPrice` |
+| Constants | `UPPER_SNAKE_CASE` | `MAX_FILE_SIZE`, `DEFAULT_PAGE_SIZE` |
+| Classes | `PascalCase` | `ApiError`, `AuthService` |
+| Interfaces/Types | `PascalCase` with prefix | `IUser`, `TCreateOffer` |
+| Enums | `PascalCase` keys | `AccountType.Company` |
+| Database tables | `snake_case` | `subscription_plans`, `chat_rooms` |
+| Database columns | `snake_case` | `created_at`, `is_verified` |
+| API endpoints | `kebab-case` | `/api/auth/forgot-password` |
+| Environment vars | `UPPER_SNAKE_CASE` | `SUPABASE_URL`, `STRIPE_SECRET_KEY` |
+
+---
+
+## 5. API Design Standards
+
+### Base URL
+```
+/api/v1/...
+```
+
+### Response Format — ALWAYS use this structure:
+```typescript
+// Success
+{
+  "success": true,
+  "data": { ... } | [...],
+  "message": "Operation completed successfully",
+  "meta": {                    // Only for paginated responses
+    "page": 1,
+    "limit": 20,
+    "total": 150,
+    "totalPages": 8
+  }
+}
+
+// Error
+{
+  "success": false,
+  "data": null,
+  "message": "Human-readable error message",
+  "error": {
+    "code": "VALIDATION_ERROR",   // Machine-readable error code
+    "details": [...]              // Optional: field-level errors
+  }
+}
+```
+
+### HTTP Status Codes:
+| Code | Usage |
+|------|-------|
+| `200` | Success (GET, PUT, PATCH) |
+| `201` | Created (POST) |
+| `204` | No Content (DELETE) |
+| `400` | Bad Request / Validation Error |
+| `401` | Unauthorized (no token or expired) |
+| `403` | Forbidden (no permission) |
+| `404` | Not Found |
+| `409` | Conflict (duplicate) |
+| `422` | Unprocessable Entity |
+| `429` | Too Many Requests |
+| `500` | Internal Server Error |
+
+### Pagination:
+- All list endpoints MUST support pagination
+- Default: `page=1`, `limit=20`
+- Max limit: `100`
+- Query params: `?page=1&limit=20`
+
+### Internationalization (i18n):
+- Accept `Accept-Language` header (`ar` or `en`, default: `en`)
+- Return localized fields accordingly
+- Database stores both: `name_ar`, `name_en`
+
+---
+
+## 6. TypeScript Rules
+
+- **Strict mode**: Always enabled (`strict: true` in tsconfig)
+- **No `any`**: Never use `any`. Use `unknown` if type is truly unknown
+- **Explicit return types**: All functions must have explicit return types
+- **Interfaces for objects**: Use `interface` for object shapes, `type` for unions/intersections
+- **Enums**: Use string enums for readability
+- **Null handling**: Always handle null/undefined cases explicitly
+
+```typescript
+// ✅ Good
+async function getUserById(id: string): Promise<IProfile | null> { ... }
+
+// ❌ Bad
+async function getUserById(id: any) { ... }
+```
+
+---
+
+## 7. Coding Standards
+
+### Async/Await
+- ALWAYS use `async/await`. NEVER use callbacks or raw `.then()` chains
+- ALWAYS wrap controller logic in try/catch
+
+### Error Handling
+```typescript
+// In Controllers — use the centralized error handler
+const getUser = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = await userService.getById(req.params.id);
+    res.status(200).json(apiResponse.success(user, 'User fetched'));
+  } catch (error) {
+    next(error); // Pass to error handler middleware
+  }
+};
+```
+
+### Validation
+- ALWAYS validate input using Zod schemas BEFORE processing
+- Define schemas in `validators/` directory
+- Use `validate` middleware to auto-validate requests
+
+```typescript
+// validators/auth.validator.ts
+export const registerSchema = z.object({
+  body: z.object({
+    email: z.string().email(),
+    password: z.string().min(8),
+    fullName: z.string().min(2).max(100),
+    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']),
+  }),
+});
+```
+
+### Imports
+- Use ES module imports (`import/export`)
+- Order: Node built-ins → External packages → Internal modules → Types
+- Use path aliases if configured
+
+---
+
+## 8. Database Rules (Supabase)
+
+- **UUIDs**: All primary keys are UUIDs (`gen_random_uuid()`)
+- **Timestamps**: All tables have `created_at` (auto) and `updated_at` where applicable
+- **Soft deletes**: Use `deleted_at` timestamp instead of hard deletes for important data
+- **RLS**: Row Level Security enabled on ALL tables
+- **Service role**: Only used server-side in repositories, NEVER exposed
+- **Indexes**: Add indexes on frequently queried columns (foreign keys, status, created_at)
+- **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense
+
+---
+
+## 9. Security Rules
+
+- NEVER expose `SUPABASE_SERVICE_ROLE_KEY` or `STRIPE_SECRET_KEY` in responses or logs
+- ALWAYS verify JWT in protected routes via `auth.middleware.ts`
+- ALWAYS sanitize user inputs (Zod handles this)
+- ALWAYS use parameterized queries (Supabase client does this automatically)
+- ALWAYS set security headers via `helmet`
+- ALWAYS apply rate limiting on auth endpoints
+- NEVER log sensitive data (passwords, tokens, card numbers)
+- Use CORS whitelist, not wildcard, in production
+
+---
+
+## 10. File Upload Rules
+
+- Max image size: **5MB**
+- Max video size: **50MB**
+- Max attachment size: **10MB**
+- Allowed image types: `jpg, jpeg, png, webp, gif`
+- Allowed video types: `mp4, mov, webm`
+- Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`
+- File naming: `{userId}/{timestamp}_{originalName}`
+
+---
+
+## 11. Git & Code Quality
+
+- Commit messages: `type(scope): message` (e.g., `feat(auth): add OTP verification`)
+- Types: `feat`, `fix`, `refactor`, `docs`, `chore`, `test`
+- One feature per branch
+- Always run linting before commit
+
+---
+
+## 12. Environment Variables Required
+
+```env
+# Server
+NODE_ENV=development
+PORT=3000
+API_VERSION=v1
+
+# Supabase
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# Firebase
+FIREBASE_PROJECT_ID=promoo-xxx
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxx@promoo.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# App
+DEFAULT_LANGUAGE=en
+MAX_PAGE_SIZE=100
+DEFAULT_PAGE_SIZE=20
+
+# CORS
+CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+```
+
+---
+
+## 13. Testing Standards
+
+- Unit tests for services (mock repositories)
+- Integration tests for routes (test full request cycle)
+- Test files: `*.test.ts` or `*.spec.ts` next to source files or in `tests/` directory
+- Use descriptive test names: `should return 401 when token is missing`
+
+---
+
+## 14. Module Checklist (for every new feature)
+
+When creating a new module, always create these files:
+1. `validators/{module}.validator.ts` — Zod schemas
+2. `repositories/{module}.repository.ts` — Data access
+3. `services/{module}.service.ts` — Business logic
+4. `controllers/{module}.controller.ts` — Request handling
+5. `routes/{module}.routes.ts` — Route definitions
+6. Register routes in `routes/index.ts`
+7. Add types to `types/` if needed
+</file>
+
 <file path="REQUIREMENTS_STATUS.md">
 # Promoo Backend — Requirements Status
 > تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
-> آخر تحديث: 2026-06-16 | الوضع الحالي: Phase 10 مكتملة ✅
+> آخر تحديث: 2026-06-17 | الوضع الحالي: المشروع الخلفي (Backend) مكتمل بالكامل 100% ومرفوع على Supabase Cloud ✅
 
 ---
 
@@ -9786,9 +9583,9 @@ OAuth عبر Google وApple.
 
 ---
 
-## 16. الحسابات الموثقة (Verified Accounts) ✅ / ⬜
+## 16. الحسابات الموثقة (Verified Accounts) ✅
 
-**الحالة**: جزء منه مُنفَّذ (طلب التوثيق)، الموافقة من الـ Admin لم تُنفَّذ بعد
+**الحالة**: مُنفَّذ بالكامل — Phase 12
 
 ### المتطلب
 توثيق الحسابات مع علامة التوثيق ✓
@@ -9796,71 +9593,63 @@ OAuth عبر Google وApple.
 ### ما نُفِّذ
 - `POST /api/v1/profiles/me/verify-request` — إرسال طلب توثيق من المستخدم ✅
 - `is_verified` field موجود في جدول `profiles` ✅
-
-### ما ينقص
-- Admin endpoint للموافقة على طلب التوثيق ⬜ (Phase 12)
+- مسارات الـ Admin للموافقة/الرفض موجودة في `admin/users.routes.ts` ✅
 
 ---
 
-## 17. التبليغات والشكاوى (Reports) ⬜
+## 17. التبليغات والشكاوى (Reports) ✅
 
-**الحالة**: لم يُبدأ بعد — Phase 11
+**الحالة**: مُنفَّذ بالكامل — Phase 11
 
 ### المتطلب
 نظام تبليغ على محتوى أو حسابات مخالفة.
 
-### ما تم تجهيزه مسبقاً
+### كيف نُفِّذ
 - **الجداول**: `reports` (migration 008)
-- **ما ينقص**:
-  - `report.service.ts` + controller + routes
-  - نقاط النهاية: POST /reports, GET /reports (admin only)
+- `report.service.ts` + controller + routes تم بناؤها بالكامل.
+- نقاط النهاية متوفرة للمستخدم (للإرسال) وللأدمن (للمراجعة والحل).
 
 ---
 
-## 18. لوحة التحكم — إدارة المستخدمين ⬜
+## 18. لوحة التحكم — إدارة المستخدمين ✅
 
-**الحالة**: لم يُبدأ بعد — Phase 12
+**الحالة**: مُنفَّذ بالكامل — Phase 12
 
 ### المتطلب
 Admin يشوف كل المستخدمين، يعطل/يفعل حساب، يوثق حساب.
 
-### ما ينقص
-- `src/routes/admin/users.routes.ts`
-- نقاط النهاية: GET /admin/users, PATCH /admin/users/:id/ban, PATCH /admin/users/:id/verify
-- `admin.middleware.ts` موجود مسبقاً ✅ — يمنع الوصول إلا للأدمن
+### كيف نُفِّذ
+- تم إنجاز `src/routes/admin/users.routes.ts` مع كامل الخدمات للتحكم بالمستخدمين وحظرهم.
 
 ---
 
-## 19. لوحة التحكم — إدارة الإعلانات والعروض ⬜
+## 19. لوحة التحكم — إدارة الإعلانات والعروض ✅
 
-**الحالة**: لم يُبدأ بعد — Phase 12
+**الحالة**: مُنفَّذ بالكامل — Phase 12
 
 ### المتطلب
 Admin يراجع ويدير الإعلانات والعروض.
 
 ---
 
-## 20. لوحة التحكم — إدارة الاشتراكات والباقات ⬜
+## 20. لوحة التحكم — إدارة الاشتراكات والباقات ✅
 
-**الحالة**: لم يُبدأ بعد — Phase 12
+**الحالة**: مُنفَّذ بالكامل — Phase 12
 
 ### المتطلب
 Admin ينشئ ويعدل باقات الاشتراك.
 
-### ملاحظة
-- ربط الباقات بـ Stripe يعني: كل باقة لازم يكون لها `stripe_price_id` من Stripe Dashboard
+---
+
+## 21. لوحة التحكم — إدارة المدفوعات ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 12
 
 ---
 
-## 21. لوحة التحكم — إدارة المدفوعات ⬜
+## 22. لوحة التحكم — التقارير والإحصائيات ✅
 
-**الحالة**: لم يُبدأ بعد — Phase 12
-
----
-
-## 22. لوحة التحكم — التقارير والإحصائيات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
+**الحالة**: مُنفَّذ بالكامل — Phase 12
 
 ### المتطلب
 إحصائيات عامة: عدد المستخدمين، الاشتراكات النشطة، الإيرادات، ...
@@ -9923,10 +9712,9 @@ Admin ينشئ ويعدل باقات الاشتراك.
 7. **Database جاهزة 100%**: كل 9 migrations مكتوبة — حتى الجداول الخاصة بـ Phase 8-12 موجودة.
 
 ### ⚠️ ما يحتاج انتباه لاحقاً
-1. **FCM Integration**: `firebase.ts` جاهز لكن لم يُستخدم بعد — Phase 8 سيفعّله.
-2. **Stripe `stripe_customer_id`**: مفترض أن يكون في جدول `profiles`. يجب التحقق من وجوده في migration 001.
-3. **Chat Realtime**: الـ Backend جاهز، لكن الـ Realtime نفسه يعتمد على Supabase SDK في تطبيق الموبايل — لا يحتاج endpoint.
-4. **Admin routes**: `admin.middleware.ts` جاهز لكن لا يوجد routes بعد.
+1. **Front-End Integration**: الباك إند جاهز تماماً. يجب ربط تطبيق الموبايل بالـ Endpoints و Supabase SDK مباشرة (للـ Realtime و OAuth).
+2. **Dashboard Configuration**: يجب على مالك المشروع تفعيل Google/Apple OAuth من داخل الـ Supabase Dashboard، ووضع Client IDs الفعلية.
+3. **Stripe IDs**: باقات الاشتراك الـ Seeded تحتوي على `price_placeholder`. يجب تغييرها بـ `stripe_price_id` الفعلي بعد إنشاء الباقات من لوحة تحكم Stripe.
 </file>
 
 <file path="MEMORY_BANK.md">
@@ -10018,10 +9806,10 @@ Admin ينشئ ويعدل باقات الاشتراك.
 
 ## Current Context
 
-**Currently working on**: Phase 11 — Reports
-**Next up**: Phase 12 — Admin Dashboard APIs
-**Blockers**: None
-**Notes**: Completed major feature blocks (Notifications, Upload, Search, Payments). The app core functionality is fully operational. Proceeding to moderation features (Reports).
+**Currently working on**: Front-End Integration / Mobile App Prototype
+**Next up**: Mobile App Development
+**Blockers**: Client UI/UX approval
+**Notes**: All Backend Phases (1-12) are 100% complete. Database schema, RLS policies, triggers, realtime settings, storage buckets, and seed data have been successfully pushed to the Supabase Cloud Production project via MCP. The backend is fully operational and ready for Front-End integration.
 
 ---
 
