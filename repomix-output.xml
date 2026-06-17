@@ -53,6 +53,7 @@ The content is organized as follows:
 docs/phases_logic/phase_1_database.md
 docs/phases_logic/phase_10_featured_payments.md
 docs/phases_logic/phase_11_reports.md
+docs/phases_logic/phase_12_admin.md
 docs/phases_logic/phase_2_auth.md
 docs/phases_logic/phase_3_profiles.md
 docs/phases_logic/phase_4_follows.md
@@ -73,6 +74,13 @@ src/config/firebase.ts
 src/config/stripe.ts
 src/config/supabase.ts
 src/controllers/ad.controller.ts
+src/controllers/admin/category.controller.ts
+src/controllers/admin/content.controller.ts
+src/controllers/admin/payment.controller.ts
+src/controllers/admin/plan.controller.ts
+src/controllers/admin/report.controller.ts
+src/controllers/admin/stats.controller.ts
+src/controllers/admin/user.controller.ts
 src/controllers/auth.controller.ts
 src/controllers/category.controller.ts
 src/controllers/chat.controller.ts
@@ -94,6 +102,14 @@ src/middleware/rateLimit.middleware.ts
 src/middleware/upload.middleware.ts
 src/middleware/validate.middleware.ts
 src/routes/ad.routes.ts
+src/routes/admin/category.routes.ts
+src/routes/admin/content.routes.ts
+src/routes/admin/index.ts
+src/routes/admin/payment.routes.ts
+src/routes/admin/plan.routes.ts
+src/routes/admin/report.routes.ts
+src/routes/admin/stats.routes.ts
+src/routes/admin/user.routes.ts
 src/routes/auth.routes.ts
 src/routes/category.routes.ts
 src/routes/chat.routes.ts
@@ -110,6 +126,13 @@ src/routes/subscription.routes.ts
 src/routes/upload.routes.ts
 src/server.ts
 src/services/ad.service.ts
+src/services/admin/category.service.ts
+src/services/admin/content.service.ts
+src/services/admin/payment.service.ts
+src/services/admin/plan.service.ts
+src/services/admin/report.service.ts
+src/services/admin/stats.service.ts
+src/services/admin/user.service.ts
 src/services/auth.service.ts
 src/services/category.service.ts
 src/services/chat.service.ts
@@ -131,6 +154,12 @@ src/utils/apiResponse.ts
 src/utils/helpers.ts
 src/utils/logger.ts
 src/validators/ad.validator.ts
+src/validators/admin/category.validator.ts
+src/validators/admin/content.validator.ts
+src/validators/admin/payment.validator.ts
+src/validators/admin/plan.validator.ts
+src/validators/admin/report.validator.ts
+src/validators/admin/user.validator.ts
 src/validators/auth.validator.ts
 src/validators/chat.validator.ts
 src/validators/featured.validator.ts
@@ -553,6 +582,69 @@ cover what you need.
 
 ## كيفية الصيانة والتعديل (Maintenance)
 - **إضافة أنواع جديدة للإبلاغ**: إذا قررت لاحقاً السماح بالإبلاغ عن "التعليقات" (Comments)، ستحتاج أولاً لإضافة `comment` إلى حقل الـ `check` في الـ Database، ثم إضافته للـ `z.enum` في `report.validator.ts`.
+</file>
+
+<file path="docs/phases_logic/phase_12_admin.md">
+# Phase 12: Admin Dashboard APIs
+
+## نظرة عامة (Overview)
+هذه المرحلة (Phase 12) هي المرحلة الختامية للمشروع، وتُعنى بتوفير كافة النقاط البرمجية (Endpoints) الخاصة بلوحة تحكم الإدارة (Admin Dashboard). تضمن هذه المرحلة للأدمن القدرة الكاملة على مراقبة وتعديل المحتوى والمستخدمين والإيرادات.
+
+## الملفات المرتبطة (Associated Files)
+للحفاظ على نظافة الكود، تم عزل مسارات الإدارة في مجلدات فرعية خاصة:
+- **الموجهات (Routes):** `src/routes/admin/` (تتضمن `index.ts`, `stats.routes.ts`, `user.routes.ts`, `content.routes.ts`, `plan.routes.ts`, `payment.routes.ts`, `report.routes.ts`, `category.routes.ts`)
+- **وحدات التحكم (Controllers):** `src/controllers/admin/` 
+- **الخدمات (Services):** `src/services/admin/`
+- **المتحققات (Validators):** `src/validators/admin/`
+
+## منطق العمل (Business Logic) وكيفية سير العمليات
+
+جميع المسارات في هذه المرحلة محمية بـ Middleware خاص `requireAdmin`، والذي يتحقق من صلاحية الجلسة ويتأكد أن المستخدم الحالي لديه الحقل `is_admin = true` في قاعدة البيانات.
+
+### 1. الإحصائيات العامة (Stats)
+- **المسار:** `GET /api/v1/admin/stats`
+- **اللوجيك:** يقرأ السيرفر مباشرة من قاعدة البيانات عدد المستخدمين الإجمالي، عدد الإعلانات الفعالة، عدد التبليغات المعلقة، ويجمع قيمة الإيرادات الإجمالية من جدول المدفوعات للمدفوعات الناجحة فقط. هذا يُعرض كأرقام سريعة في واجهة الأدمن.
+
+### 2. إدارة المستخدمين (Users Management)
+- **المسارات:** `GET /api/v1/admin/users`, `PATCH /users/:id/ban`, `PATCH /users/:id/verify`, `DELETE /users/:id`
+- **اللوجيك:** 
+  - يستطيع الأدمن البحث عن المستخدمين بفلترة مخصصة (مثل نوع الحساب، أو هل هو موثق أم لا).
+  - عند الحظر (Ban)، يتم تغيير حقل `is_active` إلى `false`، مما سيمنع المستخدم من الدخول لاحقاً بسبب القيود المفروضة في الـ Login.
+  - الحذف النهائي يقوم بحذف المستخدم من Supabase Auth، والذي بدوره يحذف بياناته من جدول `profiles` وكل محتواه بفضل `ON DELETE CASCADE`.
+
+### 3. إدارة المحتوى (Offers & Ads Management)
+- **المسارات:** `PATCH /api/v1/admin/content/offers/:id/status`, `DELETE /api/v1/admin/content/ads/:id`
+- **اللوجيك:**
+  - يملك الأدمن السلطة لتعديل حالة العروض والإعلانات (مثلاً: من pending إلى active أو rejected).
+  - يمكنه حذف أي عرض أو إعلان بشكل نهائي من قاعدة البيانات.
+
+### 4. إدارة باقات الاشتراك (Subscription Plans)
+- **المسارات:** CRUD على `/api/v1/admin/plans`
+- **اللوجيك:**
+  - عندما يقوم الأدمن بإنشاء باقة جديدة من لوحة التحكم، يجب عليه تمرير `stripe_price_id` (الذي يتم استخراجه من Stripe Dashboard).
+  - يمكن للأدمن إيقاف أو تعديل الباقات، ولكن السيرفر يمنع الحذف إذا كانت هناك اشتراكات فعّالة تعتمد على هذه الباقة لحماية بيانات المشتركين.
+
+### 5. إدارة المدفوعات (Payment Management)
+- **المسارات:** `GET /api/v1/admin/payments`
+- **اللوجيك:**
+  - كما تم الاتفاق، هذه الواجهة للعرض فقط (Read-only). ترجع قائمة بكافة عمليات الدفع (اشتراكات، إعلانات، توثيق) مع الفلاتر المناسبة.
+  - أي عمليات استرجاع مالي (Refund) يقوم بها الأدمن يدوياً من Stripe Dashboard لضمان أقصى درجات الأمان.
+
+### 6. إدارة التبليغات (Reports Management)
+- **المسارات:** `GET /api/v1/admin/reports`, `PATCH /api/v1/admin/reports/:id/status`
+- **اللوجيك:**
+  - يعرض التبليغات المقدمة من المستخدمين على المحتوى المُخالف.
+  - يمكن للأدمن مراجعة التقرير وتغيير حالته إلى `resolved` أو `dismissed` وإضافة ملاحظة إدارية `admin_note`.
+
+### 7. إدارة التصنيفات (Category Management)
+- **المسارات:** `POST, PUT, DELETE` على `/api/v1/admin/categories`
+- **اللوجيك:**
+  - يمكن إضافة أقسام جديدة أو تعديل أسمائها وأيقوناتها. 
+  - يُمنع السيرفر حذف أي تصنيف إذا كانت هناك عروض (Offers) مرتبطة به لتجنب كسر العلاقات في قاعدة البيانات.
+
+## تجربة المستخدم في التطبيق (User Flow)
+في هذه المرحلة، **الـ User العادي لا يرى شيئاً**. كل هذا خاص بتطبيق أو واجهة الويب الخاصة بالإدارة (Admin Panel).
+الأدمن سيدخل بحسابه (الذي لديه صلاحيات)، وعندها سيبدأ في استقبال الأرقام الإحصائية الحية، وإدارة المنصة، ومراجعة التبليغات، وحظر المستخدمين المسيئين بضغطة زر.
 </file>
 
 <file path="docs/phases_logic/phase_2_auth.md">
@@ -1482,6 +1574,317 @@ export class AdController {
 }
 
 export const adController = new AdController();
+</file>
+
+<file path="src/controllers/admin/category.controller.ts">
+// ============================================
+// Promoo Backend — Admin Category Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminCategoryService } from '../../services/admin/category.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminCategoryController {
+  async createCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await adminCategoryService.createCategory(req.body);
+      apiResponse.created(res, result, 'Category created successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await adminCategoryService.updateCategory(req.params.id as string, req.body);
+      apiResponse.success(res, result, 'Category updated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await adminCategoryService.deleteCategory(req.params.id as string);
+      apiResponse.success(res, null, 'Category deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminCategoryController = new AdminCategoryController();
+</file>
+
+<file path="src/controllers/admin/content.controller.ts">
+// ============================================
+// Promoo Backend — Admin Content Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminContentService } from '../../services/admin/content.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminContentController {
+  // --- Offers ---
+  async updateOfferStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status } = req.body;
+      const result = await adminContentService.updateOfferStatus(req.params.id as string, status);
+      apiResponse.success(res, result, `Offer status updated to ${status}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteOffer(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await adminContentService.deleteOffer(req.params.id as string);
+      apiResponse.success(res, null, 'Offer deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // --- Ads ---
+  async updateAdStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status } = req.body;
+      const result = await adminContentService.updateAdStatus(req.params.id as string, status);
+      apiResponse.success(res, result, `Ad status updated to ${status}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteAd(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await adminContentService.deleteAd(req.params.id as string);
+      apiResponse.success(res, null, 'Ad deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminContentController = new AdminContentController();
+</file>
+
+<file path="src/controllers/admin/payment.controller.ts">
+// ============================================
+// Promoo Backend — Admin Payment Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminPaymentService } from '../../services/admin/payment.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminPaymentController {
+  async getPayments(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const filters = {
+        status: req.query.status,
+        type: req.query.type,
+      };
+
+      const result = await adminPaymentService.getPayments(filters, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Payments retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminPaymentController = new AdminPaymentController();
+</file>
+
+<file path="src/controllers/admin/plan.controller.ts">
+// ============================================
+// Promoo Backend — Admin Plan Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminPlanService } from '../../services/admin/plan.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminPlanController {
+  async getPlans(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await adminPlanService.getPlans();
+      apiResponse.success(res, result, 'Subscription plans retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await adminPlanService.createPlan(req.body);
+      apiResponse.created(res, result, 'Subscription plan created successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updatePlan(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await adminPlanService.updatePlan(req.params.id as string, req.body);
+      apiResponse.success(res, result, 'Subscription plan updated successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deletePlan(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await adminPlanService.deletePlan(req.params.id as string);
+      apiResponse.success(res, null, 'Subscription plan deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminPlanController = new AdminPlanController();
+</file>
+
+<file path="src/controllers/admin/report.controller.ts">
+// ============================================
+// Promoo Backend — Admin Report Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminReportService } from '../../services/admin/report.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminReportController {
+  async getReports(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
+      const filters = {
+        status: req.query.status,
+        type: req.query.type,
+      };
+
+      const result = await adminReportService.getReports(filters, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Reports retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateReportStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { status, admin_note } = req.body;
+      const result = await adminReportService.updateReportStatus(req.params.id as string, status, admin_note);
+      apiResponse.success(res, result, `Report status updated to ${status}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminReportController = new AdminReportController();
+</file>
+
+<file path="src/controllers/admin/stats.controller.ts">
+// ============================================
+// Promoo Backend — Admin Stats Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminStatsService } from '../../services/admin/stats.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminStatsController {
+  async getGlobalStats(_req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const stats = await adminStatsService.getGlobalStats();
+      apiResponse.success(res, stats, 'Global statistics retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminStatsController = new AdminStatsController();
+</file>
+
+<file path="src/controllers/admin/user.controller.ts">
+// ============================================
+// Promoo Backend — Admin User Controller
+// ============================================
+
+import { Request, Response, NextFunction } from 'express';
+import { adminUserService } from '../../services/admin/user.service';
+import { apiResponse } from '../../utils/apiResponse';
+
+export class AdminUserController {
+  async getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+      
+      const filters = {
+        search: req.query.search,
+        accountType: req.query.accountType,
+        isVerified: req.query.isVerified,
+        isActive: req.query.isActive,
+      };
+
+      const result = await adminUserService.getUsers(filters, page, limit);
+      apiResponse.paginated(res, result.data, result.total, result.page, result.limit, 'Users retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getUserDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const result = await adminUserService.getUserDetails(req.params.id as string);
+      apiResponse.success(res, result, 'User details retrieved');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async toggleBan(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { isActive } = req.body;
+      const result = await adminUserService.toggleBan(req.params.id as string, isActive);
+      apiResponse.success(res, result, `User status updated to ${isActive ? 'active' : 'banned'}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async toggleVerify(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { isVerified } = req.body;
+      const result = await adminUserService.toggleVerify(req.params.id as string, isVerified);
+      apiResponse.success(res, result, `User verification status updated to ${isVerified}`);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      await adminUserService.deleteUser(req.params.id as string);
+      apiResponse.success(res, null, 'User deleted permanently');
+    } catch (error) {
+      next(error);
+    }
+  }
+}
+
+export const adminUserController = new AdminUserController();
 </file>
 
 <file path="src/controllers/auth.controller.ts">
@@ -2969,6 +3372,193 @@ router.get(
 export default router;
 </file>
 
+<file path="src/routes/admin/category.routes.ts">
+// ============================================
+// Promoo Backend — Admin Category Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminCategoryController } from '../../controllers/admin/category.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { categoryIdSchema, createCategorySchema, updateCategorySchema } from '../../validators/admin/category.validator';
+
+const router = Router();
+
+// Base route: /api/v1/admin/categories
+
+// Get all categories is public, handled in Phase 9 (src/routes/category.routes.ts)
+// This file only handles the Admin specific operations (Create, Update, Delete)
+
+router.post('/', validate(createCategorySchema), adminCategoryController.createCategory);
+router.put('/:id', validate(updateCategorySchema), adminCategoryController.updateCategory);
+router.delete('/:id', validate(categoryIdSchema), adminCategoryController.deleteCategory);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/content.routes.ts">
+// ============================================
+// Promoo Backend — Admin Content Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminContentController } from '../../controllers/admin/content.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { idParamSchema, updateStatusSchema } from '../../validators/admin/content.validator';
+
+const router = Router();
+
+// Base route: /api/v1/admin/content
+
+// --- Offers ---
+router.patch('/offers/:id/status', validate(updateStatusSchema), adminContentController.updateOfferStatus);
+router.delete('/offers/:id', validate(idParamSchema), adminContentController.deleteOffer);
+
+// --- Ads ---
+router.patch('/ads/:id/status', validate(updateStatusSchema), adminContentController.updateAdStatus);
+router.delete('/ads/:id', validate(idParamSchema), adminContentController.deleteAd);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/index.ts">
+// ============================================
+// Promoo Backend — Admin Routes Entry Point
+// ============================================
+
+import { Router } from 'express';
+import { requireAdmin } from '../../middleware/admin.middleware';
+
+// Import all admin modules
+import statsRoutes from './stats.routes';
+import userRoutes from './user.routes';
+import contentRoutes from './content.routes';
+import planRoutes from './plan.routes';
+import paymentRoutes from './payment.routes';
+import reportRoutes from './report.routes';
+import categoryRoutes from './category.routes';
+
+const router = Router();
+
+// Protect ALL admin routes with the requireAdmin middleware
+// requireAdmin already uses requireAuth internally to verify the token first
+router.use(requireAdmin);
+
+// Mount Admin Modules
+router.use('/stats', statsRoutes);
+router.use('/users', userRoutes);
+router.use('/content', contentRoutes);
+router.use('/plans', planRoutes);
+router.use('/payments', paymentRoutes);
+router.use('/reports', reportRoutes);
+router.use('/categories', categoryRoutes);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/payment.routes.ts">
+// ============================================
+// Promoo Backend — Admin Payment Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminPaymentController } from '../../controllers/admin/payment.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { getPaymentsSchema } from '../../validators/admin/payment.validator';
+
+const router = Router();
+
+// Base route: /api/v1/admin/payments
+
+router.get('/', validate(getPaymentsSchema), adminPaymentController.getPayments);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/plan.routes.ts">
+// ============================================
+// Promoo Backend — Admin Plan Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminPlanController } from '../../controllers/admin/plan.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { createPlanSchema, planIdSchema, updatePlanSchema } from '../../validators/admin/plan.validator';
+
+const router = Router();
+
+// Base route: /api/v1/admin/plans
+
+router.get('/', adminPlanController.getPlans);
+router.post('/', validate(createPlanSchema), adminPlanController.createPlan);
+router.put('/:id', validate(updatePlanSchema), adminPlanController.updatePlan);
+router.delete('/:id', validate(planIdSchema), adminPlanController.deletePlan);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/report.routes.ts">
+// ============================================
+// Promoo Backend — Admin Report Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminReportController } from '../../controllers/admin/report.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { getReportsSchema, updateReportStatusSchema } from '../../validators/admin/report.validator';
+
+const router = Router();
+
+// Base route: /api/v1/admin/reports
+
+router.get('/', validate(getReportsSchema), adminReportController.getReports);
+router.patch('/:id/status', validate(updateReportStatusSchema), adminReportController.updateReportStatus);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/stats.routes.ts">
+// ============================================
+// Promoo Backend — Admin Stats Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminStatsController } from '../../controllers/admin/stats.controller';
+
+const router = Router();
+
+// Base route: /api/v1/admin/stats
+router.get('/', adminStatsController.getGlobalStats);
+
+export default router;
+</file>
+
+<file path="src/routes/admin/user.routes.ts">
+// ============================================
+// Promoo Backend — Admin User Routes
+// ============================================
+
+import { Router } from 'express';
+import { adminUserController } from '../../controllers/admin/user.controller';
+import { validate } from '../../middleware/validate.middleware';
+import { getUsersSchema, toggleBanSchema, toggleVerifySchema, userIdSchema } from '../../validators/admin/user.validator';
+
+const router = Router();
+
+// Base route: /api/v1/admin/users
+router.get('/', validate(getUsersSchema), adminUserController.getUsers);
+
+router.get('/:id', validate(userIdSchema), adminUserController.getUserDetails);
+
+router.patch('/:id/ban', validate(toggleBanSchema), adminUserController.toggleBan);
+
+router.patch('/:id/verify', validate(toggleVerifySchema), adminUserController.toggleVerify);
+
+router.delete('/:id', validate(userIdSchema), adminUserController.deleteUser);
+
+export default router;
+</file>
+
 <file path="src/routes/auth.routes.ts">
 // ============================================
 // Promoo Backend — Auth Routes
@@ -3819,6 +4409,492 @@ export class AdService {
 }
 
 export const adService = new AdService();
+</file>
+
+<file path="src/services/admin/category.service.ts">
+// ============================================
+// Promoo Backend — Admin Category Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminCategoryService {
+  /**
+   * Create a new category
+   */
+  async createCategory(payload: any) {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Update a category
+   */
+  async updateCategory(categoryId: string, payload: any) {
+    const { data, error } = await supabaseAdmin
+      .from('categories')
+      .update(payload)
+      .eq('id', categoryId)
+      .select()
+      .single();
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Delete a category
+   */
+  async deleteCategory(categoryId: string) {
+    // Check if category is used in offers
+    const { count } = await supabaseAdmin
+      .from('offers')
+      .select('*', { count: 'exact', head: true })
+      .eq('category_id', categoryId);
+
+    if (count && count > 0) {
+      throw ApiError.badRequest('Cannot delete category because there are offers using it');
+    }
+
+    const { error } = await supabaseAdmin.from('categories').delete().eq('id', categoryId);
+    if (error) throw ApiError.internal(error.message);
+    return { success: true };
+  }
+}
+
+export const adminCategoryService = new AdminCategoryService();
+</file>
+
+<file path="src/services/admin/content.service.ts">
+// ============================================
+// Promoo Backend — Admin Content Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminContentService {
+  /**
+   * Change offer status (e.g. approve 'active', 'rejected')
+   */
+  async updateOfferStatus(offerId: string, status: string) {
+    const { data, error } = await supabaseAdmin
+      .from('offers')
+      .update({ status })
+      .eq('id', offerId)
+      .select()
+      .single();
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Delete an offer
+   */
+  async deleteOffer(offerId: string) {
+    const { error } = await supabaseAdmin.from('offers').delete().eq('id', offerId);
+    if (error) throw ApiError.internal(error.message);
+    return { success: true };
+  }
+
+  /**
+   * Change ad status (e.g. approve 'active', 'rejected')
+   */
+  async updateAdStatus(adId: string, status: string) {
+    const { data, error } = await supabaseAdmin
+      .from('ads')
+      .update({ status })
+      .eq('id', adId)
+      .select()
+      .single();
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Delete an ad
+   */
+  async deleteAd(adId: string) {
+    const { error } = await supabaseAdmin.from('ads').delete().eq('id', adId);
+    if (error) throw ApiError.internal(error.message);
+    return { success: true };
+  }
+}
+
+export const adminContentService = new AdminContentService();
+</file>
+
+<file path="src/services/admin/payment.service.ts">
+// ============================================
+// Promoo Backend — Admin Payment Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminPaymentService {
+  /**
+   * Get all payments (Read-only)
+   */
+  async getPayments(filters: any, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    let query = supabaseAdmin
+      .from('payments')
+      .select('*, profile:profiles!profile_id(id, full_name, username, account_type)', { count: 'exact' });
+
+    if (filters.status) {
+      query = query.eq('status', filters.status);
+    }
+    if (filters.type) {
+      query = query.eq('type', filters.type);
+    }
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit),
+    };
+  }
+}
+
+export const adminPaymentService = new AdminPaymentService();
+</file>
+
+<file path="src/services/admin/plan.service.ts">
+// ============================================
+// Promoo Backend — Admin Plan Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminPlanService {
+  /**
+   * Get all subscription plans
+   */
+  async getPlans() {
+    const { data, error } = await supabaseAdmin
+      .from('subscription_plans')
+      .select('*')
+      .order('price', { ascending: true });
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Create a new subscription plan
+   */
+  async createPlan(payload: any) {
+    const { data, error } = await supabaseAdmin
+      .from('subscription_plans')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Update an existing subscription plan
+   */
+  async updatePlan(planId: string, payload: any) {
+    const { data, error } = await supabaseAdmin
+      .from('subscription_plans')
+      .update(payload)
+      .eq('id', planId)
+      .select()
+      .single();
+
+    if (error) throw ApiError.internal(error.message);
+    return data;
+  }
+
+  /**
+   * Delete a subscription plan
+   */
+  async deletePlan(planId: string) {
+    // Before deleting, ensure no active subscriptions rely on it
+    const { count } = await supabaseAdmin
+      .from('subscriptions')
+      .select('*', { count: 'exact', head: true })
+      .eq('plan_id', planId)
+      .in('status', ['active', 'trialing']);
+
+    if (count && count > 0) {
+      throw ApiError.badRequest('Cannot delete plan because there are active subscriptions using it');
+    }
+
+    const { error } = await supabaseAdmin.from('subscription_plans').delete().eq('id', planId);
+    if (error) throw ApiError.internal(error.message);
+    return { success: true };
+  }
+}
+
+export const adminPlanService = new AdminPlanService();
+</file>
+
+<file path="src/services/admin/report.service.ts">
+// ============================================
+// Promoo Backend — Admin Report Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminReportService {
+  /**
+   * Get all reports
+   */
+  async getReports(filters: any, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    let query = supabaseAdmin
+      .from('reports')
+      .select('*, reporter:profiles!reporter_id(id, full_name, username)', { count: 'exact' });
+
+    if (filters.status) {
+      query = query.eq('status', filters.status);
+    }
+    if (filters.type) {
+      query = query.eq('reported_type', filters.type);
+    }
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit),
+    };
+  }
+
+  /**
+   * Update report status and admin note
+   */
+  async updateReportStatus(reportId: string, status: string, adminNote?: string) {
+    const updatePayload: any = { status };
+    if (adminNote !== undefined) {
+      updatePayload.admin_note = adminNote;
+    }
+    if (status === 'resolved' || status === 'dismissed') {
+      updatePayload.resolved_at = new Date().toISOString();
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('reports')
+      .update(updatePayload)
+      .eq('id', reportId)
+      .select()
+      .single();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return data;
+  }
+}
+
+export const adminReportService = new AdminReportService();
+</file>
+
+<file path="src/services/admin/stats.service.ts">
+// ============================================
+// Promoo Backend — Admin Stats Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+
+export class AdminStatsService {
+  /**
+   * Get global dashboard statistics
+   */
+  async getGlobalStats() {
+    // Total users
+    const { count: totalUsers } = await supabaseAdmin
+      .from('profiles')
+      .select('*', { count: 'exact', head: true });
+
+    // Active ads
+    const { count: activeAds } = await supabaseAdmin
+      .from('ads')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'active');
+
+    // Pending reports
+    const { count: pendingReports } = await supabaseAdmin
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending');
+
+    // Total revenue from successful payments
+    const { data: payments } = await supabaseAdmin
+      .from('payments')
+      .select('amount')
+      .eq('status', 'succeeded');
+
+    const totalRevenue = payments?.reduce((sum, p) => sum + Number(p.amount), 0) || 0;
+
+    return {
+      totalUsers: totalUsers || 0,
+      activeAds: activeAds || 0,
+      pendingReports: pendingReports || 0,
+      totalRevenue
+    };
+  }
+}
+
+export const adminStatsService = new AdminStatsService();
+</file>
+
+<file path="src/services/admin/user.service.ts">
+// ============================================
+// Promoo Backend — Admin User Service
+// ============================================
+
+import { supabaseAdmin } from '../../config/supabase';
+import { ApiError } from '../../utils/apiError';
+
+export class AdminUserService {
+  /**
+   * Get all users with filters and pagination
+   */
+  async getUsers(filters: any, page: number = 1, limit: number = 20) {
+    const offset = (page - 1) * limit;
+
+    let query = supabaseAdmin
+      .from('profiles')
+      .select('*', { count: 'exact' });
+
+    if (filters.search) {
+      query = query.or(`full_name.ilike.%${filters.search}%,username.ilike.%${filters.search}%`);
+    }
+    if (filters.accountType) {
+      query = query.eq('account_type', filters.accountType);
+    }
+    if (filters.isVerified !== undefined) {
+      query = query.eq('is_verified', filters.isVerified === 'true');
+    }
+    if (filters.isActive !== undefined) {
+      query = query.eq('is_active', filters.isActive === 'true');
+    }
+
+    const { data, error, count } = await query
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return {
+      data: data || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit),
+    };
+  }
+
+  /**
+   * Get user details
+   */
+  async getUserDetails(userId: string) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error || !data) {
+      throw ApiError.notFound('User not found');
+    }
+
+    return data;
+  }
+
+  /**
+   * Toggle user active/banned status
+   */
+  async toggleBan(userId: string, isActive: boolean) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ is_active: isActive })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return data;
+  }
+
+  /**
+   * Toggle user verification status
+   */
+  async toggleVerify(userId: string, isVerified: boolean) {
+    const { data, error } = await supabaseAdmin
+      .from('profiles')
+      .update({ is_verified: isVerified })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return data;
+  }
+
+  /**
+   * Delete user permanently
+   */
+  async deleteUser(userId: string) {
+    // Delete from Supabase Auth; this will trigger cascade deletion in public.profiles
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+
+    return { success: true };
+  }
+}
+
+export const adminUserService = new AdminUserService();
 </file>
 
 <file path="src/services/auth.service.ts">
@@ -6121,6 +7197,182 @@ export const getAdsQuerySchema = z.object({
 });
 </file>
 
+<file path="src/validators/admin/category.validator.ts">
+// ============================================
+// Promoo Backend — Admin Category Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const createCategorySchema = z.object({
+  body: z.object({
+    name_ar: z.string().min(2, 'Arabic name must be at least 2 characters'),
+    name_en: z.string().min(2, 'English name must be at least 2 characters'),
+    icon_url: z.string().url('Icon must be a valid URL').optional(),
+  }),
+});
+
+export const updateCategorySchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid category ID'),
+  }),
+  body: createCategorySchema.shape.body.partial(),
+});
+
+export const categoryIdSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid category ID'),
+  }),
+});
+</file>
+
+<file path="src/validators/admin/content.validator.ts">
+// ============================================
+// Promoo Backend — Admin Offer/Ad Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const updateStatusSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid ID'),
+  }),
+  body: z.object({
+    status: z.enum(['active', 'rejected', 'pending', 'expired', 'paused', 'completed']),
+  }),
+});
+
+export const idParamSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid ID'),
+  }),
+});
+</file>
+
+<file path="src/validators/admin/payment.validator.ts">
+// ============================================
+// Promoo Backend — Admin Payment Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const getPaymentsSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+    status: z.enum(['succeeded', 'pending', 'failed', 'refunded']).optional(),
+    type: z.enum(['subscription', 'ad', 'featured']).optional(),
+  }).optional(),
+});
+</file>
+
+<file path="src/validators/admin/plan.validator.ts">
+// ============================================
+// Promoo Backend — Admin Plan Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const createPlanSchema = z.object({
+  body: z.object({
+    stripe_price_id: z.string().min(1, 'Stripe Price ID is required'),
+    name_ar: z.string().min(2, 'Arabic name must be at least 2 characters'),
+    name_en: z.string().min(2, 'English name must be at least 2 characters'),
+    description_ar: z.string().optional(),
+    description_en: z.string().optional(),
+    price: z.number().min(0, 'Price must be positive'),
+    currency: z.string().default('usd'),
+    interval: z.enum(['month', 'year']),
+    features_ar: z.array(z.string()).default([]),
+    features_en: z.array(z.string()).default([]),
+    is_active: z.boolean().default(true),
+  }),
+});
+
+export const updatePlanSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid plan ID'),
+  }),
+  body: createPlanSchema.shape.body.partial(),
+});
+
+export const planIdSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid plan ID'),
+  }),
+});
+</file>
+
+<file path="src/validators/admin/report.validator.ts">
+// ============================================
+// Promoo Backend — Admin Report Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const getReportsSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+    status: z.enum(['pending', 'reviewed', 'resolved', 'dismissed']).optional(),
+    type: z.enum(['profile', 'offer', 'ad', 'message']).optional(),
+  }).optional(),
+});
+
+export const updateReportStatusSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid report ID'),
+  }),
+  body: z.object({
+    status: z.enum(['pending', 'reviewed', 'resolved', 'dismissed']),
+    admin_note: z.string().max(1000).optional(),
+  }),
+});
+</file>
+
+<file path="src/validators/admin/user.validator.ts">
+// ============================================
+// Promoo Backend — Admin User Validator
+// ============================================
+
+import { z } from 'zod';
+
+export const getUsersSchema = z.object({
+  query: z.object({
+    page: z.coerce.number().int().positive().default(1).optional(),
+    limit: z.coerce.number().int().positive().max(100).default(20).optional(),
+    search: z.string().optional(),
+    accountType: z.enum(['company', 'influencer', 'service_provider', 'user']).optional(),
+    isVerified: z.enum(['true', 'false']).optional(),
+    isActive: z.enum(['true', 'false']).optional(),
+  }).optional(),
+});
+
+export const userIdSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid user ID'),
+  }),
+});
+
+export const toggleBanSchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid user ID'),
+  }),
+  body: z.object({
+    isActive: z.boolean(),
+  }),
+});
+
+export const toggleVerifySchema = z.object({
+  params: z.object({
+    id: z.string().uuid('Invalid user ID'),
+  }),
+  body: z.object({
+    isVerified: z.boolean(),
+  }),
+});
+</file>
+
 <file path="src/validators/auth.validator.ts">
 // ============================================
 // Promoo Backend — Auth Validators
@@ -7418,457 +8670,6 @@ coverage/
 }
 </file>
 
-<file path="REQUIREMENTS_STATUS.md">
-# Promoo Backend — Requirements Status
-> تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
-> آخر تحديث: 2026-06-16 | الوضع الحالي: Phase 10 مكتملة ✅
-
----
-
-## الأيقونات المستخدمة
-| أيقونة | المعنى |
-|--------|--------|
-| ✅ | مُنفَّذ بالكامل |
-| 🔄 | مُنفَّذ جزئياً |
-| ⬜ | لم يُبدأ بعد |
-| ⚠️ | مُنفَّذ لكن يحتاج تحسين |
-
----
-
-## 1. تسجيل وإنشاء الحسابات ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 2
-
-### المتطلب
-تسجيل حساب جديد لأي من الأنواع الأربعة: شركة، مؤثر، مقدم خدمة، مستخدم عادي.
-
-### كيف نُفِّذ
-- **الملفات**: `src/services/auth.service.ts` → `src/controllers/auth.controller.ts` → `src/routes/auth.routes.ts`
-- **نقطة النهاية**: `POST /api/v1/auth/register/email` و `POST /api/v1/auth/register/phone`
-- **اللوجيك**:
-  1. المستخدم يرسل (email أو phone) + password + fullName + accountType
-  2. يتم التحقق من البيانات عبر Zod Validator
-  3. يُستدعى `supabaseAdmin.auth.signUp()` لإنشاء المستخدم في Supabase Auth
-  4. Supabase يُطلق Database Trigger تلقائياً يُنشئ سجل في جدول `profiles`
-  5. يُرجع رمز JWT للمستخدم
-- **أنواع الحسابات**: مُعرَّفة في `src/types/enums.ts` كـ enum: `company | influencer | service_provider | user`
-
----
-
-## 2. تسجيل الدخول بالبريد أو الهاتف ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 2
-
-### المتطلب
-تسجيل الدخول باستخدام البريد الإلكتروني أو رقم الهاتف + كلمة المرور.
-
-### كيف نُفِّذ
-- **نقاط النهاية**: `POST /api/v1/auth/login/email` و `POST /api/v1/auth/login/phone`
-- **اللوجيك**:
-  1. يُرسل المستخدم بيانات الدخول
-  2. `supabaseAdmin.auth.signInWithPassword()` تتحقق من الهوية
-  3. يُرجع `access_token` + `refresh_token`
-  4. كل الطلبات التالية تُرسل الـ token في `Authorization: Bearer <token>`
-  5. middleware `auth.middleware.ts` يتحقق من الـ token في كل route محمية
-
----
-
-## 3. تسجيل الدخول بـ Google وApple ✅
-
-**الحالة**: مُنفَّذ — Phase 2
-
-### المتطلب
-OAuth عبر Google وApple.
-
-### كيف نُفِّذ
-- **نقطة النهاية**: `POST /api/v1/auth/oauth`
-- **اللوجيك**:
-  1. تطبيق الموبايل (React Native) يستخدم Supabase SDK لإطلاق OAuth Flow مباشرة
-  2. بعد نجاح OAuth، Supabase يُرجع token جاهز
-  3. الـ Backend يستقبل طلب التحقق من الـ token `POST /api/v1/auth/verify`
-  4. يُتحقق من صحته ويُرجع بيانات المستخدم
-- **ملاحظة**: Google/Apple OAuth يُدار في Supabase Dashboard مباشرة، لا يحتاج كود إضافي في الـ Backend
-
----
-
-## 4. التحقق عبر OTP ✅
-
-**الحالة**: مُنفَّذ — Phase 2
-
-### المتطلب
-إرسال رمز OTP للهاتف أو البريد والتحقق منه.
-
-### كيف نُفِّذ
-- **نقاط النهاية**: `POST /api/v1/auth/otp/send` و `POST /api/v1/auth/otp/verify`
-- **اللوجيك**:
-  1. `supabase.auth.signInWithOtp()` يُرسل OTP عبر SMS أو Email
-  2. المستخدم يُرسل الكود المستلم + الهاتف/الإيميل
-  3. `supabase.auth.verifyOtp()` يتحقق ويُرجع session
-
----
-
-## 5. الملفات الشخصية (Profiles) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 3
-
-### المتطلب
-ملف شخصي متكامل لكل نوع حساب مع إمكانية التعديل والعرض العام.
-
-### كيف نُفِّذ
-- **الملفات**: `src/services/profile.service.ts` → `src/controllers/profile.controller.ts`
-- **الجدول**: `profiles` (migration 001)
-- **الحقول**: id, full_name, username, bio, avatar_url, cover_url, account_type, website, location, is_verified, is_active, stripe_customer_id, ...
-- **نقاط النهاية**:
-  - `GET /api/v1/profiles/me` — عرض ملفي الشخصي
-  - `PUT /api/v1/profiles/me` — تحديث ملفي
-  - `GET /api/v1/profiles/:id` — عرض ملف عام بالـ ID
-  - `POST /api/v1/profiles/me/avatar` — رفع صورة شخصية
-  - `POST /api/v1/profiles/me/cover` — رفع صورة غلاف
-  - `POST /api/v1/profiles/me/verify-request` — طلب التوثيق
-  - `DELETE /api/v1/profiles/me` — حذف الحساب
-- **اللوجيك الأساسي**:
-  - الملف الشخصي يُنشأ تلقائياً عبر Trigger في Supabase عند التسجيل
-  - RLS تضمن أن كل مستخدم يرى فقط بياناته الخاصة ما عدا البيانات العامة
-  - `account_type` يحدد نوع الحساب ويُستخدم لفلترة المحتوى لاحقاً
-
----
-
-## 6. نظام المتابعة (Follow System) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 4
-
-### المتطلب
-متابعة وإلغاء متابعة الحسابات، وعرض قوائم المتابعين والمتابَعين.
-
-### كيف نُفِّذ
-- **الجدول**: `follows` (migration 003)
-- **نقاط النهاية**:
-  - `POST /api/v1/follows/:profileId` — متابعة حساب
-  - `DELETE /api/v1/follows/:profileId` — إلغاء المتابعة
-  - `GET /api/v1/profiles/:id/followers` — قائمة المتابعين (مع pagination)
-  - `GET /api/v1/profiles/:id/following` — قائمة المتابَعين (مع pagination)
-  - `GET /api/v1/follows/:profileId/status` — هل أنا أتابعه؟
-- **اللوجيك**:
-  - لا يمكن متابعة نفسك (validation في الـ service)
-  - لا يمكن المتابعة مرتين (UNIQUE constraint في DB)
-  - الـ followers/following count مُحسوبة في وقت الطلب بـ JOIN
-
----
-
-## 7. نظام العروض (Offers) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 5
-
-### المتطلب
-إنشاء عروض خدمات، وعرضها وتصفيتها وتعديلها وحذفها.
-
-### كيف نُفِّذ
-- **الجدول**: `offers` (migration 004)
-- **نقاط النهاية**:
-  - `POST /api/v1/offers` — إنشاء عرض
-  - `PUT /api/v1/offers/:id` — تعديل عرض
-  - `DELETE /api/v1/offers/:id` — حذف عرض (صاحبه فقط)
-  - `GET /api/v1/offers/:id` — تفاصيل عرض + زيادة views_count
-  - `GET /api/v1/offers` — قائمة العروض مع فلاتر (category, price range, location) + pagination
-  - `GET /api/v1/profiles/:id/offers` — عروض مستخدم معين
-- **اللوجيك**:
-  - عند فتح تفاصيل عرض: يُزاد `views_count` تلقائياً
-  - الفلترة: حسب category_id, min_price, max_price, location, account_type
-  - التحقق من الملكية: فقط صاحب العرض يقدر يعدل أو يحذف
-
----
-
-## 8. نظام الإعلانات (Ads) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 5
-
-### المتطلب
-إنشاء إعلانات مع تتبع الانطباعات والنقرات وإدارة الحالة.
-
-### كيف نُفِّذ
-- **الجدول**: `ads` (migration 004)
-- **نقاط النهاية**:
-  - `POST /api/v1/ads` — إنشاء إعلان
-  - `PUT /api/v1/ads/:id` — تعديل إعلان
-  - `PATCH /api/v1/ads/:id/toggle` — تفعيل/إيقاف الإعلان
-  - `GET /api/v1/ads/:id/stats` — إحصائيات (impressions, clicks, CTR)
-  - `POST /api/v1/ads/:id/impression` — تسجيل ظهور (من التطبيق)
-  - `POST /api/v1/ads/:id/click` — تسجيل نقرة (من التطبيق)
-- **اللوجيك**:
-  - `impressions_count` و `clicks_count` تُزاد مباشرة في DB عند كل طلب
-  - CTR = (clicks / impressions) × 100 — مُحسوب في الـ service
-  - الإعلان له status: active/paused/expired
-
----
-
-## 9. نظام الاشتراكات والباقات (Subscriptions) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 6
-
-### المتطلب
-باقات اشتراك مدفوعة عبر Stripe مع إدارة الاشتراكات.
-
-### كيف نُفِّذ
-- **الجداول**: `subscription_plans` + `subscriptions` (migration 005)
-- **الملفات**: `stripe.service.ts` + `subscription.service.ts`
-- **نقاط النهاية**:
-  - `GET /api/v1/subscriptions/plans` — عرض الباقات المتاحة (عام)
-  - `POST /api/v1/subscriptions` — إنشاء Checkout Session للدفع
-  - `GET /api/v1/subscriptions/me` — اشتراكي الحالي
-  - `POST /api/v1/subscriptions/manage` — بوابة Stripe لإلغاء/ترقية
-  - `POST /api/v1/webhooks/stripe` — Webhook لاستقبال أحداث Stripe
-- **اللوجيك**:
-  1. المستخدم يختار باقة → Backend ينشئ Stripe Checkout Session
-  2. المستخدم يدفع في صفحة Stripe
-  3. Stripe يُرسل webhook → Backend يُحدِّث جدول `subscriptions`
-  4. الإلغاء/الترقية يتم عبر Stripe Customer Portal (لا كود مخصص)
-  5. كل تغيير في Stripe يُزامَن تلقائياً عبر Webhook
-
----
-
-## 10. نظام المحادثات (Chat) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 7
-
-### المتطلب
-محادثات مباشرة 1-to-1 بين المستخدمين داخل التطبيق.
-
-### كيف نُفِّذ
-- **الجداول**: `chat_rooms` + `chat_participants` + `messages` (migration 006)
-- **الملفات**: `chat.service.ts` + `chat.controller.ts`
-- **نقاط النهاية**:
-  - `POST /api/v1/chats` — بدء محادثة أو فتح محادثة موجودة
-  - `POST /api/v1/chats/:roomId/messages` — إرسال رسالة
-  - `GET /api/v1/chats/:roomId/messages` — قراءة الرسائل (مع pagination)
-  - `GET /api/v1/chats` — قائمة محادثاتي (مع آخر رسالة وعدد غير المقروء)
-  - `PATCH /api/v1/chats/:roomId/read` — تحديد الرسائل كمقروءة
-  - `DELETE /api/v1/chats/:roomId` — حذف محادثة
-- **اللوجيك**:
-  1. عند `POST /chats`: يتحقق هل توجد غرفة مشتركة بين المستخدمَين → يعيدها إذا وُجدت
-  2. الغرف الجديدة تُنشأ مع إضافة المشاركَين في `chat_participants`
-  3. عند حذف محادثة: يُزيل المستخدم من `chat_participants` فقط، لا يحذف الغرفة كلها
-  4. إذا لم يتبق أي مشارك → تُحذف الغرفة تلقائياً
-  5. عدد الرسائل غير المقروءة = رسائل بعد `last_read_at` من المشارك الآخر
-- **Realtime**: الـ Backend جاهز للـ Realtime — التطبيق يتصل مباشرة بـ Supabase Realtime عبر SDK
-
----
-
-## 11. نظام الإشعارات الفورية (Push Notifications) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 8
-
-### المتطلب
-إشعارات فورية عبر FCM + سجلات إشعارات داخل التطبيق.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول جاهزة**: `notifications` + `fcm_tokens` (migration 007)
-- **Firebase Config**: `src/config/firebase.ts` جاهز
-- **ما ينقص**:
-  - `notification.service.ts` — منطق إرسال الإشعارات
-  - `notification.controller.ts`
-  - `notification.routes.ts`
-  - نقاط النهاية: GET, PATCH read, DELETE, POST token
-  - إرسال FCM عند حدث معين (رسالة جديدة، متابعة جديدة، إلخ)
-
----
-
-## 12. رفع الصور والفيديوهات والمرفقات (File Upload) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 9
-
-### المتطلب
-رفع الملفات (صور، فيديو، مرفقات) وتخزينها وإدارتها.
-
-### ما تم تجهيزه مسبقاً
-- **Supabase Storage**: مُجهَّز في الـ config
-- **Buckets المخططة**: avatars, covers, offers, ads, chat-media
-- **الجداول**: `media` (migration 008)
-- **ما ينقص**:
-  - `upload.middleware.ts` — Multer config
-  - `upload.service.ts` — رفع لـ Supabase Storage
-  - `upload.controller.ts` + `upload.routes.ts`
-  - نقاط النهاية: POST /upload/image, /upload/video, /upload/file
-  - حدود الأحجام: صورة 5MB، فيديو 50MB، مرفق 10MB
-
----
-
-## 13. البحث والتصنيفات (Search & Categories) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 9
-
-### المتطلب
-بحث عام بكلمة مفتاحية وتصفية حسب التصنيفات.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `categories` (migration 002) — التصنيفات جاهزة مع Seed data
-- **ما ينقص**:
-  - `search.service.ts` — بحث في profiles, offers, ads
-  - `category.service.ts` — قائمة التصنيفات ومحتواها
-  - نقاط النهاية: GET /search?q=&type=, GET /categories, GET /categories/:id/content
-
----
-
-## 14. الحسابات المميزة والظهور المدفوع (Featured) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 10
-
-### المتطلب
-دفع مقابل ظهور مميز في البحث أو الصفحة الرئيسية.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `featured_listings` (migration 009)
-- **ما ينقص**:
-  - `payment.service.ts` — دفعة مباشرة عبر Stripe PaymentIntent
-  - منطق الظهور المميز: الحسابات/العروض المميزة تُعطى أولوية في نتائج البحث
-  - نقاط النهاية: POST /featured, GET /featured
-
----
-
-## 15. إدارة المدفوعات (Payments) ✅
-
-**الحالة**: مُنفَّذ بالكامل — Phase 10
-
-### المتطلب
-ربط كامل مع Stripe لمعالجة المدفوعات وإدارة سجلاتها.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `payments` (migration 009)
-- **ما ينقص**:
-  - `payment.service.ts` — سجل الدفعات، تاريخ المعاملات
-  - نقطة النهاية: GET /payments/history
-
----
-
-## 16. الحسابات الموثقة (Verified Accounts) ✅ / ⬜
-
-**الحالة**: جزء منه مُنفَّذ (طلب التوثيق)، الموافقة من الـ Admin لم تُنفَّذ بعد
-
-### المتطلب
-توثيق الحسابات مع علامة التوثيق ✓
-
-### ما نُفِّذ
-- `POST /api/v1/profiles/me/verify-request` — إرسال طلب توثيق من المستخدم ✅
-- `is_verified` field موجود في جدول `profiles` ✅
-
-### ما ينقص
-- Admin endpoint للموافقة على طلب التوثيق ⬜ (Phase 12)
-
----
-
-## 17. التبليغات والشكاوى (Reports) ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 11
-
-### المتطلب
-نظام تبليغ على محتوى أو حسابات مخالفة.
-
-### ما تم تجهيزه مسبقاً
-- **الجداول**: `reports` (migration 008)
-- **ما ينقص**:
-  - `report.service.ts` + controller + routes
-  - نقاط النهاية: POST /reports, GET /reports (admin only)
-
----
-
-## 18. لوحة التحكم — إدارة المستخدمين ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-Admin يشوف كل المستخدمين، يعطل/يفعل حساب، يوثق حساب.
-
-### ما ينقص
-- `src/routes/admin/users.routes.ts`
-- نقاط النهاية: GET /admin/users, PATCH /admin/users/:id/ban, PATCH /admin/users/:id/verify
-- `admin.middleware.ts` موجود مسبقاً ✅ — يمنع الوصول إلا للأدمن
-
----
-
-## 19. لوحة التحكم — إدارة الإعلانات والعروض ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-Admin يراجع ويدير الإعلانات والعروض.
-
----
-
-## 20. لوحة التحكم — إدارة الاشتراكات والباقات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-Admin ينشئ ويعدل باقات الاشتراك.
-
-### ملاحظة
-- ربط الباقات بـ Stripe يعني: كل باقة لازم يكون لها `stripe_price_id` من Stripe Dashboard
-
----
-
-## 21. لوحة التحكم — إدارة المدفوعات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
----
-
-## 22. لوحة التحكم — التقارير والإحصائيات ⬜
-
-**الحالة**: لم يُبدأ بعد — Phase 12
-
-### المتطلب
-إحصائيات عامة: عدد المستخدمين، الاشتراكات النشطة، الإيرادات، ...
-
----
-
----
-
-## ملخص الحالة العامة
-
-| المتطلب | الحالة | Phase |
-|---------|--------|-------|
-| تسجيل الحسابات | ✅ مُنفَّذ | Phase 2 |
-| تسجيل الدخول (Email/Phone) | ✅ مُنفَّذ | Phase 2 |
-| تسجيل الدخول (Google/Apple) | ✅ مُنفَّذ | Phase 2 |
-| التحقق بـ OTP | ✅ مُنفَّذ | Phase 2 |
-| الملفات الشخصية | ✅ مُنفَّذ | Phase 3 |
-| نظام المتابعة | ✅ مُنفَّذ | Phase 4 |
-| نظام العروض | ✅ مُنفَّذ | Phase 5 |
-| نظام الإعلانات | ✅ مُنفَّذ | Phase 5 |
-| الاشتراكات والباقات + Stripe | ✅ مُنفَّذ | Phase 6 |
-| المحادثات (Chat) | ✅ مُنفَّذ | Phase 7 |
-| الإشعارات الفورية | ✅ مُنفَّذ | Phase 8 |
-| رفع الملفات | ✅ مُنفَّذ | Phase 9 |
-| البحث والتصنيفات | ✅ مُنفَّذ | Phase 9 |
-| الحسابات المميزة (Featured) | ✅ مُنفَّذ | Phase 10 |
-| إدارة المدفوعات | ✅ مُنفَّذ | Phase 10 |
-| الحسابات الموثقة (جزئي) | 🔄 ناقص Admin | Phase 12 |
-| التبليغات والشكاوى | ⬜ لم يُبدأ | Phase 11 |
-| Admin — إدارة المستخدمين | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة الإعلانات/العروض | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة الاشتراكات | ⬜ لم يُبدأ | Phase 12 |
-| Admin — إدارة المدفوعات | ⬜ لم يُبدأ | Phase 12 |
-| Admin — التقارير والإحصائيات | ⬜ لم يُبدأ | Phase 12 |
-
----
-
-## ملاحظات معمارية مهمة
-
-### ✅ ما نحن عليه صح تماماً
-1. **4-Layer Architecture محترم 100%**: كل module فيه validator → service → controller → route. لا يوجد أي استثناء.
-2. **Supabase RLS نشط**: كل جدول محمي بـ Row Level Security — المستخدم لا يصل إلا لبياناته.
-3. **Stripe Webhook يعمل بشكل صحيح**: Webhook مُسجَّل قبل `express.json()` في `app.ts` لأنه يحتاج raw body.
-4. **أنواع TypeScript صارمة**: لا يوجد `any` في الكود، `type-check` ينجح بدون أخطاء.
-5. **Pagination على كل القوائم**: كل endpoint يُرجع قائمة يدعم `?page=&limit=`.
-6. **Bilingual جاهز**: الـ DB فيه `name_ar` و `name_en` لكل الجداول التي تحتاجها.
-7. **Database جاهزة 100%**: كل 9 migrations مكتوبة — حتى الجداول الخاصة بـ Phase 8-12 موجودة.
-
-### ⚠️ ما يحتاج انتباه لاحقاً
-1. **FCM Integration**: `firebase.ts` جاهز لكن لم يُستخدم بعد — Phase 8 سيفعّله.
-2. **Stripe `stripe_customer_id`**: مفترض أن يكون في جدول `profiles`. يجب التحقق من وجوده في migration 001.
-3. **Chat Realtime**: الـ Backend جاهز، لكن الـ Realtime نفسه يعتمد على Supabase SDK في تطبيق الموبايل — لا يحتاج endpoint.
-4. **Admin routes**: `admin.middleware.ts` جاهز لكن لا يوجد routes بعد.
-</file>
-
 <file path="src/app.ts">
 // ============================================
 // Promoo Backend — Express App Configuration
@@ -8528,6 +9329,470 @@ export class FollowService {
 export const followService = new FollowService();
 </file>
 
+<file path="REQUIREMENTS_STATUS.md">
+# Promoo Backend — Requirements Status
+> تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
+> آخر تحديث: 2026-06-16 | الوضع الحالي: Phase 10 مكتملة ✅
+
+---
+
+## الأيقونات المستخدمة
+| أيقونة | المعنى |
+|--------|--------|
+| ✅ | مُنفَّذ بالكامل |
+| 🔄 | مُنفَّذ جزئياً |
+| ⬜ | لم يُبدأ بعد |
+| ⚠️ | مُنفَّذ لكن يحتاج تحسين |
+
+---
+
+## 1. تسجيل وإنشاء الحسابات ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 2
+
+### المتطلب
+تسجيل حساب جديد لأي من الأنواع الأربعة: شركة، مؤثر، مقدم خدمة، مستخدم عادي.
+
+### كيف نُفِّذ
+- **الملفات**: `src/services/auth.service.ts` → `src/controllers/auth.controller.ts` → `src/routes/auth.routes.ts`
+- **نقطة النهاية**: `POST /api/v1/auth/register/email` و `POST /api/v1/auth/register/phone`
+- **اللوجيك**:
+  1. المستخدم يرسل (email أو phone) + password + fullName + accountType
+  2. يتم التحقق من البيانات عبر Zod Validator
+  3. يُستدعى `supabaseAdmin.auth.signUp()` لإنشاء المستخدم في Supabase Auth
+  4. Supabase يُطلق Database Trigger تلقائياً يُنشئ سجل في جدول `profiles`
+  5. يُرجع رمز JWT للمستخدم
+- **أنواع الحسابات**: مُعرَّفة في `src/types/enums.ts` كـ enum: `company | influencer | service_provider | user`
+
+---
+
+## 2. تسجيل الدخول بالبريد أو الهاتف ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 2
+
+### المتطلب
+تسجيل الدخول باستخدام البريد الإلكتروني أو رقم الهاتف + كلمة المرور.
+
+### كيف نُفِّذ
+- **نقاط النهاية**: `POST /api/v1/auth/login/email` و `POST /api/v1/auth/login/phone`
+- **اللوجيك**:
+  1. يُرسل المستخدم بيانات الدخول
+  2. `supabaseAdmin.auth.signInWithPassword()` تتحقق من الهوية
+  3. يُرجع `access_token` + `refresh_token`
+  4. كل الطلبات التالية تُرسل الـ token في `Authorization: Bearer <token>`
+  5. middleware `auth.middleware.ts` يتحقق من الـ token في كل route محمية
+
+---
+
+## 3. تسجيل الدخول بـ Google وApple ✅
+
+**الحالة**: مُنفَّذ — Phase 2
+
+### المتطلب
+OAuth عبر Google وApple.
+
+### كيف نُفِّذ
+- **نقطة النهاية**: `POST /api/v1/auth/oauth`
+- **اللوجيك**:
+  1. تطبيق الموبايل (React Native) يستخدم Supabase SDK لإطلاق OAuth Flow مباشرة
+  2. بعد نجاح OAuth، Supabase يُرجع token جاهز
+  3. الـ Backend يستقبل طلب التحقق من الـ token `POST /api/v1/auth/verify`
+  4. يُتحقق من صحته ويُرجع بيانات المستخدم
+- **ملاحظة**: Google/Apple OAuth يُدار في Supabase Dashboard مباشرة، لا يحتاج كود إضافي في الـ Backend
+
+---
+
+## 4. التحقق عبر OTP ✅
+
+**الحالة**: مُنفَّذ — Phase 2
+
+### المتطلب
+إرسال رمز OTP للهاتف أو البريد والتحقق منه.
+
+### كيف نُفِّذ
+- **نقاط النهاية**: `POST /api/v1/auth/otp/send` و `POST /api/v1/auth/otp/verify`
+- **اللوجيك**:
+  1. `supabase.auth.signInWithOtp()` يُرسل OTP عبر SMS أو Email
+  2. المستخدم يُرسل الكود المستلم + الهاتف/الإيميل
+  3. `supabase.auth.verifyOtp()` يتحقق ويُرجع session
+
+---
+
+## 5. الملفات الشخصية (Profiles) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 3
+
+### المتطلب
+ملف شخصي متكامل لكل نوع حساب مع إمكانية التعديل والعرض العام.
+
+### كيف نُفِّذ
+- **الملفات**: `src/services/profile.service.ts` → `src/controllers/profile.controller.ts`
+- **الجدول**: `profiles` (migration 001)
+- **الحقول**: id, full_name, username, bio, avatar_url, cover_url, account_type, website, location, is_verified, is_active, stripe_customer_id, ...
+- **نقاط النهاية**:
+  - `GET /api/v1/profiles/me` — عرض ملفي الشخصي
+  - `PUT /api/v1/profiles/me` — تحديث ملفي
+  - `GET /api/v1/profiles/:id` — عرض ملف عام بالـ ID
+  - `POST /api/v1/profiles/me/avatar` — رفع صورة شخصية
+  - `POST /api/v1/profiles/me/cover` — رفع صورة غلاف
+  - `POST /api/v1/profiles/me/verify-request` — طلب التوثيق
+  - `DELETE /api/v1/profiles/me` — حذف الحساب
+- **اللوجيك الأساسي**:
+  - الملف الشخصي يُنشأ تلقائياً عبر Trigger في Supabase عند التسجيل
+  - RLS تضمن أن كل مستخدم يرى فقط بياناته الخاصة ما عدا البيانات العامة
+  - `account_type` يحدد نوع الحساب ويُستخدم لفلترة المحتوى لاحقاً
+
+---
+
+## 6. نظام المتابعة (Follow System) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 4
+
+### المتطلب
+متابعة وإلغاء متابعة الحسابات، وعرض قوائم المتابعين والمتابَعين.
+
+### كيف نُفِّذ
+- **الجدول**: `follows` (migration 003)
+- **نقاط النهاية**:
+  - `POST /api/v1/follows/:profileId` — متابعة حساب
+  - `DELETE /api/v1/follows/:profileId` — إلغاء المتابعة
+  - `GET /api/v1/profiles/:id/followers` — قائمة المتابعين (مع pagination)
+  - `GET /api/v1/profiles/:id/following` — قائمة المتابَعين (مع pagination)
+  - `GET /api/v1/follows/:profileId/status` — هل أنا أتابعه؟
+- **اللوجيك**:
+  - لا يمكن متابعة نفسك (validation في الـ service)
+  - لا يمكن المتابعة مرتين (UNIQUE constraint في DB)
+  - الـ followers/following count مُحسوبة في وقت الطلب بـ JOIN
+
+---
+
+## 7. نظام العروض (Offers) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 5
+
+### المتطلب
+إنشاء عروض خدمات، وعرضها وتصفيتها وتعديلها وحذفها.
+
+### كيف نُفِّذ
+- **الجدول**: `offers` (migration 004)
+- **نقاط النهاية**:
+  - `POST /api/v1/offers` — إنشاء عرض
+  - `PUT /api/v1/offers/:id` — تعديل عرض
+  - `DELETE /api/v1/offers/:id` — حذف عرض (صاحبه فقط)
+  - `GET /api/v1/offers/:id` — تفاصيل عرض + زيادة views_count
+  - `GET /api/v1/offers` — قائمة العروض مع فلاتر (category, price range, location) + pagination
+  - `GET /api/v1/profiles/:id/offers` — عروض مستخدم معين
+- **اللوجيك**:
+  - عند فتح تفاصيل عرض: يُزاد `views_count` تلقائياً
+  - الفلترة: حسب category_id, min_price, max_price, location, account_type
+  - التحقق من الملكية: فقط صاحب العرض يقدر يعدل أو يحذف
+
+---
+
+## 8. نظام الإعلانات (Ads) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 5
+
+### المتطلب
+إنشاء إعلانات مع تتبع الانطباعات والنقرات وإدارة الحالة.
+
+### كيف نُفِّذ
+- **الجدول**: `ads` (migration 004)
+- **نقاط النهاية**:
+  - `POST /api/v1/ads` — إنشاء إعلان
+  - `PUT /api/v1/ads/:id` — تعديل إعلان
+  - `PATCH /api/v1/ads/:id/toggle` — تفعيل/إيقاف الإعلان
+  - `GET /api/v1/ads/:id/stats` — إحصائيات (impressions, clicks, CTR)
+  - `POST /api/v1/ads/:id/impression` — تسجيل ظهور (من التطبيق)
+  - `POST /api/v1/ads/:id/click` — تسجيل نقرة (من التطبيق)
+- **اللوجيك**:
+  - `impressions_count` و `clicks_count` تُزاد مباشرة في DB عند كل طلب
+  - CTR = (clicks / impressions) × 100 — مُحسوب في الـ service
+  - الإعلان له status: active/paused/expired
+
+---
+
+## 9. نظام الاشتراكات والباقات (Subscriptions) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 6
+
+### المتطلب
+باقات اشتراك مدفوعة عبر Stripe مع إدارة الاشتراكات.
+
+### كيف نُفِّذ
+- **الجداول**: `subscription_plans` + `subscriptions` (migration 005)
+- **الملفات**: `stripe.service.ts` + `subscription.service.ts`
+- **نقاط النهاية**:
+  - `GET /api/v1/subscriptions/plans` — عرض الباقات المتاحة (عام)
+  - `POST /api/v1/subscriptions` — إنشاء Checkout Session للدفع
+  - `GET /api/v1/subscriptions/me` — اشتراكي الحالي
+  - `POST /api/v1/subscriptions/manage` — بوابة Stripe لإلغاء/ترقية
+  - `POST /api/v1/webhooks/stripe` — Webhook لاستقبال أحداث Stripe
+- **اللوجيك**:
+  1. المستخدم يختار باقة → Backend ينشئ Stripe Checkout Session
+  2. المستخدم يدفع في صفحة Stripe
+  3. Stripe يُرسل webhook → Backend يُحدِّث جدول `subscriptions`
+  4. الإلغاء/الترقية يتم عبر Stripe Customer Portal (لا كود مخصص)
+  5. كل تغيير في Stripe يُزامَن تلقائياً عبر Webhook
+
+---
+
+## 10. نظام المحادثات (Chat) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 7
+
+### المتطلب
+محادثات مباشرة 1-to-1 بين المستخدمين داخل التطبيق.
+
+### كيف نُفِّذ
+- **الجداول**: `chat_rooms` + `chat_participants` + `messages` (migration 006)
+- **الملفات**: `chat.service.ts` + `chat.controller.ts`
+- **نقاط النهاية**:
+  - `POST /api/v1/chats` — بدء محادثة أو فتح محادثة موجودة
+  - `POST /api/v1/chats/:roomId/messages` — إرسال رسالة
+  - `GET /api/v1/chats/:roomId/messages` — قراءة الرسائل (مع pagination)
+  - `GET /api/v1/chats` — قائمة محادثاتي (مع آخر رسالة وعدد غير المقروء)
+  - `PATCH /api/v1/chats/:roomId/read` — تحديد الرسائل كمقروءة
+  - `DELETE /api/v1/chats/:roomId` — حذف محادثة
+- **اللوجيك**:
+  1. عند `POST /chats`: يتحقق هل توجد غرفة مشتركة بين المستخدمَين → يعيدها إذا وُجدت
+  2. الغرف الجديدة تُنشأ مع إضافة المشاركَين في `chat_participants`
+  3. عند حذف محادثة: يُزيل المستخدم من `chat_participants` فقط، لا يحذف الغرفة كلها
+  4. إذا لم يتبق أي مشارك → تُحذف الغرفة تلقائياً
+  5. عدد الرسائل غير المقروءة = رسائل بعد `last_read_at` من المشارك الآخر
+- **Realtime**: الـ Backend جاهز للـ Realtime — التطبيق يتصل مباشرة بـ Supabase Realtime عبر SDK
+
+---
+
+## 11. نظام الإشعارات الفورية (Push Notifications) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 8
+
+### المتطلب
+إشعارات فورية عبر FCM + سجلات إشعارات داخل التطبيق.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول جاهزة**: `notifications` + `fcm_tokens` (migration 007)
+- **Firebase Config**: `src/config/firebase.ts` جاهز
+- **ما ينقص**:
+  - `notification.service.ts` — منطق إرسال الإشعارات
+  - `notification.controller.ts`
+  - `notification.routes.ts`
+  - نقاط النهاية: GET, PATCH read, DELETE, POST token
+  - إرسال FCM عند حدث معين (رسالة جديدة، متابعة جديدة، إلخ)
+
+---
+
+## 12. رفع الصور والفيديوهات والمرفقات (File Upload) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 9
+
+### المتطلب
+رفع الملفات (صور، فيديو، مرفقات) وتخزينها وإدارتها.
+
+### ما تم تجهيزه مسبقاً
+- **Supabase Storage**: مُجهَّز في الـ config
+- **Buckets المخططة**: avatars, covers, offers, ads, chat-media
+- **الجداول**: `media` (migration 008)
+- **ما ينقص**:
+  - `upload.middleware.ts` — Multer config
+  - `upload.service.ts` — رفع لـ Supabase Storage
+  - `upload.controller.ts` + `upload.routes.ts`
+  - نقاط النهاية: POST /upload/image, /upload/video, /upload/file
+  - حدود الأحجام: صورة 5MB، فيديو 50MB، مرفق 10MB
+
+---
+
+## 13. البحث والتصنيفات (Search & Categories) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 9
+
+### المتطلب
+بحث عام بكلمة مفتاحية وتصفية حسب التصنيفات.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `categories` (migration 002) — التصنيفات جاهزة مع Seed data
+- **ما ينقص**:
+  - `search.service.ts` — بحث في profiles, offers, ads
+  - `category.service.ts` — قائمة التصنيفات ومحتواها
+  - نقاط النهاية: GET /search?q=&type=, GET /categories, GET /categories/:id/content
+
+---
+
+## 14. الحسابات المميزة والظهور المدفوع (Featured) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 10
+
+### المتطلب
+دفع مقابل ظهور مميز في البحث أو الصفحة الرئيسية.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `featured_listings` (migration 009)
+- **ما ينقص**:
+  - `payment.service.ts` — دفعة مباشرة عبر Stripe PaymentIntent
+  - منطق الظهور المميز: الحسابات/العروض المميزة تُعطى أولوية في نتائج البحث
+  - نقاط النهاية: POST /featured, GET /featured
+
+---
+
+## 15. إدارة المدفوعات (Payments) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 10
+
+### المتطلب
+ربط كامل مع Stripe لمعالجة المدفوعات وإدارة سجلاتها.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `payments` (migration 009)
+- **ما ينقص**:
+  - `payment.service.ts` — سجل الدفعات، تاريخ المعاملات
+  - نقطة النهاية: GET /payments/history
+
+---
+
+## 16. الحسابات الموثقة (Verified Accounts) ✅ / ⬜
+
+**الحالة**: جزء منه مُنفَّذ (طلب التوثيق)، الموافقة من الـ Admin لم تُنفَّذ بعد
+
+### المتطلب
+توثيق الحسابات مع علامة التوثيق ✓
+
+### ما نُفِّذ
+- `POST /api/v1/profiles/me/verify-request` — إرسال طلب توثيق من المستخدم ✅
+- `is_verified` field موجود في جدول `profiles` ✅
+
+### ما ينقص
+- Admin endpoint للموافقة على طلب التوثيق ⬜ (Phase 12)
+
+---
+
+## 17. التبليغات والشكاوى (Reports) ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 11
+
+### المتطلب
+نظام تبليغ على محتوى أو حسابات مخالفة.
+
+### ما تم تجهيزه مسبقاً
+- **الجداول**: `reports` (migration 008)
+- **ما ينقص**:
+  - `report.service.ts` + controller + routes
+  - نقاط النهاية: POST /reports, GET /reports (admin only)
+
+---
+
+## 18. لوحة التحكم — إدارة المستخدمين ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+Admin يشوف كل المستخدمين، يعطل/يفعل حساب، يوثق حساب.
+
+### ما ينقص
+- `src/routes/admin/users.routes.ts`
+- نقاط النهاية: GET /admin/users, PATCH /admin/users/:id/ban, PATCH /admin/users/:id/verify
+- `admin.middleware.ts` موجود مسبقاً ✅ — يمنع الوصول إلا للأدمن
+
+---
+
+## 19. لوحة التحكم — إدارة الإعلانات والعروض ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+Admin يراجع ويدير الإعلانات والعروض.
+
+---
+
+## 20. لوحة التحكم — إدارة الاشتراكات والباقات ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+Admin ينشئ ويعدل باقات الاشتراك.
+
+### ملاحظة
+- ربط الباقات بـ Stripe يعني: كل باقة لازم يكون لها `stripe_price_id` من Stripe Dashboard
+
+---
+
+## 21. لوحة التحكم — إدارة المدفوعات ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+---
+
+## 22. لوحة التحكم — التقارير والإحصائيات ⬜
+
+**الحالة**: لم يُبدأ بعد — Phase 12
+
+### المتطلب
+إحصائيات عامة: عدد المستخدمين، الاشتراكات النشطة، الإيرادات، ...
+
+---
+
+---
+
+## ملخص الحالة العامة
+
+| المتطلب | الحالة | Phase |
+|---------|--------|-------|
+| تسجيل الحسابات | ✅ مُنفَّذ | Phase 2 |
+| تسجيل الدخول (Email/Phone) | ✅ مُنفَّذ | Phase 2 |
+| تسجيل الدخول (Google/Apple) | ✅ مُنفَّذ | Phase 2 |
+| التحقق بـ OTP | ✅ مُنفَّذ | Phase 2 |
+| الملفات الشخصية | ✅ مُنفَّذ | Phase 3 |
+| نظام المتابعة | ✅ مُنفَّذ | Phase 4 |
+| نظام العروض | ✅ مُنفَّذ | Phase 5 |
+| نظام الإعلانات | ✅ مُنفَّذ | Phase 5 |
+| الاشتراكات والباقات + Stripe | ✅ مُنفَّذ | Phase 6 |
+| المحادثات (Chat) | ✅ مُنفَّذ | Phase 7 |
+| الإشعارات الفورية | ✅ مُنفَّذ | Phase 8 |
+| رفع الملفات | ✅ مُنفَّذ | Phase 9 |
+| البحث والتصنيفات | ✅ مُنفَّذ | Phase 9 |
+| الحسابات المميزة (Featured) | ✅ مُنفَّذ | Phase 10 |
+| إدارة المدفوعات | ✅ مُنفَّذ | Phase 10 |
+| الحسابات الموثقة (جزئي) | ✅ مُنفَّذ | Phase 12 |
+| التبليغات والشكاوى | ✅ مُنفَّذ | Phase 11 |
+| Admin — إدارة المستخدمين | ✅ مُنفَّذ | Phase 12 |
+| Admin — إدارة الإعلانات/العروض | ✅ مُنفَّذ | Phase 12 |
+| Admin — إدارة الاشتراكات | ✅ مُنفَّذ | Phase 12 |
+| Admin — إدارة المدفوعات | ✅ مُنفَّذ | Phase 12 |
+| Admin — التقارير والإحصائيات | ✅ مُنفَّذ | Phase 12 |
+
+---
+
+## 12. Phase 12: Admin Dashboard APIs (Current & Final)
+
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| 12.1 | Admin Stats API (Totals) | Core | ✅ Completed |
+| 12.2 | User Management (Ban/Verify) | Core | ✅ Completed |
+| 12.3 | Global Content Management | Core | ✅ Completed |
+| 12.4 | Payment History & Subscription Plans | Core | ✅ Completed |
+| 12.5 | Reports Management | Core | ✅ Completed |
+| 12.6 | Category Management | Core | ✅ Completed |
+
+---
+
+## ملاحظات معمارية مهمة
+
+### ✅ ما نحن عليه صح تماماً
+1. **4-Layer Architecture محترم 100%**: كل module فيه validator → service → controller → route. لا يوجد أي استثناء.
+2. **Supabase RLS نشط**: كل جدول محمي بـ Row Level Security — المستخدم لا يصل إلا لبياناته.
+3. **Stripe Webhook يعمل بشكل صحيح**: Webhook مُسجَّل قبل `express.json()` في `app.ts` لأنه يحتاج raw body.
+4. **أنواع TypeScript صارمة**: لا يوجد `any` في الكود، `type-check` ينجح بدون أخطاء.
+5. **Pagination على كل القوائم**: كل endpoint يُرجع قائمة يدعم `?page=&limit=`.
+6. **Bilingual جاهز**: الـ DB فيه `name_ar` و `name_en` لكل الجداول التي تحتاجها.
+7. **Database جاهزة 100%**: كل 9 migrations مكتوبة — حتى الجداول الخاصة بـ Phase 8-12 موجودة.
+
+### ⚠️ ما يحتاج انتباه لاحقاً
+1. **FCM Integration**: `firebase.ts` جاهز لكن لم يُستخدم بعد — Phase 8 سيفعّله.
+2. **Stripe `stripe_customer_id`**: مفترض أن يكون في جدول `profiles`. يجب التحقق من وجوده في migration 001.
+3. **Chat Realtime**: الـ Backend جاهز، لكن الـ Realtime نفسه يعتمد على Supabase SDK في تطبيق الموبايل — لا يحتاج endpoint.
+4. **Admin routes**: `admin.middleware.ts` جاهز لكن لا يوجد routes بعد.
+</file>
+
 <file path="MEMORY_BANK.md">
 # Promoo Backend — Memory Bank
 
@@ -8551,8 +9816,8 @@ export const followService = new FollowService();
 | 8 | Notifications | ✅ Completed | 2026-06-15 |
 | 9 | Upload & Search | ✅ Completed | 2026-06-15 |
 | 10 | Featured & Payments | ✅ Completed | 2026-06-16 |
-| 11 | Reports | ⬜ Not Started | — |
-| 12 | Admin Dashboard APIs | ⬜ Not Started | — |
+| 11 | Reports | ✅ Completed | 2026-06-16 |
+| 12 | Admin Dashboard APIs | ✅ Completed | 2026-06-16 |
 
 ---
 
@@ -8731,8 +9996,10 @@ import reportRoutes from './report.routes';
 // Phase 11: Reports
 router.use('/reports', reportRoutes);
 
+import adminRoutes from './admin';
+
 // Phase 12: Admin
-// router.use('/admin', adminRoutes);
+router.use('/admin', adminRoutes);
 
 // Webhooks (Stripe) — registered separately in app.ts with raw body parser
 
