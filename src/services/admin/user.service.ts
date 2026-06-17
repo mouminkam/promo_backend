@@ -78,6 +78,11 @@ export class AdminUserService {
       throw ApiError.internal(error.message);
     }
 
+    // If banning the user, revoke their active sessions globally
+    if (isActive === false) {
+      await supabaseAdmin.auth.admin.signOut(userId, 'global');
+    }
+
     return data;
   }
 

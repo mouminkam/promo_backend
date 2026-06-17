@@ -122,7 +122,92 @@ export class SubscriptionService {
     const type = event.type;
     const data = event.data.object;
 
-    if (type === 'customer.subscription.created' || type === 'customer.subscription.updated') {
+    if (type === 'checkout.session.completed') {
+      const session = event.data.object;
+      
+      // We only process one-time payments here. Subscriptions are handled by invoice.payment_succeeded
+      if (session.mode === 'payment') {
+        const stripePaymentId = session.id;
+        
+        // Idempotency check: does this payment already exist?
+        const { data: existingPayment } = await supabaseAdmin
+          .from('payments')
+          .select('id')
+          .eq('stripe_payment_id', stripePaymentId)
+          .maybeSingle();
+
+        if (!existingPayment) {
+          const profileId = session.metadata?.profileId;
+          const amount = session.amount_total / 100;
+          const paymentType = session.metadata?.type || 'ad';
+
+          if (profileId) {
+            // Insert payment
+            await supabaseAdmin.from('payments').insert({
+              profile_id: profileId,
+              stripe_payment_id: stripePaymentId,
+              amount: amount,
+              type: paymentType,
+              status: 'succeeded',
+              metadata: session.metadata || {}
+            });
+
+            // Activate Featured Account if applicable
+            if (paymentType === 'featured') {
+              const placement = session.metadata?.placement;
+              const durationDays = parseInt(session.metadata?.durationDays || '0', 10);
+              
+              if (placement && durationDays > 0) {
+                const startDate = new Date();
+                const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000);
+                
+                await supabaseAdmin.from('featured_accounts').insert({
+                  profile_id: profileId,
+                  placement: placement,
+                  start_date: startDate.toISOString(),
+                  end_date: endDate.toISOString(),
+                  amount_paid: amount,
+                  is_active: true
+                });
+              }
+            }
+          }
+        }
+      }
+    } else if (type === 'invoice.payment_succeeded') {
+      const invoice = event.data.object;
+      const stripePaymentId = invoice.id;
+
+      // Idempotency check
+      const { data: existingPayment } = await supabaseAdmin
+        .from('payments')
+        .select('id')
+        .eq('stripe_payment_id', stripePaymentId)
+        .maybeSingle();
+
+      if (!existingPayment) {
+        // Find profile by customer
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('id')
+          .eq('stripe_customer_id', invoice.customer)
+          .single();
+
+        if (profile && invoice.amount_paid > 0) {
+          await supabaseAdmin.from('payments').insert({
+            profile_id: profile.id,
+            stripe_payment_id: stripePaymentId,
+            amount: invoice.amount_paid / 100,
+            type: 'subscription',
+            status: 'succeeded',
+            metadata: {
+              invoice_url: invoice.hosted_invoice_url,
+              subscription_id: invoice.subscription
+            }
+          });
+        }
+      }
+    } else if (type === 'customer.subscription.created' || type === 'customer.subscription.updated') {
       const customerId = data.customer;
       const stripeSubId = data.id;
       const status = data.status; // e.g., 'active', 'past_due', 'canceled'
@@ -161,7 +246,6 @@ export class SubscriptionService {
       };
 
       // We need to check if it exists first because we only UPSERT by stripe_subscription_id
-      // but PostgREST upsert needs the conflict target to be unique
       const { data: existingSub } = await supabaseAdmin
         .from('subscriptions')
         .select('id')

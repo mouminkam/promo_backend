@@ -3,6 +3,7 @@
 // ============================================
 
 import { Router } from 'express';
+import { requireAuth } from '../../middleware/auth.middleware';
 import { requireAdmin } from '../../middleware/admin.middleware';
 
 // Import all admin modules
@@ -16,9 +17,9 @@ import categoryRoutes from './category.routes';
 
 const router = Router();
 
-// Protect ALL admin routes with the requireAdmin middleware
-// requireAdmin already uses requireAuth internally to verify the token first
-router.use(requireAdmin);
+// Protect ALL admin routes
+// requireAuth parses the token and sets req.user, requireAdmin checks the is_admin flag
+router.use(requireAuth, requireAdmin);
 
 // Mount Admin Modules
 router.use('/stats', statsRoutes);

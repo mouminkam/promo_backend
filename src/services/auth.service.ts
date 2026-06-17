@@ -61,6 +61,20 @@ export class AuthService {
     if (error) {
       throw ApiError.unauthorized(error.message);
     }
+
+    // Check if user is banned
+    if (data.user) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('is_active')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profile && profile.is_active === false) {
+        throw ApiError.unauthorized('Account is banned');
+      }
+    }
+
     return data;
   }
 
@@ -76,6 +90,20 @@ export class AuthService {
     if (error) {
       throw ApiError.unauthorized(error.message);
     }
+
+    // Check if user is banned
+    if (data.user) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('is_active')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (profile && profile.is_active === false) {
+        throw ApiError.unauthorized('Account is banned');
+      }
+    }
+
     return data;
   }
 

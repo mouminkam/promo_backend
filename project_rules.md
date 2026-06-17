@@ -33,21 +33,18 @@
 We follow a **4-Layer Architecture**:
 
 ```
-Request → Route → Controller → Service → Repository → Supabase
-```
+This project follows a strict **3-Layer Architecture**:
+1. **Routes**: Define API endpoints and attach middleware/validators.
+2. **Controllers**: Handle HTTP requests/responses, extract parameters, and call services.
+3. **Services**: Contain all core business logic and interact directly with Supabase/Database.
 
-| Layer | Responsibility | Rules |
-|-------|---------------|-------|
-| **Routes** | Define endpoints, attach middleware | NO business logic. Only `router.get/post/put/patch/delete` |
-| **Controllers** | Parse request, call service, send response | NO database calls. Only `req/res` handling |
-| **Services** | Business logic, orchestration | NO `req/res` objects. Pure functions. Can call multiple repositories |
-| **Repositories** | Data access via Supabase client | NO business logic. Only Supabase queries |
+**Note on Data Access:** 
+Since Supabase acts as a powerful query builder and Backend-as-a-Service, the `Service` layer directly queries Supabase. We do not use a separate `Repository` layer to avoid unnecessary abstraction overhead and keep the architecture pragmatic.
 
 ### Rules:
-- Controllers NEVER call repositories directly
-- Services NEVER access `req` or `res`
-- Repositories NEVER contain business logic
-- Each module has its own route, controller, service, and repository file
+- Controllers NEVER call the database directly
+- Services NEVER access `req` or `res` objects
+- Each module has its own route, controller, and service file
 
 ---
 
