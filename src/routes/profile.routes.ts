@@ -11,23 +11,21 @@ import { z } from 'zod'; // Used for simple inline validation
 
 const router = Router();
 
-// ─── Public Routes ───────────────────────────────────────────
-// optionalAuth allows the frontend to send a token if available, to tailor the response (e.g., showing 'is_following' status later)
-router.get('/:idOrUsername', optionalAuth, profileController.getProfileByIdOrUsername);
-
-// ─── Protected Routes ────────────────────────────────────────
-router.use(requireAuth);
-
-router.get('/me', profileController.getOwnProfile);
-router.put('/me', validate(profileValidators.updateProfileSchema), profileController.updateOwnProfile);
-router.delete('/me', profileController.deleteAccount);
+// ─── Protected Routes (Explicit Paths First) ─────────────────
+// We apply requireAuth directly to these so they are protected
+router.get('/me', requireAuth, profileController.getOwnProfile);
+router.put('/me', requireAuth, validate(profileValidators.updateProfileSchema), profileController.updateOwnProfile);
+router.delete('/me', requireAuth, profileController.deleteAccount);
 
 // Avatar & Cover
-// Reusing simple schemas for now (can expand later to support Multipart form data)
-router.post('/me/avatar', validate(z.object({ body: z.object({ avatarUrl: z.string().url() }) })), profileController.updateAvatar);
-router.post('/me/cover', validate(z.object({ body: z.object({ coverUrl: z.string().url() }) })), profileController.updateCover);
+router.post('/me/avatar', requireAuth, validate(z.object({ body: z.object({ avatarUrl: z.string().url() }) })), profileController.updateAvatar);
+router.post('/me/cover', requireAuth, validate(z.object({ body: z.object({ coverUrl: z.string().url() }) })), profileController.updateCover);
 
 // Verification Request
-router.post('/me/verify-request', validate(profileValidators.requestVerificationSchema), profileController.requestVerification);
+router.post('/me/verify-request', requireAuth, validate(profileValidators.requestVerificationSchema), profileController.requestVerification);
+
+// ─── Public Routes (Dynamic Params Last) ─────────────────────
+// optionalAuth allows the frontend to send a token if available, to tailor the response
+router.get('/:idOrUsername', optionalAuth, profileController.getProfileByIdOrUsername);
 
 export default router;

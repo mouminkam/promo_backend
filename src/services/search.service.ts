@@ -89,7 +89,7 @@ export class SearchService {
       .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' });
 
     if (params.q) {
-      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%,description_ar.ilike.%${params.q}%,description_en.ilike.%${params.q}%`);
+      query = query.or(`title.ilike.%${params.q}%,description.ilike.%${params.q}%`);
     }
     if (params.categoryId) {
       query = query.eq('category_id', params.categoryId);
@@ -135,7 +135,7 @@ export class SearchService {
       .eq('status', 'active');
 
     if (params.q) {
-      query = query.or(`title_ar.ilike.%${params.q}%,title_en.ilike.%${params.q}%`);
+      query = query.or(`title.ilike.%${params.q}%`);
     }
     // Ads don't typically have price filters in this model, but we could add them if needed.
 
