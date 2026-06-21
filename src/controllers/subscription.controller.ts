@@ -26,10 +26,10 @@ export class SubscriptionController {
   async createSubscription(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const { planId, returnUrl } = req.body;
-      const defaultReturnUrl = returnUrl || 'http://localhost:3000/dashboard/billing'; // In production, replace with env
+      const { plan_id, return_url } = req.body;
+      const defaultReturnUrl = return_url || 'http://localhost:3000/dashboard/billing'; // In production, replace with env
 
-      const data = await subscriptionService.createSubscriptionCheckout(userId, planId, defaultReturnUrl);
+      const data = await subscriptionService.createSubscriptionCheckout(userId, plan_id, defaultReturnUrl);
       apiResponse.success(res, data, 'Checkout session created successfully');
     } catch (error) {
       next(error);
@@ -55,8 +55,8 @@ export class SubscriptionController {
   async manageSubscription(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const { returnUrl } = req.body;
-      const defaultReturnUrl = returnUrl || 'http://localhost:3000/dashboard/billing'; // Replace with env
+      const { return_url } = req.body;
+      const defaultReturnUrl = return_url || 'http://localhost:3000/dashboard/billing'; // Replace with env
 
       const data = await subscriptionService.getCustomerPortalUrl(userId, defaultReturnUrl);
       apiResponse.success(res, data, 'Customer portal session created successfully');

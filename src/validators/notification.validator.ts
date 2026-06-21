@@ -20,6 +20,6 @@ export const idParamSchema = z.object({
 export const registerTokenSchema = z.object({
   body: z.object({
     token: z.string().min(1, 'Token is required'),
-    deviceType: z.enum(['ios', 'android', 'web']).optional(),
+    device_type: z.enum(['ios', 'android', 'web']).optional(),
   }),
 });

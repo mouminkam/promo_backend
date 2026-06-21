@@ -9,8 +9,8 @@ export const registerEmailSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email address'),
     password: z.string().min(8, 'Password must be at least 8 characters long'),
-    fullName: z.string().min(2, 'Full name is too short'),
-    accountType: z.nativeEnum(AccountType).default(AccountType.User),
+    full_name: z.string().min(2, 'Full name is too short'),
+    account_type: z.nativeEnum(AccountType).default(AccountType.User),
   }),
 });
 
@@ -18,8 +18,8 @@ export const registerPhoneSchema = z.object({
   body: z.object({
     phone: z.string().min(10, 'Invalid phone number'),
     password: z.string().min(8, 'Password must be at least 8 characters long'),
-    fullName: z.string().min(2, 'Full name is too short'),
-    accountType: z.nativeEnum(AccountType).default(AccountType.User),
+    full_name: z.string().min(2, 'Full name is too short'),
+    account_type: z.nativeEnum(AccountType).default(AccountType.User),
   }),
 });
 
@@ -51,7 +51,7 @@ export const verifyOtpSchema = z.object({
 
 export const refreshTokenSchema = z.object({
   body: z.object({
-    refreshToken: z.string().min(1, 'Refresh token is required'),
+    refresh_token: z.string().min(1, 'Refresh token is required'),
   }),
 });
 
@@ -70,7 +70,7 @@ export const resetPasswordSchema = z.object({
 export const oauthIdTokenSchema = z.object({
   body: z.object({
     provider: z.enum(['google', 'apple']),
-    idToken: z.string().min(1, 'ID Token is required'),
+    id_token: z.string().min(1, 'ID Token is required'),
     nonce: z.string().optional(),
   }),
 });

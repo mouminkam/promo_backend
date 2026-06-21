@@ -1,7 +1,7 @@
 {
   "info": {
-    "name": "Promoo API Full Collection",
-    "description": "Complete Postman collection with all 87+ APIs for the Promoo Backend.",
+    "name": "Promoo V1 Collection",
+    "description": "Auto-generated collection for Promoo Backend with correct routes and bodies.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -12,7 +12,47 @@
     },
     {
       "key": "token",
-      "value": "YOUR_TOKEN_HERE",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "profileId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "offerId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "roomId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "categoryId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reportId",
+      "value": "",
       "type": "string"
     }
   ],
@@ -34,7 +74,6 @@
           "name": "Register Email",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/register/email",
               "host": [
@@ -48,7 +87,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"fullName\": \"Test\",\n    \"accountType\": \"user\"\n}",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\",\n  \"full_name\": \"Test User\",\n  \"account_type\": \"user\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -61,7 +100,6 @@
           "name": "Register Phone",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/register/phone",
               "host": [
@@ -75,7 +113,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"phone\": \"+1234567890\",\n    \"password\": \"password\",\n    \"fullName\": \"Test\",\n    \"accountType\": \"user\"\n}",
+              "raw": "{\n  \"phone\": \"+963900000000\",\n  \"password\": \"password123\",\n  \"full_name\": \"Test User\",\n  \"account_type\": \"user\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -88,7 +126,6 @@
           "name": "Login Email",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/login/email",
               "host": [
@@ -102,20 +139,47 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password\"\n}",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success && jsonData.data && jsonData.data.session) {",
+                    "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
+                    "}"
+                  ],
+                  "type": "text/javascript"
+                }
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.session) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
             }
-          }
+          ]
         },
         {
           "name": "Login Phone",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/login/phone",
               "host": [
@@ -129,7 +193,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"phone\": \"+1234567890\",\n    \"password\": \"password\"\n}",
+              "raw": "{\n  \"phone\": \"+963900000000\",\n  \"password\": \"password123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -139,10 +203,9 @@
           }
         },
         {
-          "name": "OAuth (Google/Apple)",
+          "name": "OAuth",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/oauth",
               "host": [
@@ -155,33 +218,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"provider\": \"google\",\n    \"idToken\": \"TOKEN_FROM_APP\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Verify Token",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/auth/verify",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "verify"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{}",
+              "raw": "{\n  \"provider\": \"google\",\n  \"id_token\": \"...\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -194,7 +231,6 @@
           "name": "Send OTP",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/otp/send",
               "host": [
@@ -208,7 +244,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"test@example.com\"\n}",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"type\": \"signup\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -221,7 +257,6 @@
           "name": "Verify OTP",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/auth/otp/verify",
               "host": [
@@ -235,7 +270,100 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"email\": \"test@example.com\",\n    \"code\": \"123456\"\n}",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"token\": \"123456\",\n  \"type\": \"signup\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"...\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/forgot",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "forgot"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/auth/password/reset",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "password",
+                "reset"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"newpassword123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -250,10 +378,9 @@
       "name": "2. Profiles",
       "item": [
         {
-          "name": "Get Own Profile",
+          "name": "Get My Profile",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/profiles/me",
               "host": [
@@ -267,10 +394,9 @@
           }
         },
         {
-          "name": "Update Own Profile",
+          "name": "Update My Profile",
           "request": {
             "method": "PUT",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/profiles/me",
               "host": [
@@ -283,7 +409,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"bio\": \"New bio\",\n    \"location\": \"Dubai\"\n}",
+              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"bio\": \"New bio\",\n  \"avatar_url\": \"...\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -293,117 +419,52 @@
           }
         },
         {
-          "name": "Delete Account",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/profiles/me",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "profiles",
-                "me"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Profile by ID/Username",
+          "name": "Get Profile by ID",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/profiles/:idOrUsername",
+              "raw": "{{baseUrl}}/profiles/{{profileId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "profiles",
-                ":idOrUsername"
+                "{{profileId}}"
               ]
             }
           }
         },
         {
-          "name": "Update Avatar",
+          "name": "Get Profile by Username",
           "request": {
-            "method": "POST",
-            "header": [],
+            "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/profiles/me/avatar",
+              "raw": "{{baseUrl}}/profiles/username/someuser",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "profiles",
-                "me",
-                "avatar"
+                "username",
+                "someuser"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"avatarUrl\": \"https://example.com/image.jpg\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         },
         {
-          "name": "Update Cover",
+          "name": "Get Profile Stats",
           "request": {
-            "method": "POST",
-            "header": [],
+            "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/profiles/me/cover",
+              "raw": "{{baseUrl}}/profiles/{{profileId}}/stats",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "profiles",
-                "me",
-                "cover"
+                "{{profileId}}",
+                "stats"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"coverUrl\": \"https://example.com/cover.jpg\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Request Verification",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/profiles/me/verify-request",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "profiles",
-                "me",
-                "verify-request"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"documents\": [\n        \"url1\"\n    ]\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         }
@@ -413,53 +474,17 @@
       "name": "3. Follows",
       "item": [
         {
-          "name": "Follow User",
+          "name": "Toggle Follow",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/follows/:profileId",
+              "raw": "{{baseUrl}}/follows/{{profileId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "follows",
-                ":profileId"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Unfollow User",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/follows/:profileId",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follows",
-                ":profileId"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Check Follow Status",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/follows/:profileId/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "follows",
-                ":profileId",
-                "status"
+                "{{profileId}}"
               ]
             }
           }
@@ -468,15 +493,14 @@
           "name": "Get Followers",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/profiles/:profileId/followers?page=1&limit=20",
+              "raw": "{{baseUrl}}/follows/{{profileId}}/followers?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "profiles",
-                ":profileId",
+                "follows",
+                "{{profileId}}",
                 "followers?page=1&limit=20"
               ]
             }
@@ -486,15 +510,14 @@
           "name": "Get Following",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/profiles/:profileId/following?page=1&limit=20",
+              "raw": "{{baseUrl}}/follows/{{profileId}}/following?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "profiles",
-                ":profileId",
+                "follows",
+                "{{profileId}}",
                 "following?page=1&limit=20"
               ]
             }
@@ -503,68 +526,36 @@
       ]
     },
     {
-      "name": "4. Categories & Search",
+      "name": "4. Offers",
       "item": [
         {
-          "name": "Get Categories",
+          "name": "Create Offer",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/categories",
+              "raw": "{{baseUrl}}/offers",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "categories"
+                "offers"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sale\",\n  \"description\": \"50% off\",\n  \"discount_type\": \"percentage\",\n  \"discount_value\": 50,\n  \"valid_until\": \"2026-12-31T00:00:00Z\",\n  \"category_id\": \"{{categoryId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         },
         {
-          "name": "Get Category Content",
+          "name": "Get Offers",
           "request": {
             "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/categories/:categoryId/content?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                ":categoryId",
-                "content?page=1&limit=20"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Global Search",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/search?q=test&type=all&page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "search?q=test&type=all&page=1&limit=20"
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "5. Offers",
-      "item": [
-        {
-          "name": "Get All Offers",
-          "request": {
-            "method": "GET",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/offers?page=1&limit=20",
               "host": [
@@ -577,44 +568,34 @@
           }
         },
         {
-          "name": "Get Offer By ID",
+          "name": "Get My Offers",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/offers/:offerId",
+              "raw": "{{baseUrl}}/offers/me?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "offers",
-                ":offerId"
+                "me?page=1&limit=20"
               ]
             }
           }
         },
         {
-          "name": "Create Offer",
+          "name": "Get Offer by ID",
           "request": {
-            "method": "POST",
-            "header": [],
+            "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/offers",
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "offers"
+                "offers",
+                "{{offerId}}"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"categoryId\": \"UUID\",\n    \"title\": \"Offer 1\",\n    \"description\": \"Desc\",\n    \"offerPrice\": 100,\n    \"startDate\": \"2026-06-01T00:00:00Z\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         },
@@ -622,20 +603,19 @@
           "name": "Update Offer",
           "request": {
             "method": "PUT",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/offers/:offerId",
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "offers",
-                ":offerId"
+                "{{offerId}}"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"Updated Offer\"\n}",
+              "raw": "{\n  \"title\": \"Updated Sale\",\n  \"is_active\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -648,33 +628,48 @@
           "name": "Delete Offer",
           "request": {
             "method": "DELETE",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/offers/:offerId",
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "offers",
-                ":offerId"
+                "{{offerId}}"
               ]
             }
           }
         },
         {
-          "name": "Get User Offers",
+          "name": "Redeem Offer",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/profiles/:profileId/offers?page=1",
+              "raw": "{{baseUrl}}/offers/{{offerId}}/redeem",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "profiles",
-                ":profileId",
-                "offers?page=1"
+                "offers",
+                "{{offerId}}",
+                "redeem"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle Like Offer",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/offers/{{offerId}}/like",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "offers",
+                "{{offerId}}",
+                "like"
               ]
             }
           }
@@ -682,13 +677,12 @@
       ]
     },
     {
-      "name": "6. Ads",
+      "name": "5. Ads",
       "item": [
         {
           "name": "Create Ad",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/ads",
               "host": [
@@ -700,12 +694,59 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"My Ad\",\n    \"mediaUrl\": \"url\",\n    \"adType\": \"banner\",\n    \"budget\": 100,\n    \"startDate\": \"2026-06-01T00:00:00Z\"\n}",
+              "raw": "{\n  \"title\": \"New Ad\",\n  \"description\": \"Ad details\",\n  \"ad_type\": \"banner\",\n  \"target_url\": \"https://example.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            }
+          }
+        },
+        {
+          "name": "Get Ads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/ads?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Ads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/ads/me?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads",
+                "me?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Ad by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads",
+                "{{adId}}"
+              ]
             }
           }
         },
@@ -713,20 +754,19 @@
           "name": "Update Ad",
           "request": {
             "method": "PUT",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ads/:adId",
+              "raw": "{{baseUrl}}/ads/{{adId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ads",
-                ":adId"
+                "{{adId}}"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"title\": \"Updated Ad\"\n}",
+              "raw": "{\n  \"title\": \"Updated Ad\",\n  \"is_active\": false\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -736,73 +776,51 @@
           }
         },
         {
-          "name": "Toggle Ad Status",
+          "name": "Delete Ad",
           "request": {
-            "method": "PATCH",
-            "header": [],
+            "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/ads/:adId/toggle",
+              "raw": "{{baseUrl}}/ads/{{adId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ads",
-                ":adId",
-                "toggle"
+                "{{adId}}"
               ]
             }
           }
         },
         {
-          "name": "Get Ad Stats",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/ads/:adId/stats",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ads",
-                ":adId",
-                "stats"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Record Impression",
+          "name": "Track View",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ads/:adId/impression",
+              "raw": "{{baseUrl}}/ads/{{adId}}/view",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ads",
-                ":adId",
-                "impression"
+                "{{adId}}",
+                "view"
               ]
             }
           }
         },
         {
-          "name": "Record Click",
+          "name": "Toggle Like Ad",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ads/:adId/click",
+              "raw": "{{baseUrl}}/ads/{{adId}}/like",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ads",
-                ":adId",
-                "click"
+                "{{adId}}",
+                "like"
               ]
             }
           }
@@ -810,42 +828,25 @@
       ]
     },
     {
-      "name": "7. Subscriptions & Payments",
+      "name": "6. Subscriptions",
       "item": [
         {
-          "name": "Get Plans",
+          "name": "Subscribe",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/subscriptions/plans",
+              "raw": "{{baseUrl}}/subscriptions/subscribe",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "subscriptions",
-                "plans"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Create Checkout Session",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/subscriptions",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "subscriptions"
+                "subscribe"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"planId\": \"UUID\"\n}",
+              "raw": "{\n  \"plan_id\": \"123\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -858,66 +859,30 @@
           "name": "Get My Subscription",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/subscriptions/me",
+              "raw": "{{baseUrl}}/subscriptions/my-subscription",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "subscriptions",
-                "me"
+                "my-subscription"
               ]
             }
           }
         },
         {
-          "name": "Manage Subscription (Portal)",
+          "name": "Cancel Subscription",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/subscriptions/manage",
+              "raw": "{{baseUrl}}/subscriptions/cancel",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "subscriptions",
-                "manage"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Payment History",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/payments/history?page=1",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "payments",
-                "history?page=1"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Stripe Webhook (DO NOT USE IN POSTMAN)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/webhooks/stripe",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "webhooks",
-                "stripe"
+                "cancel"
               ]
             }
           }
@@ -925,75 +890,12 @@
       ]
     },
     {
-      "name": "8. Featured",
+      "name": "7. Chats",
       "item": [
         {
-          "name": "Get Featured Listings",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/featured",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "featured"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Request Featured Status",
+          "name": "Create Chat Room",
           "request": {
             "method": "POST",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/featured",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "featured"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"placement\": \"home\",\n    \"durationDays\": 7\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "9. Chat",
-      "item": [
-        {
-          "name": "Get All Chats",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chats",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chats"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Start/Open Chat",
-          "request": {
-            "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/chats",
               "host": [
@@ -1005,7 +907,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"participantId\": \"UUID\"\n}",
+              "raw": "{\n  \"participant_id\": \"{{profileId}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1015,19 +917,33 @@
           }
         },
         {
-          "name": "Get Messages",
+          "name": "Get My Chat Rooms",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chats/:roomId/messages?page=1",
+              "raw": "{{baseUrl}}/chats?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chats?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Messages in Room",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}/messages?page=1&limit=50",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "chats",
-                ":roomId",
-                "messages?page=1"
+                "{{roomId}}",
+                "messages?page=1&limit=50"
               ]
             }
           }
@@ -1036,21 +952,20 @@
           "name": "Send Message",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/chats/:roomId/messages",
+              "raw": "{{baseUrl}}/chats/{{roomId}}/messages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "chats",
-                ":roomId",
+                "{{roomId}}",
                 "messages"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"content\": \"Hello!\"\n}",
+              "raw": "{\n  \"content\": \"Hello!\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1058,59 +973,23 @@
               }
             }
           }
-        },
-        {
-          "name": "Mark Chat Read",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chats/:roomId/read",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chats",
-                ":roomId",
-                "read"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Chat",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/chats/:roomId",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chats",
-                ":roomId"
-              ]
-            }
-          }
         }
       ]
     },
     {
-      "name": "10. Notifications",
+      "name": "8. Notifications",
       "item": [
         {
-          "name": "Get Notifications",
+          "name": "Get My Notifications",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/notifications?page=1",
+              "raw": "{{baseUrl}}/notifications?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "notifications?page=1"
+                "notifications?page=1&limit=20"
               ]
             }
           }
@@ -1119,7 +998,6 @@
           "name": "Register FCM Token",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/notifications/token",
               "host": [
@@ -1132,7 +1010,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"token\": \"FCM_TOKEN\",\n    \"deviceType\": \"ios\"\n}",
+              "raw": "{\n  \"token\": \"FCM_TOKEN_HERE\",\n  \"device_type\": \"ios\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1142,10 +1020,9 @@
           }
         },
         {
-          "name": "Mark All As Read",
+          "name": "Mark All as Read",
           "request": {
             "method": "PATCH",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/notifications/read-all",
               "host": [
@@ -1159,18 +1036,17 @@
           }
         },
         {
-          "name": "Mark One As Read",
+          "name": "Mark Notification as Read",
           "request": {
             "method": "PATCH",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/notifications/:notificationId/read",
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "notifications",
-                ":notificationId",
+                "{{notificationId}}",
                 "read"
               ]
             }
@@ -1180,15 +1056,14 @@
           "name": "Delete Notification",
           "request": {
             "method": "DELETE",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/notifications/:notificationId",
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "notifications",
-                ":notificationId"
+                "{{notificationId}}"
               ]
             }
           }
@@ -1196,13 +1071,12 @@
       ]
     },
     {
-      "name": "11. Upload (Requires multipart/form-data)",
+      "name": "9. General",
       "item": [
         {
-          "name": "Upload Image",
+          "name": "Upload Image (multipart)",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/image",
               "host": [
@@ -1216,10 +1090,9 @@
           }
         },
         {
-          "name": "Upload Video",
+          "name": "Upload Video (multipart)",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/video",
               "host": [
@@ -1233,10 +1106,9 @@
           }
         },
         {
-          "name": "Upload File",
+          "name": "Upload File (multipart)",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/file",
               "host": [
@@ -1253,15 +1125,132 @@
           "name": "Delete File",
           "request": {
             "method": "DELETE",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/upload/:fileId",
+              "raw": "{{baseUrl}}/upload/{{fileId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "upload",
-                ":fileId"
+                "{{fileId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Global Search",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/search?query=test&type=all&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search?query=test&type=all&page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Featured Content",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/featured?limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "featured?limit=10"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payment History",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/payments/history?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "history?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Payment Intent",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/payments/create-intent",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "create-intent"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"currency\": \"usd\",\n  \"description\": \"Top up\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Stripe Webhook",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/webhook/stripe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "webhook",
+                "stripe"
               ]
             }
           }
@@ -1269,13 +1258,12 @@
       ]
     },
     {
-      "name": "12. Reports",
+      "name": "10. Reports",
       "item": [
         {
           "name": "Submit Report",
           "request": {
             "method": "POST",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/reports",
               "host": [
@@ -1287,7 +1275,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"reportedId\": \"UUID\",\n    \"reportedType\": \"profile\",\n    \"reason\": \"Spam\"\n}",
+              "raw": "{\n  \"reported_id\": \"{{profileId}}\",\n  \"reported_type\": \"profile\",\n  \"reason\": \"Inappropriate content\",\n  \"details\": \"More info\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1297,17 +1285,17 @@
           }
         },
         {
-          "name": "Get Reports (Admin)",
+          "name": "Get My Reports",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/reports?page=1",
+              "raw": "{{baseUrl}}/reports/me?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "reports?page=1"
+                "reports",
+                "me?page=1&limit=20"
               ]
             }
           }
@@ -1315,13 +1303,12 @@
       ]
     },
     {
-      "name": "13. Admin Dashboard",
+      "name": "11. Admin Dashboard",
       "item": [
         {
           "name": "Get Stats",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
               "raw": "{{baseUrl}}/admin/stats",
               "host": [
@@ -1338,39 +1325,37 @@
           "name": "Get Users",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/users?page=1",
+              "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "users?page=1"
+                "users?page=1&limit=20"
               ]
             }
           }
         },
         {
-          "name": "Ban/Unban User",
+          "name": "Update User Status",
           "request": {
             "method": "PATCH",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/users/:userId/ban",
+              "raw": "{{baseUrl}}/admin/users/{{profileId}}/status",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "users",
-                ":userId",
-                "ban"
+                "{{profileId}}",
+                "status"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"isActive\": false\n}",
+              "raw": "{\n  \"is_active\": false,\n  \"reason\": \"Violation\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1380,70 +1365,57 @@
           }
         },
         {
-          "name": "Verify/Unverify User",
+          "name": "Delete User",
           "request": {
-            "method": "PATCH",
-            "header": [],
+            "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/admin/users/:userId/verify",
+              "raw": "{{baseUrl}}/admin/users/{{profileId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "users",
-                ":userId",
-                "verify"
+                "{{profileId}}"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n    \"isVerified\": true\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
             }
           }
         },
         {
-          "name": "Get Admin Offers",
+          "name": "Get Content (Offers/Ads)",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/offers?page=1",
+              "raw": "{{baseUrl}}/admin/content?type=offer&page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "offers?page=1"
+                "content?type=offer&page=1&limit=20"
               ]
             }
           }
         },
         {
-          "name": "Update Offer Status",
+          "name": "Update Content Status",
           "request": {
             "method": "PATCH",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/offers/:offerId/status",
+              "raw": "{{baseUrl}}/admin/content/{{offerId}}/status",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "offers",
-                ":offerId",
+                "content",
+                "{{offerId}}",
                 "status"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"status\": \"rejected\"\n}",
+              "raw": "{\n  \"is_active\": false,\n  \"type\": \"offer\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1453,47 +1425,214 @@
           }
         },
         {
-          "name": "Get Admin Ads",
+          "name": "Delete Content",
           "request": {
-            "method": "GET",
-            "header": [],
+            "method": "DELETE",
             "url": {
-              "raw": "{{baseUrl}}/admin/ads?page=1",
+              "raw": "{{baseUrl}}/admin/content/{{offerId}}?type=offer",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "ads?page=1"
+                "content",
+                "{{offerId}}?type=offer"
               ]
             }
           }
         },
         {
-          "name": "Update Ad Status",
+          "name": "Create Plan",
           "request": {
-            "method": "PATCH",
-            "header": [],
+            "method": "POST",
             "url": {
-              "raw": "{{baseUrl}}/admin/ads/:adId/status",
+              "raw": "{{baseUrl}}/admin/plans",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "ads",
-                ":adId",
+                "plans"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pro\",\n  \"price\": 9.99,\n  \"duration_days\": 30,\n  \"features\": {},\n  \"plan_type\": \"subscription\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Plan",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "plans",
+                "123"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Plan",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans/123",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "plans",
+                "123"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Payments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/payments?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "payments?page=1&limit=20"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Reports",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/reports?page=1&limit=20&status=pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports?page=1&limit=20&status=pending"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Report Status",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/admin/reports/{{reportId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "reports",
+                "{{reportId}}",
                 "status"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"status\": \"rejected\"\n}",
+              "raw": "{\n  \"status\": \"resolved\",\n  \"admin_note\": \"Taken care of\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_en\": \"Tech\",\n  \"name_ar\": \"تقنية\",\n  \"icon\": \"💻\",\n  \"is_active\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_en\": \"Technology\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{categoryId}}"
+              ]
             }
           }
         }

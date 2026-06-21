@@ -18,8 +18,8 @@ router.put('/me', requireAuth, validate(profileValidators.updateProfileSchema), 
 router.delete('/me', requireAuth, profileController.deleteAccount);
 
 // Avatar & Cover
-router.post('/me/avatar', requireAuth, validate(z.object({ body: z.object({ avatarUrl: z.string().url() }) })), profileController.updateAvatar);
-router.post('/me/cover', requireAuth, validate(z.object({ body: z.object({ coverUrl: z.string().url() }) })), profileController.updateCover);
+router.post('/me/avatar', requireAuth, validate(z.object({ body: z.object({ avatar_url: z.string().url() }) })), profileController.updateAvatar);
+router.post('/me/cover', requireAuth, validate(z.object({ body: z.object({ cover_url: z.string().url() }) })), profileController.updateCover);
 
 // Verification Request
 router.post('/me/verify-request', requireAuth, validate(profileValidators.requestVerificationSchema), profileController.requestVerification);

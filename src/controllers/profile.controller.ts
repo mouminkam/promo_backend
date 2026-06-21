@@ -55,8 +55,8 @@ export class ProfileController {
     try {
       const userId = req.user!.id;
       const token = req.headers.authorization!.split(' ')[1];
-      const { avatarUrl } = req.body; // In a real app, you might use Multer + Supabase Storage upload service here
-      const data = await profileService.updateAvatar(userId, token, avatarUrl);
+      const { avatar_url } = req.body; // In a real app, you might use Multer + Supabase Storage upload service here
+      const data = await profileService.updateAvatar(userId, token, avatar_url);
       apiResponse.success(res, data, 'Avatar updated successfully');
     } catch (error) {
       next(error);
@@ -67,8 +67,8 @@ export class ProfileController {
     try {
       const userId = req.user!.id;
       const token = req.headers.authorization!.split(' ')[1];
-      const { coverUrl } = req.body;
-      const data = await profileService.updateCover(userId, token, coverUrl);
+      const { cover_url } = req.body;
+      const data = await profileService.updateCover(userId, token, cover_url);
       apiResponse.success(res, data, 'Cover updated successfully');
     } catch (error) {
       next(error);

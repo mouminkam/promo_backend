@@ -5,7 +5,7 @@
 // Attaches `req.user` and `req.language` for downstream use.
 
 import { Response, NextFunction } from 'express';
-import { supabaseAdmin } from '../config/supabase';
+import { supabaseAuth } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
 import { getLanguage } from '../utils/helpers';
 import { IAuthRequest } from '../types/api.types';
@@ -32,8 +32,8 @@ export async function requireAuth(
       throw ApiError.unauthorized('Token is missing');
     }
 
-    // Verify the JWT with Supabase
-    const { data, error } = await supabaseAdmin.auth.getUser(token);
+    // Verify the JWT with Supabase using the throwaway auth client
+    const { data, error } = await supabaseAuth.auth.getUser(token);
 
     if (error || !data.user) {
       throw ApiError.unauthorized('Invalid or expired token');
@@ -71,7 +71,7 @@ export async function optionalAuth(
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       if (token) {
-        const { data } = await supabaseAdmin.auth.getUser(token);
+        const { data } = await supabaseAuth.auth.getUser(token);
         if (data.user) {
           req.user = {
             id: data.user.id,

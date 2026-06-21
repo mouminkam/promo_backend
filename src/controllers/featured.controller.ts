@@ -13,8 +13,8 @@ export class FeaturedController {
    */
   async requestFeatured(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { placement, durationDays } = req.body;
-      const result = await featuredService.requestFeatured(req.user!.id, placement, durationDays);
+      const { placement, duration_days } = req.body;
+      const result = await featuredService.requestFeatured(req.user!.id, placement, duration_days);
       apiResponse.success(res, result, 'Featured checkout session created');
     } catch (error) {
       next(error);

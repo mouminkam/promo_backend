@@ -2,7 +2,7 @@
 // Promoo Backend — Auth Service
 // ============================================
 
-import { supabaseAdmin } from '../config/supabase';
+import { supabaseAdmin, supabaseAuth } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
 import { AccountType } from '../types/enums';
 
@@ -11,7 +11,7 @@ export class AuthService {
    * Register with Email and Password
    */
   async registerWithEmail(email: string, password: string, fullName: string, accountType: AccountType) {
-    const { data, error } = await supabaseAdmin.auth.signUp({
+    const { data, error } = await supabaseAuth.auth.signUp({
       email,
       password,
       options: {
@@ -32,7 +32,7 @@ export class AuthService {
    * Register with Phone and Password
    */
   async registerWithPhone(phone: string, password: string, fullName: string, accountType: AccountType) {
-    const { data, error } = await supabaseAdmin.auth.signUp({
+    const { data, error } = await supabaseAuth.auth.signUp({
       phone,
       password,
       options: {
@@ -53,7 +53,7 @@ export class AuthService {
    * Login with Email
    */
   async loginWithEmail(email: string, password: string) {
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({
       email,
       password,
     });
@@ -82,7 +82,7 @@ export class AuthService {
    * Login with Phone
    */
   async loginWithPhone(phone: string, password: string) {
-    const { data, error } = await supabaseAdmin.auth.signInWithPassword({
+    const { data, error } = await supabaseAuth.auth.signInWithPassword({
       phone,
       password,
     });
@@ -115,7 +115,7 @@ export class AuthService {
     if (email) payload.email = email;
     if (phone) payload.phone = phone;
 
-    const { data, error } = await supabaseAdmin.auth.verifyOtp(payload);
+    const { data, error } = await supabaseAuth.auth.verifyOtp(payload);
 
     if (error) {
       throw ApiError.badRequest(error.message);
@@ -127,7 +127,7 @@ export class AuthService {
    * Refresh Token
    */
   async refreshToken(refresh_token: string) {
-    const { data, error } = await supabaseAdmin.auth.refreshSession({ refresh_token });
+    const { data, error } = await supabaseAuth.auth.refreshSession({ refresh_token });
 
     if (error) {
       throw ApiError.unauthorized(error.message);
@@ -150,7 +150,7 @@ export class AuthService {
    * Send Password Reset Email
    */
   async forgotPassword(email: string) {
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email);
+    const { error } = await supabaseAuth.auth.resetPasswordForEmail(email);
     if (error) {
       throw ApiError.badRequest(error.message);
     }
@@ -175,7 +175,7 @@ export class AuthService {
    * OAuth Login (ID Token from Mobile App)
    */
   async signInWithIdToken(provider: 'google' | 'apple', idToken: string, nonce?: string) {
-    const { data, error } = await supabaseAdmin.auth.signInWithIdToken({
+    const { data, error } = await supabaseAuth.auth.signInWithIdToken({
       provider,
       token: idToken,
       nonce,

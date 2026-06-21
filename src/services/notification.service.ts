@@ -89,7 +89,7 @@ export class NotificationService {
   /**
    * Register FCM Token for push notifications
    */
-  async registerToken(userId: string, token: string, deviceType?: string) {
+  async registerToken(userId: string, token: string, device_type?: string) {
     // Check if token already exists for this user to avoid unique constraint errors on upsert
     const { data: existingToken } = await supabaseAdmin
       .from('fcm_tokens')
@@ -101,7 +101,7 @@ export class NotificationService {
       // If it exists, make sure it belongs to the current user
       const { error } = await supabaseAdmin
         .from('fcm_tokens')
-        .update({ profile_id: userId, device_type: deviceType || null })
+        .update({ profile_id: userId, device_type: device_type || null })
         .eq('token', token);
 
       if (error) throw ApiError.internal(error.message);
@@ -112,7 +112,7 @@ export class NotificationService {
         .insert({
           profile_id: userId,
           token,
-          device_type: deviceType || null,
+          device_type: device_type || null,
         });
 
       if (error) throw ApiError.internal(error.message);

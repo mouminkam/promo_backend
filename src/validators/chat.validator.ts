@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const startChatSchema = z.object({
   body: z.object({
-    participantId: z.string().uuid('Invalid participant ID'),
+    participant_id: z.string().uuid('Invalid participant ID'),
   }),
 });
 
@@ -17,10 +17,10 @@ export const sendMessageSchema = z.object({
   body: z.object({
     content: z.string().min(1).max(5000).optional(),
     type: z.enum(['text', 'image', 'video', 'file']).default('text'),
-    mediaUrl: z.string().url().optional(),
+    media_url: z.string().url().optional(),
   }).refine(
-    (data) => data.content || data.mediaUrl,
-    { message: 'Either content or mediaUrl must be provided' }
+    (data) => data.content || data.media_url,
+    { message: 'Either content or media_url must be provided' }
   ),
 });
 

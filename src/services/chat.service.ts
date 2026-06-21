@@ -9,7 +9,7 @@ import { notificationService } from './notification.service';
 interface ISendMessagePayload {
   content?: string;
   type: 'text' | 'image' | 'video' | 'file';
-  mediaUrl?: string;
+  media_url?: string;
 }
 
 export class ChatService {
@@ -110,7 +110,7 @@ export class ChatService {
         sender_id: currentUserId,
         content: payload.content || null,
         type: payload.type,
-        media_url: payload.mediaUrl || null,
+        media_url: payload.media_url || null,
       })
       .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
       .single();

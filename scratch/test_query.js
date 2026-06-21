@@ -2,18 +2,17 @@
 require("dotenv").config();
 const { createClient } = require("@supabase/supabase-js");
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const supabaseAdmin = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 async function test() {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*, categories(id, name_ar, name_en, slug, icon_url)")
-    .eq("id", "985b241b-d0ec-477e-b103-2c1083498633")
-    .single();
-
-  console.log("Data:", data);
+  const { data, error, count } = await supabaseAdmin
+      .from("offers")
+      .select("*, profile:profiles!inner(id, full_name, username, avatar_url, location), category:categories(id, name_ar, name_en, slug)", { count: "exact" })
+      .eq("status", "active")
+      .range(0, 19)
+      .order("is_featured", { ascending: false })
+      .order("created_at", { ascending: false });
   console.log("Error:", error);
 }
-
 test();
 

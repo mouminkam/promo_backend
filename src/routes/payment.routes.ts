@@ -14,7 +14,7 @@ const router = Router();
 router.use(requireAuth);
 
 router.get(
-  '/me',
+  '/history',
   validate(getPaymentsSchema),
   paymentController.getMyPayments
 );

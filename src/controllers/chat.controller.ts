@@ -14,9 +14,9 @@ export class ChatController {
   async startChat(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const { participantId } = req.body;
+      const { participant_id } = req.body;
 
-      const data = await chatService.startOrOpenChat(userId, participantId);
+      const data = await chatService.startOrOpenChat(userId, participant_id);
 
       if (data.isNew) {
         apiResponse.created(res, data, 'Chat created successfully');
@@ -35,9 +35,9 @@ export class ChatController {
     try {
       const userId = req.user!.id;
       const roomId = req.params.roomId as string;
-      const { content, type, mediaUrl } = req.body;
+      const { content, type, media_url } = req.body;
 
-      const data = await chatService.sendMessage(userId, roomId, { content, type, mediaUrl });
+      const data = await chatService.sendMessage(userId, roomId, { content, type, media_url });
       apiResponse.created(res, data, 'Message sent successfully');
     } catch (error) {
       next(error);

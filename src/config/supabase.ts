@@ -25,6 +25,21 @@ export const supabaseAdmin: SupabaseClient = createClient(
 );
 
 /**
+ * Auth client — used only to verify tokens.
+ * This prevents auth operations from modifying supabaseAdmin's service_role headers.
+ */
+export const supabaseAuth: SupabaseClient = createClient(
+  env.SUPABASE_URL,
+  env.SUPABASE_ANON_KEY,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
+);
+
+/**
  * Creates a Supabase client scoped to a specific user's JWT.
  * This client respects RLS policies.
  * Use when you want operations to run in the context of a logged-in user.

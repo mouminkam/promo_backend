@@ -74,9 +74,9 @@ export class NotificationController {
   async registerToken(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const { token, deviceType } = req.body;
+      const { token, device_type } = req.body;
 
-      await notificationService.registerToken(userId, token, deviceType);
+      await notificationService.registerToken(userId, token, device_type);
       apiResponse.success(res, null, 'FCM token registered successfully');
     } catch (error) {
       next(error);

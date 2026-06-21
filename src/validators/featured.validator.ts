@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const requestFeaturedSchema = z.object({
   body: z.object({
     placement: z.enum(['home', 'search', 'category']),
-    durationDays: z.number().int().positive().min(1).max(365),
+    duration_days: z.number().int().positive().min(1).max(365),
   }),
 });
 

@@ -55,13 +55,19 @@ create policy "Users can create chat rooms."
   on public.chat_rooms for insert
   with check ( true ); -- Need a tighter policy in practice or handle via Edge Function/Service Role
 
--- Users can see participants of their rooms
+CREATE OR REPLACE FUNCTION public.is_room_participant(_room_id uuid)
+RETURNS boolean AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.chat_participants
+    WHERE room_id = _room_id AND profile_id = auth.uid()
+  );
+$$ LANGUAGE sql SECURITY DEFINER SET search_path = public;
+
 create policy "Users can view participants of their rooms."
   on public.chat_participants for select
-  using ( exists (
-    select 1 from public.chat_participants cp
-    where cp.room_id = public.chat_participants.room_id and cp.profile_id = auth.uid()
-  ));
+  using (
+    profile_id = auth.uid() OR public.is_room_participant(room_id)
+  );
 
 create policy "Users can join rooms."
   on public.chat_participants for insert

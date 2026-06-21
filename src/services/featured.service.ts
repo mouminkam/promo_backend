@@ -13,7 +13,7 @@ export class FeaturedService {
   /**
    * Request featured status by creating a Stripe Checkout session
    */
-  async requestFeatured(userId: string, placement: string, durationDays: number) {
+  async requestFeatured(userId: string, placement: string, duration_days: number) {
     // Check if user already has an active featured account for this placement
     const { data: existing } = await supabaseAdmin
       .from('featured_accounts')
@@ -47,12 +47,12 @@ export class FeaturedService {
       customerId = customer.id;
 
       await supabaseAdmin
-        .from('profiles')
-        .update({ stripe_customer_id: customerId })
-        .eq('id', userId);
+         .from('profiles')
+         .update({ stripe_customer_id: customerId })
+         .eq('id', userId);
     }
 
-    const totalAmount = this.PRICE_PER_DAY * durationDays;
+    const totalAmount = this.PRICE_PER_DAY * duration_days;
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -64,7 +64,7 @@ export class FeaturedService {
             currency: 'usd',
             product_data: {
               name: `Featured Placement - ${placement.charAt(0).toUpperCase() + placement.slice(1)}`,
-              description: `Featured placement for ${durationDays} days`,
+              description: `Featured placement for ${duration_days} days`,
             },
             unit_amount: Math.round(totalAmount * 100), // in cents
           },
@@ -78,7 +78,7 @@ export class FeaturedService {
         type: 'featured',
         profileId: userId,
         placement,
-        durationDays: durationDays.toString(),
+        duration_days: duration_days.toString(),
       },
     });
 

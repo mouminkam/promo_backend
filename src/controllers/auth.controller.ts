@@ -12,8 +12,8 @@ export class AuthController {
 
   async registerEmail(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { email, password, fullName, accountType } = req.body;
-      const data = await authService.registerWithEmail(email, password, fullName, accountType);
+      const { email, password, full_name, account_type } = req.body;
+      const data = await authService.registerWithEmail(email, password, full_name, account_type);
       
       const message = data.session 
         ? 'Registration successful' 
@@ -27,8 +27,8 @@ export class AuthController {
 
   async registerPhone(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { phone, password, fullName, accountType } = req.body;
-      const data = await authService.registerWithPhone(phone, password, fullName, accountType);
+      const { phone, password, full_name, account_type } = req.body;
+      const data = await authService.registerWithPhone(phone, password, full_name, account_type);
       
       const message = data.session 
         ? 'Registration successful' 
@@ -76,8 +76,8 @@ export class AuthController {
 
   async refreshToken(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { refreshToken } = req.body;
-      const data = await authService.refreshToken(refreshToken);
+      const { refresh_token } = req.body;
+      const data = await authService.refreshToken(refresh_token);
       apiResponse.success(res, data, 'Token refreshed successfully');
     } catch (error) {
       next(error);
@@ -110,8 +110,8 @@ export class AuthController {
 
   async oauthLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { provider, idToken, nonce } = req.body;
-      const data = await authService.signInWithIdToken(provider, idToken, nonce);
+      const { provider, id_token, nonce } = req.body;
+      const data = await authService.signInWithIdToken(provider, id_token, nonce);
       apiResponse.success(res, data, 'OAuth login successful');
     } catch (error) {
       next(error);

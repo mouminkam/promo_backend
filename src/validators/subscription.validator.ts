@@ -6,12 +6,13 @@ import { z } from 'zod';
 
 export const createSubscriptionSchema = z.object({
   body: z.object({
-    planId: z.string().uuid('Invalid plan ID'),
+    plan_id: z.string().uuid('Invalid plan ID'),
+    return_url: z.string().url('Invalid return URL').optional(),
   }),
 });
 
 export const changeSubscriptionSchema = z.object({
   body: z.object({
-    newPlanId: z.string().uuid('Invalid new plan ID'),
+    new_plan_id: z.string().uuid('Invalid new plan ID'),
   }),
 });
