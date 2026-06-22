@@ -17,6 +17,10 @@ export class UploadController {
       if (!req.file) {
         throw ApiError.badRequest('No image file provided');
       }
+      
+      if (!req.file.mimetype.startsWith('image/')) {
+        throw ApiError.badRequest('Invalid file type. Only images are allowed on this route.');
+      }
 
       const { related_to, related_id } = req.body;
       const bucket = req.body.bucket || 'general'; // Allow client to specify bucket (e.g., 'avatars', 'offers')
@@ -43,6 +47,10 @@ export class UploadController {
       if (!req.file) {
         throw ApiError.badRequest('No video file provided');
       }
+      
+      if (!req.file.mimetype.startsWith('video/')) {
+        throw ApiError.badRequest('Invalid file type. Only videos are allowed on this route.');
+      }
 
       const { related_to, related_id } = req.body;
       const bucket = req.body.bucket || 'general';
@@ -68,6 +76,10 @@ export class UploadController {
     try {
       if (!req.file) {
         throw ApiError.badRequest('No file provided');
+      }
+      
+      if (req.file.mimetype.startsWith('image/') || req.file.mimetype.startsWith('video/')) {
+        throw ApiError.badRequest('Invalid file type. Images and videos must be uploaded via their specific routes.');
       }
 
       const { related_to, related_id } = req.body;

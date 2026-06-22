@@ -1,0 +1,2499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promoo API Scan Report</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family:Segoe UI,system-ui,sans-serif; margin:0; background:#0f172a; color:#e2e8f0; }
+    .header { padding:24px 32px; background:#1e293b; border-bottom:1px solid #334155; }
+    h1 { margin:0 0 8px; font-size:1.5rem; }
+    .meta { color:#94a3b8; font-size:0.9rem; }
+    .stats { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+    .stat { padding:10px 16px; border-radius:8px; background:#334155; font-weight:600; }
+    .content { padding:24px 32px; overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    th, td { padding:10px 12px; border-bottom:1px solid #334155; vertical-align:top; text-align:left; }
+    th { background:#1e293b; position:sticky; top:0; }
+    code { font-size:0.8rem; word-break:break-all; }
+    pre { background:#020617; padding:12px; border-radius:6px; overflow:auto; max-height:300px; font-size:0.75rem; }
+    .badge { color:#fff; padding:2px 8px; border-radius:4px; font-size:0.7rem; font-weight:700; }
+    details { margin-top:4px; }
+    summary { cursor:pointer; color:#38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Promoo API Scan Report</h1>
+    <div class="meta">
+      Base URL: <code>http://localhost:3000/api/v1</code> ·
+      Test user: <code>test1@example.com</code> ·
+      Generated: 2026-06-22T15:32:45.588Z
+    </div>
+    <div class="stats">
+      <div class="stat" style="border-left:4px solid #22c55e">✅ Pass: 36</div>
+      <div class="stat" style="border-left:4px solid #ef4444">❌ Fail: 33</div>
+      <div class="stat" style="border-left:4px solid #f59e0b">⚠️ Expected: 16</div>
+      <div class="stat" style="border-left:4px solid #94a3b8">⏭ Skip: 3</div>
+      <div class="stat">Total: 88</div>
+    </div>
+  </div>
+  <div class="content">
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th><th>HTTP</th><th>Method</th><th>Module</th>
+          <th>Endpoint</th><th>URL</th><th>Time</th><th>Body</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Register Email</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/register/email</code></td>
+        <td>1063ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "email": "scan_1782142238767@example.com",
+  "password": "password123",
+  "full_name": "API Scan User",
+  "account_type": "user"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Email address \"scan_1782142238767@example.com\" is invalid",
+  "error": {
+    "code": "VALIDATION_ERROR"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Register Phone</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/register/phone</code></td>
+        <td>467ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "phone": "+963900000000",
+  "password": "password123",
+  "full_name": "Test User",
+  "account_type": "user"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Phone signups are disabled",
+  "error": {
+    "code": "VALIDATION_ERROR"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Login Email</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/login/email</code></td>
+        <td>811ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "email": "test1@example.com",
+  "password": "password123"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+      "aud": "authenticated",
+      "role": "authenticated",
+      "email": "test1@example.com",
+      "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+      "phone": "",
+      "confirmed_at": "2026-06-22T14:47:46.773804Z",
+      "last_sign_in_at": "2026-06-22T15:30:35.883934844Z",
+      "app_metadata": {
+        "provider": "email",
+        "providers": [
+          "email"
+        ]
+      },
+      "user_metadata": {
+        "account_type": "user",
+        "email_verified": true,
+        "full_name": "Test User 1"
+      },
+      "identities": [
+        {
+          "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+          "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "identity_data": {
+            "email": "test1@example.com",
+            "email_verified": false,
+            "phone_verified": false,
+            "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+          },
+          "provider": "email",
+          "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+          "created_at": "2026-06-22T14:47:46.770088Z",
+          "updated_at": "2026-06-22T14:47:46.770088Z",
+          "email": "test1@example.com"
+        }
+      ],
+      "created_at": "2026-06-22T14:47:46.753835Z",
+      "updated_at": "2026-06-22T15:30:35.886349Z",
+      "is_anonymous": false
+    },
+    "session": {
+      "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IjhkNTQ0MTVkLTc3MjQtNGM4My05NWM5LTYwODk2MjI1OWMyYiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL21xa2xhcmd5amlzcGJjeXh6ZGpvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIxN2M4OGRmNi01MDgxLTQxMTQtOWI4NS03ZjI3OGQyMzg5NGEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzgyMTQ1ODM1LCJpYXQiOjE3ODIxNDIyMzUsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImFjY291bnRfdHlwZSI6InVzZXIiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiVGVzdCBVc2VyIDEifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc4MjE0MjIzNX1dLCJzZXNzaW9uX2lkIjoiMjI2NmYxMzQtNGVmMi00ZmJlLTkxNTMtMGM2NWIxYWY2NjY5IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.0YYkshgsTnzz42KpOZ6BddBVfW9qEdlHbrHh7vBnqIyrkedJXDuUMYb_GO7JmzvW0N0uj2VFhF26IaoYS6G3bg",
+      "token_type": "bearer",
+      "expires_in": 3600,
+      "expires_at": 1782145835,
+      "refresh_token": "wlw57oithncr",
+      "user": {
+        "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+        "aud": "authenticated",
+        "role": "authenticated",
+        "email": "test1@example.com",
+        "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+        "phone": "",
+        "confirmed_at": "2026-06-22T14:47:46.773804Z",
+        "last_sign_in_at": "2026-06-22T15:30:35.883934844Z",
+        "app_metadata": {
+          "provider": "email",
+          "providers": [
+            "email"
+          ]
+        },
+        "user_metadata": {
+          "account_type": "user",
+          "email_verified": true,
+          "full_name": "Test User 1"
+        },
+        "identities": [
+          {
+            "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+            "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "identity_data": {
+              "email": "test1@example.com",
+              "email_verified": false,
+              "phone_verified": false,
+              "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+            },
+            "provider": "email",
+            "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+            "created_at": "2026-06-22T14:47:46.770088Z",
+            "updated_at": "2026-06-22T14:47:46.770088Z",
+            "email": "test1@example.com"
+          }
+        ],
+        "created_at": "2026-06-22T14:47:46.753835Z",
+        "updated_at": "2026-06-22T15:30:35.886349Z",
+        "is_anonymous": false
+      },
+      "weak_password": null
+    }
+  },
+  "message": "Login successful"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>401</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Login Phone</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/login/phone</code></td>
+        <td>311ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "phone": "+963900000000",
+  "password": "password123"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Phone logins are disabled",
+  "error": {
+    "code": "UNAUTHORIZED"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>401</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>OAuth Login</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/login/oauth</code></td>
+        <td>290ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "provider": "google",
+  "id_token": "YOUR_ID_TOKEN_HERE"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Provider (issuer \"https://accounts.google.com\") is not enabled",
+  "error": {
+    "code": "UNAUTHORIZED"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Verify OTP</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/verify-otp</code></td>
+        <td>721ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "email": "test1@example.com",
+  "token": "000000",
+  "type": "signup"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Token has expired or is invalid",
+  "error": {
+    "code": "VALIDATION_ERROR"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Refresh Token</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/refresh</code></td>
+        <td>257ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "refresh_token": "wlw57oithncr"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "user": {
+      "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+      "aud": "authenticated",
+      "role": "authenticated",
+      "email": "test1@example.com",
+      "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+      "phone": "",
+      "confirmed_at": "2026-06-22T14:47:46.773804Z",
+      "last_sign_in_at": "2026-06-22T15:30:35.883934Z",
+      "app_metadata": {
+        "provider": "email",
+        "providers": [
+          "email"
+        ]
+      },
+      "user_metadata": {
+        "account_type": "user",
+        "email_verified": true,
+        "full_name": "Test User 1"
+      },
+      "identities": [
+        {
+          "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+          "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "identity_data": {
+            "email": "test1@example.com",
+            "email_verified": false,
+            "phone_verified": false,
+            "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+          },
+          "provider": "email",
+          "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+          "created_at": "2026-06-22T14:47:46.770088Z",
+          "updated_at": "2026-06-22T14:47:46.770088Z",
+          "email": "test1@example.com"
+        }
+      ],
+      "created_at": "2026-06-22T14:47:46.753835Z",
+      "updated_at": "2026-06-22T15:30:37.952612Z",
+      "is_anonymous": false
+    },
+    "session": {
+      "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IjhkNTQ0MTVkLTc3MjQtNGM4My05NWM5LTYwODk2MjI1OWMyYiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL21xa2xhcmd5amlzcGJjeXh6ZGpvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIxN2M4OGRmNi01MDgxLTQxMTQtOWI4NS03ZjI3OGQyMzg5NGEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzgyMTQ1ODM3LCJpYXQiOjE3ODIxNDIyMzcsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImFjY291bnRfdHlwZSI6InVzZXIiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiVGVzdCBVc2VyIDEifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc4MjE0MjIzNX1dLCJzZXNzaW9uX2lkIjoiMjI2NmYxMzQtNGVmMi00ZmJlLTkxNTMtMGM2NWIxYWY2NjY5IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.hE3scx5ANfIEi8rl_G-lRrxQwoV9yi3s3_KKgTUT6I5Fv8ANvuEBiylPRutdlTXtouUFXllL6gNuQPIBtCA0Gw",
+      "token_type": "bearer",
+      "expires_in": 3600,
+      "expires_at": 1782145837,
+      "refresh_token": "4iy2jhadbsho",
+      "user": {
+        "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+        "aud": "authenticated",
+        "role": "authenticated",
+        "email": "test1@example.com",
+        "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+        "phone": "",
+        "confirmed_at": "2026-06-22T14:47:46.773804Z",
+        "last_sign_in_at": "2026-06-22T15:30:35.883934Z",
+        "app_metadata": {
+          "provider": "email",
+          "providers": [
+            "email"
+          ]
+        },
+        "user_metadata": {
+          "account_type": "user",
+          "email_verified": true,
+          "full_name": "Test User 1"
+        },
+        "identities": [
+          {
+            "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+            "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "identity_data": {
+              "email": "test1@example.com",
+              "email_verified": false,
+              "phone_verified": false,
+              "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+            },
+            "provider": "email",
+            "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+            "created_at": "2026-06-22T14:47:46.770088Z",
+            "updated_at": "2026-06-22T14:47:46.770088Z",
+            "email": "test1@example.com"
+          }
+        ],
+        "created_at": "2026-06-22T14:47:46.753835Z",
+        "updated_at": "2026-06-22T15:30:37.952612Z",
+        "is_anonymous": false
+      }
+    }
+  },
+  "message": "Token refreshed successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Forgot Password</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/forgot-password</code></td>
+        <td>236ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "email": "test1@example.com"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "email rate limit exceeded",
+  "error": {
+    "code": "VALIDATION_ERROR"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>429</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Reset Password</strong></td>
+        <td><code>http://localhost:3000/api/v1/auth/reset-password</code></td>
+        <td>2ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "password": "newpassword123"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Too many authentication attempts, please try again later",
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#94a3b8">SKIP</span></td>
+        <td>—</td>
+        <td><code>POST</code></td>
+        <td>1. Auth</td>
+        <td><strong>Logout</strong><br><small>Skipped (destructive or session-ending)</small></td>
+        <td><code>http://localhost:3000/api/v1/auth/logout</code></td>
+        <td>0ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>null</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Get My Profile</strong></td>
+        <td><code>http://localhost:3000/api/v1/profiles/me</code></td>
+        <td>1505ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "email": "test1@example.com",
+    "phone": null,
+    "full_name": "Test User 1",
+    "username": null,
+    "avatar_url": null,
+    "cover_url": null,
+    "bio": null,
+    "account_type": "user",
+    "is_verified": false,
+    "is_featured": false,
+    "category_id": null,
+    "location": null,
+    "website": null,
+    "social_links": {},
+    "company_details": {},
+    "influencer_details": {},
+    "service_provider_details": {},
+    "stripe_customer_id": null,
+    "is_admin": false,
+    "created_at": "2026-06-22T14:47:46.753445+00:00",
+    "updated_at": "2026-06-22T14:47:46.753445+00:00",
+    "is_active": true,
+    "categories": null
+  },
+  "message": "Profile retrieved successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>PUT</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Update My Profile</strong></td>
+        <td><code>http://localhost:3000/api/v1/profiles/me</code></td>
+        <td>1805ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "full_name": "Updated Name",
+  "bio": "New bio text here",
+  "username": "testuser"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "email": "test1@example.com",
+    "phone": null,
+    "full_name": "Updated Name",
+    "username": "testuser",
+    "avatar_url": null,
+    "cover_url": null,
+    "bio": "New bio text here",
+    "account_type": "user",
+    "is_verified": false,
+    "is_featured": false,
+    "category_id": null,
+    "location": null,
+    "website": null,
+    "social_links": {},
+    "company_details": {},
+    "influencer_details": {},
+    "service_provider_details": {},
+    "stripe_customer_id": null,
+    "is_admin": false,
+    "created_at": "2026-06-22T14:47:46.753445+00:00",
+    "updated_at": "2026-06-22T15:30:41.279+00:00",
+    "is_active": true
+  },
+  "message": "Profile updated successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#94a3b8">SKIP</span></td>
+        <td>—</td>
+        <td><code>DELETE</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Delete Account</strong><br><small>Skipped (destructive or session-ending)</small></td>
+        <td><code>http://localhost:3000/api/v1/profiles/me</code></td>
+        <td>0ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>null</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Update Avatar</strong></td>
+        <td><code>http://localhost:3000/api/v1/profiles/me/avatar</code></td>
+        <td>1957ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "avatar_url": "https://example.com/avatar.png"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "email": "test1@example.com",
+    "phone": null,
+    "full_name": "Updated Name",
+    "username": "testuser",
+    "avatar_url": "https://example.com/avatar.png",
+    "cover_url": null,
+    "bio": "New bio text here",
+    "account_type": "user",
+    "is_verified": false,
+    "is_featured": false,
+    "category_id": null,
+    "location": null,
+    "website": null,
+    "social_links": {},
+    "company_details": {},
+    "influencer_details": {},
+    "service_provider_details": {},
+    "stripe_customer_id": null,
+    "is_admin": false,
+    "created_at": "2026-06-22T14:47:46.753445+00:00",
+    "updated_at": "2026-06-22T15:30:42.823978+00:00",
+    "is_active": true
+  },
+  "message": "Avatar updated successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Update Cover</strong></td>
+        <td><code>http://localhost:3000/api/v1/profiles/me/cover</code></td>
+        <td>2268ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "cover_url": "https://example.com/cover.png"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "email": "test1@example.com",
+    "phone": null,
+    "full_name": "Updated Name",
+    "username": "testuser",
+    "avatar_url": "https://example.com/avatar.png",
+    "cover_url": "https://example.com/cover.png",
+    "bio": "New bio text here",
+    "account_type": "user",
+    "is_verified": false,
+    "is_featured": false,
+    "category_id": null,
+    "location": null,
+    "website": null,
+    "social_links": {},
+    "company_details": {},
+    "influencer_details": {},
+    "service_provider_details": {},
+    "stripe_customer_id": null,
+    "is_admin": false,
+    "created_at": "2026-06-22T14:47:46.753445+00:00",
+    "updated_at": "2026-06-22T15:30:44.933192+00:00",
+    "is_active": true
+  },
+  "message": "Cover updated successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Request Verification</strong></td>
+        <td><code>http://localhost:3000/api/v1/profiles/me/verify-request</code></td>
+        <td>2523ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "document_url": "https://example.com/doc.pdf",
+  "notes": "Please verify my account"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": null,
+  "message": "Verification requested successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>2. Profiles</td>
+        <td><strong>Get Profile by ID/Username</strong></td>
+        <td><code>http://localhost:3000/api/v1/profiles/</code></td>
+        <td>2ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>404</td>
+        <td><code>POST</code></td>
+        <td>3. Follows</td>
+        <td><strong>Follow Profile</strong></td>
+        <td><code>http://localhost:3000/api/v1/follows/</code></td>
+        <td>829ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>DELETE</code></td>
+        <td>3. Follows</td>
+        <td><strong>Unfollow Profile</strong></td>
+        <td><code>http://localhost:3000/api/v1/follows/</code></td>
+        <td>1743ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>3. Follows</td>
+        <td><strong>Check Follow Status</strong></td>
+        <td><code>http://localhost:3000/api/v1/follows//status</code></td>
+        <td>704ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>3. Follows</td>
+        <td><strong>Get Followers</strong></td>
+        <td><code>http://localhost:3000/api/v1/follows/followers/?page=1&limit=20</code></td>
+        <td>586ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>3. Follows</td>
+        <td><strong>Get Following</strong></td>
+        <td><code>http://localhost:3000/api/v1/follows/following/?page=1&limit=20</code></td>
+        <td>1078ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>4. Offers</td>
+        <td><strong>Get All Offers</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers?page=1&limit=20</code></td>
+        <td>478ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Offers retrieved successfully",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>4. Offers</td>
+        <td><strong>Get Offer by ID</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers/</code></td>
+        <td>440ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Offers retrieved successfully",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>400</td>
+        <td><code>GET</code></td>
+        <td>4. Offers</td>
+        <td><strong>Get Offers by Profile</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers/profile/?page=1&limit=20</code></td>
+        <td>3ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Validation failed",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": [
+      {
+        "field": "params.id",
+        "message": "Invalid offer ID"
+      }
+    ]
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>201</td>
+        <td><code>POST</code></td>
+        <td>4. Offers</td>
+        <td><strong>Create Offer</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers</code></td>
+        <td>5284ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "category_id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+  "title": "Summer Sale",
+  "description": "This is a detailed description of the summer sale offer.",
+  "original_price": 100,
+  "offer_price": 50,
+  "discount_percentage": 50,
+  "media_urls": [
+    "https://example.com/offer.jpg"
+  ],
+  "start_date": "2026-06-01T00:00:00.000Z",
+  "end_date": "2026-12-31T23:59:59.000Z",
+  "status": "active"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "category_id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+    "title": "Summer Sale",
+    "description": "This is a detailed description of the summer sale offer.",
+    "original_price": 100,
+    "offer_price": 50,
+    "discount_percentage": 50,
+    "media_urls": [
+      "https://example.com/offer.jpg"
+    ],
+    "start_date": "2026-06-01T00:00:00+00:00",
+    "end_date": "2026-12-31T23:59:59+00:00",
+    "status": "active",
+    "is_featured": false,
+    "views_count": 0,
+    "created_at": "2026-06-22T15:30:58.882898+00:00",
+    "updated_at": "2026-06-22T15:30:58.882898+00:00",
+    "category": {
+      "id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+      "slug": "technology",
+      "name_ar": "تكنولوجيا",
+      "name_en": "Technology"
+    }
+  },
+  "message": "Offer created successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>PUT</code></td>
+        <td>4. Offers</td>
+        <td><strong>Update Offer</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers/6b411093-562f-43c7-918b-6f1f1e2a2595</code></td>
+        <td>1551ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "title": "Updated Summer Sale",
+  "description": "Updated description for the offer."
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "category_id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+    "title": "Updated Summer Sale",
+    "description": "Updated description for the offer.",
+    "original_price": 100,
+    "offer_price": 50,
+    "discount_percentage": 50,
+    "media_urls": [
+      "https://example.com/offer.jpg"
+    ],
+    "start_date": "2026-06-01T00:00:00+00:00",
+    "end_date": "2026-12-31T23:59:59+00:00",
+    "status": "active",
+    "is_featured": false,
+    "views_count": 0,
+    "created_at": "2026-06-22T15:30:58.882898+00:00",
+    "updated_at": "2026-06-22T15:31:00.462245+00:00",
+    "category": {
+      "id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+      "slug": "technology",
+      "name_ar": "تكنولوجيا",
+      "name_en": "Technology"
+    }
+  },
+  "message": "Offer updated successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>DELETE</code></td>
+        <td>4. Offers</td>
+        <td><strong>Delete Offer</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers/6b411093-562f-43c7-918b-6f1f1e2a2595</code></td>
+        <td>1809ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": null,
+  "message": "Offer deleted successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>404</td>
+        <td><code>POST</code></td>
+        <td>4. Offers</td>
+        <td><strong>Feature Offer</strong></td>
+        <td><code>http://localhost:3000/api/v1/offers/6b411093-562f-43c7-918b-6f1f1e2a2595/feature</code></td>
+        <td>1393ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Offer not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>5. Ads</td>
+        <td><strong>Get Active Ads</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads/active</code></td>
+        <td>439ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Active ads retrieved successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>401</td>
+        <td><code>POST</code></td>
+        <td>5. Ads</td>
+        <td><strong>Record Impression</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads//impression</code></td>
+        <td>3ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Missing or invalid authorization header",
+  "error": {
+    "code": "UNAUTHORIZED"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>401</td>
+        <td><code>POST</code></td>
+        <td>5. Ads</td>
+        <td><strong>Record Click</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads//click</code></td>
+        <td>2ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Missing or invalid authorization header",
+  "error": {
+    "code": "UNAUTHORIZED"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>201</td>
+        <td><code>POST</code></td>
+        <td>5. Ads</td>
+        <td><strong>Create Ad</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads</code></td>
+        <td>679ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "title": "New Banner Ad",
+  "description": "Promotional banner for summer campaign",
+  "media_url": "https://example.com/ad-banner.jpg",
+  "ad_type": "banner",
+  "target_url": "https://example.com",
+  "budget": 100,
+  "start_date": "2026-06-01T00:00:00.000Z",
+  "end_date": "2026-12-31T23:59:59.000Z"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "8ad75ead-ed80-4442-8320-d2513516f07f",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "title": "New Banner Ad",
+    "description": "Promotional banner for summer campaign",
+    "media_url": "https://example.com/ad-banner.jpg",
+    "ad_type": "banner",
+    "target_url": "https://example.com",
+    "budget": 100,
+    "spent": 0,
+    "start_date": "2026-06-01T00:00:00+00:00",
+    "end_date": "2026-12-31T23:59:59+00:00",
+    "status": "pending",
+    "impressions": 0,
+    "clicks": 0,
+    "created_at": "2026-06-22T15:31:05.307691+00:00",
+    "updated_at": "2026-06-22T15:31:05.307691+00:00"
+  },
+  "message": "Ad campaign created successfully. Waiting for activation/payment."
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>PUT</code></td>
+        <td>5. Ads</td>
+        <td><strong>Update Ad</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads/8ad75ead-ed80-4442-8320-d2513516f07f</code></td>
+        <td>1039ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "title": "Updated Banner Ad",
+  "budget": 150
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "8ad75ead-ed80-4442-8320-d2513516f07f",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "title": "Updated Banner Ad",
+    "description": "Promotional banner for summer campaign",
+    "media_url": "https://example.com/ad-banner.jpg",
+    "ad_type": "banner",
+    "target_url": "https://example.com",
+    "budget": 150,
+    "spent": 0,
+    "start_date": "2026-06-01T00:00:00+00:00",
+    "end_date": "2026-12-31T23:59:59+00:00",
+    "status": "pending",
+    "impressions": 0,
+    "clicks": 0,
+    "created_at": "2026-06-22T15:31:05.307691+00:00",
+    "updated_at": "2026-06-22T15:31:06.357316+00:00"
+  },
+  "message": "Ad campaign updated successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>400</td>
+        <td><code>PATCH</code></td>
+        <td>5. Ads</td>
+        <td><strong>Toggle Ad Active</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads/8ad75ead-ed80-4442-8320-d2513516f07f/toggle</code></td>
+        <td>681ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Cannot toggle ad with status: pending",
+  "error": {
+    "code": "VALIDATION_ERROR"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>5. Ads</td>
+        <td><strong>Get Ad Stats</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads/8ad75ead-ed80-4442-8320-d2513516f07f/stats</code></td>
+        <td>1630ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "impressions": 0,
+    "clicks": 0,
+    "budget": 150,
+    "spent": 0,
+    "status": "pending",
+    "ctr": 0
+  },
+  "message": "Ad statistics retrieved successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>5. Ads</td>
+        <td><strong>Get Profile Ads</strong></td>
+        <td><code>http://localhost:3000/api/v1/ads/profile/?page=1&limit=20</code></td>
+        <td>430ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>6. Subscriptions</td>
+        <td><strong>Get Plans</strong></td>
+        <td><code>http://localhost:3000/api/v1/subscriptions/plans</code></td>
+        <td>429ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [
+    {
+      "id": "a951eaab-66db-4e58-a843-f08709741ec1",
+      "name_ar": "الباقة الأساسية",
+      "name_en": "Basic Plan",
+      "description_ar": "مثالية للمبتدئين",
+      "description_en": "Perfect for beginners",
+      "price": 10,
+      "interval": "monthly",
+      "features": [
+        "5 offers per month",
+        "Basic support",
+        "Standard profile"
+      ],
+      "stripe_price_id": "price_basic_monthly_placeholder",
+      "is_active": true,
+      "sort_order": 1,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "37398dcd-112a-4643-85f4-aa5e5f127ce1",
+      "name_ar": "الباقة المميزة",
+      "name_en": "Premium Plan",
+      "description_ar": "للمحترفين والشركات",
+      "description_en": "For professionals and companies",
+      "price": 29,
+      "interval": "monthly",
+      "features": [
+        "Unlimited offers",
+        "Priority support",
+        "Verified badge",
+        "Analytics"
+      ],
+      "stripe_price_id": "price_premium_monthly_placeholder",
+      "is_active": true,
+      "sort_order": 2,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "68917e4a-19cd-4a3b-b2e1-11e0f7ec1fc0",
+      "name_ar": "باقة الشركات",
+      "name_en": "Enterprise Plan",
+      "description_ar": "دعم كامل وميزات غير محدودة",
+      "description_en": "Full support and unlimited features",
+      "price": 290,
+      "interval": "yearly",
+      "features": [
+        "Everything in Premium",
+        "Dedicated account manager",
+        "Custom API access"
+      ],
+      "stripe_price_id": "price_enterprise_yearly_placeholder",
+      "is_active": true,
+      "sort_order": 3,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    }
+  ],
+  "message": "Plans retrieved successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>6. Subscriptions</td>
+        <td><strong>Create Subscription</strong></td>
+        <td><code>http://localhost:3000/api/v1/subscriptions</code></td>
+        <td>5213ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "plan_id": "a951eaab-66db-4e58-a843-f08709741ec1",
+  "return_url": "http://localhost:3000/dashboard/billing"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "url": "http://localhost:3000/dashboard/billing?success=true&amp;session_id=mock_session_123"
+  },
+  "message": "Checkout session created successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>6. Subscriptions</td>
+        <td><strong>Get My Subscription</strong></td>
+        <td><code>http://localhost:3000/api/v1/subscriptions/me</code></td>
+        <td>1234ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": null,
+  "message": "Subscription retrieved successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>6. Subscriptions</td>
+        <td><strong>Manage Subscription</strong></td>
+        <td><code>http://localhost:3000/api/v1/subscriptions/manage</code></td>
+        <td>2522ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "return_url": "http://localhost:3000/dashboard/billing"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "url": "https://billing.stripe.com/p/session/test_YWNjdF8xVGpQQ2c2MmFnOFNobTlSLF9Va2Y4UHJucFdrMVpEckRWNFRicEpsd3hhUzBiN2Ux0100QsSYEEhe"
+  },
+  "message": "Customer portal session created successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>7. Chats</td>
+        <td><strong>Get Chats</strong></td>
+        <td><code>http://localhost:3000/api/v1/chats?page=1&limit=20</code></td>
+        <td>2778ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Chats retrieved",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>7. Chats</td>
+        <td><strong>Create Chat</strong></td>
+        <td><code>http://localhost:3000/api/v1/chats</code></td>
+        <td>1046ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "participant_id": ""
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Validation failed",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": [
+      {
+        "field": "body.participant_id",
+        "message": "Invalid participant ID"
+      }
+    ]
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>7. Chats</td>
+        <td><strong>Get Messages</strong></td>
+        <td><code>http://localhost:3000/api/v1/chats//messages?page=1&limit=50</code></td>
+        <td>687ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>POST</code></td>
+        <td>7. Chats</td>
+        <td><strong>Send Message</strong></td>
+        <td><code>http://localhost:3000/api/v1/chats//messages</code></td>
+        <td>849ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "content": "Hello!",
+  "type": "text"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>PATCH</code></td>
+        <td>7. Chats</td>
+        <td><strong>Mark Messages Read</strong></td>
+        <td><code>http://localhost:3000/api/v1/chats//read</code></td>
+        <td>1201ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>404</td>
+        <td><code>DELETE</code></td>
+        <td>7. Chats</td>
+        <td><strong>Delete Chat</strong></td>
+        <td><code>http://localhost:3000/api/v1/chats/</code></td>
+        <td>1608ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>8. Notifications</td>
+        <td><strong>Get My Notifications</strong></td>
+        <td><code>http://localhost:3000/api/v1/notifications?page=1&limit=20</code></td>
+        <td>3477ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Notifications retrieved",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>PATCH</code></td>
+        <td>8. Notifications</td>
+        <td><strong>Mark All as Read</strong></td>
+        <td><code>http://localhost:3000/api/v1/notifications/read-all</code></td>
+        <td>2159ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": null,
+  "message": "All notifications marked as read"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>PATCH</code></td>
+        <td>8. Notifications</td>
+        <td><strong>Mark Notification as Read</strong></td>
+        <td><code>http://localhost:3000/api/v1/notifications//read</code></td>
+        <td>662ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>404</td>
+        <td><code>DELETE</code></td>
+        <td>8. Notifications</td>
+        <td><strong>Delete Notification</strong></td>
+        <td><code>http://localhost:3000/api/v1/notifications/</code></td>
+        <td>422ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>8. Notifications</td>
+        <td><strong>Register FCM Token</strong></td>
+        <td><code>http://localhost:3000/api/v1/notifications/token</code></td>
+        <td>3226ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "token": "FCM_TOKEN_HERE",
+  "device_type": "ios"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": null,
+  "message": "FCM token registered successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Health Check</strong></td>
+        <td><code>http://localhost:3000/api/v1/health</code></td>
+        <td>4ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "status": "healthy",
+    "timestamp": "2026-06-22T15:31:41.316Z",
+    "uptime": 2977.3307647
+  },
+  "message": "Server is running"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Global Search</strong></td>
+        <td><code>http://localhost:3000/api/v1/search?q=test&type=all&page=1&limit=20</code></td>
+        <td>2052ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "profiles": [
+      {
+        "id": "cad07724-3ca3-4468-827a-0ebb6e46a3f3",
+        "full_name": "Test User 2",
+        "username": null,
+        "avatar_url": null,
+        "bio": null,
+        "account_type": "user",
+        "is_verified": false,
+        "location": null
+      },
+      {
+        "id": "103bf040-a02b-47e9-8f82-e74825b7ef9e",
+        "full_name": "Test User 3",
+        "username": null,
+        "avatar_url": null,
+        "bio": null,
+        "account_type": "user",
+        "is_verified": false,
+        "location": null
+      },
+      {
+        "id": "bbf62469-896f-433c-8d1d-3561637cbe96",
+        "full_name": "Test User 4",
+        "username": null,
+        "avatar_url": null,
+        "bio": null,
+        "account_type": "user",
+        "is_verified": false,
+        "location": null
+      },
+      {
+        "id": "02c03982-bcb8-43af-bdab-4952c4b7602f",
+        "full_name": "Test User 5",
+        "username": null,
+        "avatar_url": null,
+        "bio": null,
+        "account_type": "user",
+        "is_verified": false,
+        "location": null
+      },
+      {
+        "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+        "full_name": "Updated Name",
+        "username": "testuser",
+        "avatar_url": "https://example.com/avatar.png",
+        "bio": "New bio text here",
+        "account_type": "user",
+        "is_verified": false,
+        "location": null
+      }
+    ],
+    "offers": [],
+    "ads": []
+  },
+  "message": "Search results retrieved"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Get Categories</strong></td>
+        <td><code>http://localhost:3000/api/v1/categories</code></td>
+        <td>434ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [
+    {
+      "id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+      "name_ar": "تكنولوجيا",
+      "name_en": "Technology",
+      "slug": "technology",
+      "icon_url": "https://example.com/icons/tech.png",
+      "parent_id": null,
+      "sort_order": 1,
+      "is_active": true,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "7917160b-3036-4b81-9bcc-adc52405fe44",
+      "name_ar": "تسويق",
+      "name_en": "Marketing",
+      "slug": "marketing",
+      "icon_url": "https://example.com/icons/marketing.png",
+      "parent_id": null,
+      "sort_order": 2,
+      "is_active": true,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "f837e20a-eba4-41d3-bb14-b0ebb8ae0329",
+      "name_ar": "تصميم",
+      "name_en": "Design",
+      "slug": "design",
+      "icon_url": "https://example.com/icons/design.png",
+      "parent_id": null,
+      "sort_order": 3,
+      "is_active": true,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "e4704620-2516-4e23-81e8-fb94ccfba2f3",
+      "name_ar": "برمجة",
+      "name_en": "Programming",
+      "slug": "programming",
+      "icon_url": "https://example.com/icons/programming.png",
+      "parent_id": null,
+      "sort_order": 4,
+      "is_active": true,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "b6618b3a-cdd2-47bd-b270-d3761a8c0739",
+      "name_ar": "استشارات",
+      "name_en": "Consulting",
+      "slug": "consulting",
+      "icon_url": "https://example.com/icons/consulting.png",
+      "parent_id": null,
+      "sort_order": 5,
+      "is_active": true,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    },
+    {
+      "id": "33aa5d76-362b-4b8d-9743-e890bfda274f",
+      "name_ar": "أخرى",
+      "name_en": "Other",
+      "slug": "other",
+      "icon_url": "https://example.com/icons/other.png",
+      "parent_id": null,
+      "sort_order": 99,
+      "is_active": true,
+      "created_at": "2026-06-17T12:58:11.292569+00:00",
+      "updated_at": "2026-06-17T12:58:11.292569+00:00"
+    }
+  ],
+  "message": "Categories retrieved"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Get Category Content</strong></td>
+        <td><code>http://localhost:3000/api/v1/categories/20361ed2-ab58-427a-ad12-a8ace962b09f/content?page=1&limit=20</code></td>
+        <td>429ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Category content retrieved",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Get Featured Content</strong></td>
+        <td><code>http://localhost:3000/api/v1/featured?placement=home&page=1&limit=20</code></td>
+        <td>421ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Featured listings retrieved",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>9. General</td>
+        <td><strong>Request Featured</strong></td>
+        <td><code>http://localhost:3000/api/v1/featured</code></td>
+        <td>5649ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "placement": "home",
+  "duration_days": 7
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "url": "https://checkout.stripe.com/c/pay/cs_test_a1B2dJCDxi5JaP0uLuBo6cL0caXhKHJ5zRw9el8Zv0fqZoVhaWvYl1o9P9#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8nZmprcXdqaScpJ2R1bE5gfCc%2FJ3VuWnFgdnFaMDRRb1VGYjM3ZGI9Vm1oPFdnSElxcF9kNWlvQ0FpU0pnQlJrNEAwVWwzMnRQTU19fV9nMGlnSVJsYldLXEBCcTV%2FUH89ZmpjTkg1QmFuXzJuN3BgRG9kQVQ1NW1cUlFHTEdQJyknY3dqaFZgd3Ngdyc%2FcXdwYCknZ2RmbmJ3anBrYUZqaWp3Jz8nJmNjY2NjYycpJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
+  },
+  "message": "Featured checkout session created"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>201</td>
+        <td><code>POST</code></td>
+        <td>9. General</td>
+        <td><strong>Upload Image</strong></td>
+        <td><code>http://localhost:3000/api/v1/upload/image</code></td>
+        <td>3889ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "_type": "multipart/form-data",
+  "file": "scan-test.png"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "0d343e4f-6110-4865-812e-228bbf4410e6",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "file_name": "c36c251b-74e9-4116-b6db-684c3b196a3f.png",
+    "file_url": "https://mqklargyjispbcyxzdjo.supabase.co/storage/v1/object/public/general/17c88df6-5081-4114-9b85-7f278d23894a/c36c251b-74e9-4116-b6db-684c3b196a3f.png",
+    "file_type": "image/png",
+    "file_size": 70,
+    "related_to": "offer",
+    "related_id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+    "created_at": "2026-06-22T15:31:49.108583+00:00"
+  },
+  "message": "Image uploaded successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>201</td>
+        <td><code>POST</code></td>
+        <td>9. General</td>
+        <td><strong>Upload Video</strong></td>
+        <td><code>http://localhost:3000/api/v1/upload/video</code></td>
+        <td>2527ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "_type": "multipart/form-data",
+  "file": "scan-test.png"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "ba829d7b-ee6b-42dd-a98c-d3cc5dbe9baa",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "file_name": "e34199b4-62f6-4ba0-8da0-94b54f6408f5.png",
+    "file_url": "https://mqklargyjispbcyxzdjo.supabase.co/storage/v1/object/public/general/17c88df6-5081-4114-9b85-7f278d23894a/e34199b4-62f6-4ba0-8da0-94b54f6408f5.png",
+    "file_type": "image/png",
+    "file_size": 70,
+    "related_to": "offer",
+    "related_id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+    "created_at": "2026-06-22T15:31:51.585092+00:00"
+  },
+  "message": "Video uploaded successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>201</td>
+        <td><code>POST</code></td>
+        <td>9. General</td>
+        <td><strong>Upload File</strong></td>
+        <td><code>http://localhost:3000/api/v1/upload/file</code></td>
+        <td>2220ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "_type": "multipart/form-data",
+  "file": "scan-test.png"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "id": "167e16fe-8da6-4d4c-8705-684974489b39",
+    "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+    "file_name": "f7ddf4e9-9cbe-4070-885d-c31b21137d9b.png",
+    "file_url": "https://mqklargyjispbcyxzdjo.supabase.co/storage/v1/object/public/general/17c88df6-5081-4114-9b85-7f278d23894a/f7ddf4e9-9cbe-4070-885d-c31b21137d9b.png",
+    "file_type": "image/png",
+    "file_size": 70,
+    "related_to": "offer",
+    "related_id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+    "created_at": "2026-06-22T15:31:54.283138+00:00"
+  },
+  "message": "File uploaded successfully"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>404</td>
+        <td><code>DELETE</code></td>
+        <td>9. General</td>
+        <td><strong>Delete File</strong></td>
+        <td><code>http://localhost:3000/api/v1/upload/</code></td>
+        <td>219ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Get Payments History</strong></td>
+        <td><code>http://localhost:3000/api/v1/payments/history?page=1&limit=20</code></td>
+        <td>1917ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [],
+  "message": "Payments retrieved",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 0,
+    "totalPages": 0
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>POST</code></td>
+        <td>9. General</td>
+        <td><strong>Create Customer Portal</strong></td>
+        <td><code>http://localhost:3000/api/v1/payments/portal</code></td>
+        <td>4668ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": {
+    "url": "https://billing.stripe.com/p/session/test_YWNjdF8xVGpQQ2c2MmFnOFNobTlSLF9Va2Y5UEp2T2E5QXBtYmFRWXBnejZrMGZweWVVUzFQ0100u2JtKUfK"
+  },
+  "message": "Portal session created"
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>404</td>
+        <td><code>GET</code></td>
+        <td>9. General</td>
+        <td><strong>Get Payment Details</strong></td>
+        <td><code>http://localhost:3000/api/v1/payments/</code></td>
+        <td>2091ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Route not found",
+  "error": {
+    "code": "NOT_FOUND"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>9. General</td>
+        <td><strong>Stripe Webhook</strong></td>
+        <td><code>http://localhost:3000/api/v1/webhooks/stripe</code></td>
+        <td>3ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "type": "checkout.session.completed",
+  "data": {
+    "object": {}
+  }
+}</pre></details>
+          <details open><summary>Response</summary><pre>"Webhook Error: No stripe-signature header value was provided."</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>400</td>
+        <td><code>POST</code></td>
+        <td>10. Reports</td>
+        <td><strong>Submit Report</strong></td>
+        <td><code>http://localhost:3000/api/v1/reports</code></td>
+        <td>1302ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "reported_id": "",
+  "reported_type": "profile",
+  "reason": "spam content",
+  "details": "Optional additional details about the report"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Validation failed",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": [
+      {
+        "field": "body.reported_id",
+        "message": "Invalid reported ID"
+      }
+    ]
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#22c55e">PASS</span></td>
+        <td>200</td>
+        <td><code>GET</code></td>
+        <td>10. Reports</td>
+        <td><strong>Get My Reports</strong></td>
+        <td><code>http://localhost:3000/api/v1/reports/me?page=1&limit=20</code></td>
+        <td>8591ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": true,
+  "data": [
+    {
+      "id": "1387c90e-6c1c-4a76-957f-f7e2511c4186",
+      "reporter_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+      "reported_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+      "reported_type": "profile",
+      "reason": "verification_request",
+      "details": "{\"documentUrl\":\"https://example.com/doc.pdf\",\"notes\":\"Please verify my account\"}",
+      "status": "pending",
+      "admin_note": null,
+      "created_at": "2026-06-22T15:30:48.296865+00:00",
+      "resolved_at": null
+    }
+  ],
+  "message": "Reports retrieved",
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 1,
+    "totalPages": 1
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>GET</code></td>
+        <td>11. Admin</td>
+        <td><strong>Get Global Stats</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/stats</code></td>
+        <td>3424ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>POST</code></td>
+        <td>11. Admin</td>
+        <td><strong>Create Category</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/categories</code></td>
+        <td>518ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "name_en": "Technology",
+  "name_ar": "تقنية",
+  "icon_url": "https://example.com/icons/tech.png"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PUT</code></td>
+        <td>11. Admin</td>
+        <td><strong>Update Category</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/categories/20361ed2-ab58-427a-ad12-a8ace962b09f</code></td>
+        <td>392ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "name_en": "Tech &amp; Innovation"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>403</td>
+        <td><code>DELETE</code></td>
+        <td>11. Admin</td>
+        <td><strong>Delete Category</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/categories/20361ed2-ab58-427a-ad12-a8ace962b09f</code></td>
+        <td>481ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PATCH</code></td>
+        <td>11. Admin</td>
+        <td><strong>Update Offer Status</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/content/offers/6b411093-562f-43c7-918b-6f1f1e2a2595/status</code></td>
+        <td>826ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "status": "rejected"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>403</td>
+        <td><code>DELETE</code></td>
+        <td>11. Admin</td>
+        <td><strong>Delete Offer (Admin)</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/content/offers/6b411093-562f-43c7-918b-6f1f1e2a2595</code></td>
+        <td>695ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PATCH</code></td>
+        <td>11. Admin</td>
+        <td><strong>Update Ad Status</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/content/ads/8ad75ead-ed80-4442-8320-d2513516f07f/status</code></td>
+        <td>1190ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "status": "active"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>403</td>
+        <td><code>DELETE</code></td>
+        <td>11. Admin</td>
+        <td><strong>Delete Ad (Admin)</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/content/ads/8ad75ead-ed80-4442-8320-d2513516f07f</code></td>
+        <td>1240ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>GET</code></td>
+        <td>11. Admin</td>
+        <td><strong>Get Admin Plans</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/plans</code></td>
+        <td>1203ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>POST</code></td>
+        <td>11. Admin</td>
+        <td><strong>Create Plan</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/plans</code></td>
+        <td>1247ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "stripe_price_id": "price_1234567890",
+  "name_en": "Pro Plan",
+  "name_ar": "الخطة الاحترافية",
+  "description_en": "Full access to all features",
+  "description_ar": "وصول كامل لجميع الميزات",
+  "price": 9.99,
+  "currency": "usd",
+  "interval": "month",
+  "features_en": [
+    "Unlimited offers",
+    "Priority support"
+  ],
+  "features_ar": [
+    "عروض غير محدودة",
+    "دعم أولوية"
+  ],
+  "is_active": true
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PUT</code></td>
+        <td>11. Admin</td>
+        <td><strong>Update Plan</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/plans/a951eaab-66db-4e58-a843-f08709741ec1</code></td>
+        <td>2247ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "is_active": false
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#f59e0b">EXPECTED_FAIL</span></td>
+        <td>403</td>
+        <td><code>DELETE</code></td>
+        <td>11. Admin</td>
+        <td><strong>Delete Plan</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/plans/a951eaab-66db-4e58-a843-f08709741ec1</code></td>
+        <td>1935ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>GET</code></td>
+        <td>11. Admin</td>
+        <td><strong>Get Users</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/users?page=1&limit=20</code></td>
+        <td>1538ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>GET</code></td>
+        <td>11. Admin</td>
+        <td><strong>Get User Details</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a</code></td>
+        <td>3436ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PATCH</code></td>
+        <td>11. Admin</td>
+        <td><strong>Toggle User Ban</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a/ban</code></td>
+        <td>1330ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "isActive": false
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PATCH</code></td>
+        <td>11. Admin</td>
+        <td><strong>Toggle User Verify</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a/verify</code></td>
+        <td>1563ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "isVerified": true
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#94a3b8">SKIP</span></td>
+        <td>—</td>
+        <td><code>DELETE</code></td>
+        <td>11. Admin</td>
+        <td><strong>Delete User</strong><br><small>Skipped (destructive or session-ending)</small></td>
+        <td><code>http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a</code></td>
+        <td>0ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>null</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>GET</code></td>
+        <td>11. Admin</td>
+        <td><strong>Get All Reports</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/reports?page=1&limit=20</code></td>
+        <td>2987ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>403</td>
+        <td><code>PATCH</code></td>
+        <td>11. Admin</td>
+        <td><strong>Update Report Status</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/reports//status</code></td>
+        <td>1597ms</td>
+        <td>
+          <details><summary>Request</summary><pre>{
+  "status": "resolved",
+  "admin_note": "Issue has been addressed"
+}</pre></details>
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Admin access required",
+  "error": {
+    "code": "FORBIDDEN"
+  }
+}</pre></details>
+        </td>
+      </tr>
+      <tr>
+        <td><span class="badge" style="background:#ef4444">FAIL</span></td>
+        <td>429</td>
+        <td><code>GET</code></td>
+        <td>11. Admin</td>
+        <td><strong>Get Admin Payments</strong></td>
+        <td><code>http://localhost:3000/api/v1/admin/payments?page=1&limit=20</code></td>
+        <td>1ms</td>
+        <td>
+          
+          <details open><summary>Response</summary><pre>{
+  "success": false,
+  "data": null,
+  "message": "Too many requests, please try again later",
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED"
+  }
+}</pre></details>
+        </td>
+      </tr></tbody>
+    </table>
+  </div>
+</body>
+</html>

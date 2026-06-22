@@ -13,7 +13,7 @@ export const createPlanSchema = z.object({
     description_en: z.string().optional(),
     price: z.number().min(0, 'Price must be positive'),
     currency: z.string().default('usd'),
-    interval: z.enum(['month', 'year']),
+    interval: z.enum(['monthly', 'quarterly', 'yearly']),
     features_ar: z.array(z.string()).default([]),
     features_en: z.array(z.string()).default([]),
     is_active: z.boolean().default(true),

@@ -10,6 +10,10 @@ export class AdminCategoryService {
    * Create a new category
    */
   async createCategory(payload: any) {
+    if (!payload.slug && payload.name_en) {
+      payload.slug = payload.name_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+
     const { data, error } = await supabaseAdmin
       .from('categories')
       .insert(payload)

@@ -1,8 +1,9 @@
 {
   "info": {
-    "name": "Promoo V1 Collection",
-    "description": "Auto-generated collection for Promoo Backend with correct routes and bodies.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "name": "Promoo API Collection",
+    "description": "Complete Postman collection for Promoo Backend. Auto-generated from src/routes. Import into Postman, set baseUrl if needed, run Login Email first to capture token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "promoo-backend-v1"
   },
   "variable": [
     {
@@ -16,7 +17,17 @@
       "type": "string"
     },
     {
+      "key": "refreshToken",
+      "value": "",
+      "type": "string"
+    },
+    {
       "key": "profileId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
       "value": "",
       "type": "string"
     },
@@ -32,6 +43,11 @@
     },
     {
       "key": "roomId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "messageId",
       "value": "",
       "type": "string"
     },
@@ -54,6 +70,16 @@
       "key": "reportId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "planId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "paymentId",
+      "value": "",
+      "type": "string"
     }
   ],
   "auth": {
@@ -74,6 +100,12 @@
           "name": "Register Email",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/register/email",
               "host": [
@@ -84,6 +116,9 @@
                 "register",
                 "email"
               ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -100,6 +135,12 @@
           "name": "Register Phone",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/register/phone",
               "host": [
@@ -110,6 +151,9 @@
                 "register",
                 "phone"
               ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -126,6 +170,12 @@
           "name": "Login Email",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/email",
               "host": [
@@ -137,6 +187,9 @@
                 "email"
               ]
             },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}",
@@ -145,33 +198,30 @@
                   "language": "json"
                 }
               }
-            },
-            "event": [
-              {
-                "listen": "test",
-                "script": {
-                  "exec": [
-                    "var jsonData = pm.response.json();",
-                    "if (jsonData.success && jsonData.data && jsonData.data.session) {",
-                    "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
-                    "}"
-                  ],
-                  "type": "text/javascript"
-                }
-              }
-            ]
+            }
           },
           "event": [
             {
               "listen": "test",
               "script": {
+                "type": "text/javascript",
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData.success && jsonData.data && jsonData.data.session) {",
+                  "if (jsonData.success && jsonData.data) {",
+                  "  if (jsonData.data.session && jsonData.data.session.access_token) {",
                   "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
+                  "  }",
+                  "  if (jsonData.data.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                  "  }",
+                  "  if (jsonData.data.user && jsonData.data.user.id) {",
+                  "    pm.collectionVariables.set('userId', jsonData.data.user.id);",
+                  "  }",
+                  "  if (jsonData.data.profile && jsonData.data.profile.id) {",
+                  "    pm.collectionVariables.set('profileId', jsonData.data.profile.id);",
+                  "  }",
                   "}"
-                ],
-                "type": "text/javascript"
+                ]
               }
             }
           ]
@@ -180,6 +230,12 @@
           "name": "Login Phone",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/login/phone",
               "host": [
@@ -191,6 +247,9 @@
                 "phone"
               ]
             },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
               "raw": "{\n  \"phone\": \"+963900000000\",\n  \"password\": \"password123\"\n}",
@@ -200,51 +259,60 @@
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "  if (jsonData.data.session && jsonData.data.session.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
+                  "  }",
+                  "  if (jsonData.data.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                  "  }",
+                  "  if (jsonData.data.user && jsonData.data.user.id) {",
+                  "    pm.collectionVariables.set('userId', jsonData.data.user.id);",
+                  "  }",
+                  "  if (jsonData.data.profile && jsonData.data.profile.id) {",
+                  "    pm.collectionVariables.set('profileId', jsonData.data.profile.id);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
-          "name": "OAuth",
+          "name": "OAuth Login",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/auth/oauth",
+              "raw": "{{baseUrl}}/auth/login/oauth",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "auth",
+                "login",
                 "oauth"
               ]
             },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"provider\": \"google\",\n  \"id_token\": \"...\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Send OTP",
-          "request": {
-            "method": "POST",
-            "url": {
-              "raw": "{{baseUrl}}/auth/otp/send",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "otp",
-                "send"
-              ]
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"test@example.com\",\n  \"type\": \"signup\"\n}",
+              "raw": "{\n  \"provider\": \"google\",\n  \"id_token\": \"YOUR_ID_TOKEN_HERE\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -257,16 +325,24 @@
           "name": "Verify OTP",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/auth/otp/verify",
+              "raw": "{{baseUrl}}/auth/verify-otp",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "auth",
-                "otp",
-                "verify"
+                "verify-otp"
               ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -277,12 +353,43 @@
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "  if (jsonData.data.session && jsonData.data.session.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
+                  "  }",
+                  "  if (jsonData.data.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                  "  }",
+                  "  if (jsonData.data.user && jsonData.data.user.id) {",
+                  "    pm.collectionVariables.set('userId', jsonData.data.user.id);",
+                  "  }",
+                  "  if (jsonData.data.profile && jsonData.data.profile.id) {",
+                  "    pm.collectionVariables.set('profileId', jsonData.data.profile.id);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Refresh Token",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
               "host": [
@@ -293,47 +400,67 @@
                 "refresh"
               ]
             },
+            "auth": {
+              "type": "noauth"
+            },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"...\"\n}",
+              "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
-        },
-        {
-          "name": "Logout",
-          "request": {
-            "method": "POST",
-            "url": {
-              "raw": "{{baseUrl}}/auth/logout",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "auth",
-                "logout"
-              ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data) {",
+                  "  if (jsonData.data.session && jsonData.data.session.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.session.access_token);",
+                  "  }",
+                  "  if (jsonData.data.access_token) {",
+                  "    pm.collectionVariables.set('token', jsonData.data.access_token);",
+                  "  }",
+                  "  if (jsonData.data.user && jsonData.data.user.id) {",
+                  "    pm.collectionVariables.set('userId', jsonData.data.user.id);",
+                  "  }",
+                  "  if (jsonData.data.profile && jsonData.data.profile.id) {",
+                  "    pm.collectionVariables.set('profileId', jsonData.data.profile.id);",
+                  "  }",
+                  "}"
+                ]
+              }
             }
-          }
+          ]
         },
         {
           "name": "Forgot Password",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/auth/password/forgot",
+              "raw": "{{baseUrl}}/auth/forgot-password",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "auth",
-                "password",
-                "forgot"
+                "forgot-password"
               ]
+            },
+            "auth": {
+              "type": "noauth"
             },
             "body": {
               "mode": "raw",
@@ -350,15 +477,20 @@
           "name": "Reset Password",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/auth/password/reset",
+              "raw": "{{baseUrl}}/auth/reset-password",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "auth",
-                "password",
-                "reset"
+                "reset-password"
               ]
             },
             "body": {
@@ -371,6 +503,23 @@
               }
             }
           }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            }
+          }
         }
       ]
     },
@@ -381,6 +530,7 @@
           "name": "Get My Profile",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/profiles/me",
               "host": [
@@ -391,12 +541,32 @@
                 "me"
               ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('profileId', jsonData.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update My Profile",
           "request": {
             "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/profiles/me",
               "host": [
@@ -409,7 +579,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"bio\": \"New bio\",\n  \"avatar_url\": \"...\"\n}",
+              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"bio\": \"New bio text here\",\n  \"username\": \"testuser\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -419,9 +589,123 @@
           }
         },
         {
-          "name": "Get Profile by ID",
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "me"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Avatar",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me/avatar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "me",
+                "avatar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_url\": \"https://example.com/avatar.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update Cover",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me/cover",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "me",
+                "cover"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cover_url\": \"https://example.com/cover.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Request Verification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me/verify-request",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "profiles",
+                "me",
+                "verify-request"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document_url\": \"https://example.com/doc.pdf\",\n  \"notes\": \"Please verify my account\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Profile by ID/Username",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/profiles/{{profileId}}",
               "host": [
@@ -431,40 +715,9 @@
                 "profiles",
                 "{{profileId}}"
               ]
-            }
-          }
-        },
-        {
-          "name": "Get Profile by Username",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/profiles/username/someuser",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "profiles",
-                "username",
-                "someuser"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Profile Stats",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/profiles/{{profileId}}/stats",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "profiles",
-                "{{profileId}}",
-                "stats"
-              ]
+            },
+            "auth": {
+              "type": "noauth"
             }
           }
         }
@@ -474,9 +727,10 @@
       "name": "3. Follows",
       "item": [
         {
-          "name": "Toggle Follow",
+          "name": "Follow Profile",
           "request": {
             "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/follows/{{profileId}}",
               "host": [
@@ -490,18 +744,64 @@
           }
         },
         {
-          "name": "Get Followers",
+          "name": "Unfollow Profile",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/{{profileId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "follows",
+                "{{profileId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check Follow Status",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/follows/{{profileId}}/followers?page=1&limit=20",
+              "raw": "{{baseUrl}}/follows/{{profileId}}/status",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "follows",
                 "{{profileId}}",
-                "followers?page=1&limit=20"
+                "status"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Followers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/followers/{{profileId}}?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "follows",
+                "followers",
+                "{{profileId}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -510,15 +810,26 @@
           "name": "Get Following",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/follows/{{profileId}}/following?page=1&limit=20",
+              "raw": "{{baseUrl}}/follows/following/{{profileId}}?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "follows",
-                "{{profileId}}",
-                "following?page=1&limit=20"
+                "following",
+                "{{profileId}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -529,9 +840,105 @@
       "name": "4. Offers",
       "item": [
         {
+          "name": "Get All Offers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers?page=1&limit=20&search=&category_id={{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "offers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "category_id",
+                  "value": "{{categoryId}}",
+                  "disabled": true
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Get Offer by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "offers",
+                "{{offerId}}"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Get Offers by Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers/profile/{{profileId}}?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "offers",
+                "profile",
+                "{{profileId}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
           "name": "Create Offer",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/offers",
               "host": [
@@ -543,66 +950,39 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Sale\",\n  \"description\": \"50% off\",\n  \"discount_type\": \"percentage\",\n  \"discount_value\": 50,\n  \"valid_until\": \"2026-12-31T00:00:00Z\",\n  \"category_id\": \"{{categoryId}}\"\n}",
+              "raw": "{\n  \"category_id\": \"{{categoryId}}\",\n  \"title\": \"Summer Sale\",\n  \"description\": \"This is a detailed description of the summer sale offer.\",\n  \"original_price\": 100,\n  \"offer_price\": 50,\n  \"discount_percentage\": 50,\n  \"media_urls\": [\n    \"https://example.com/offer.jpg\"\n  ],\n  \"start_date\": \"2026-06-01T00:00:00.000Z\",\n  \"end_date\": \"2026-12-31T23:59:59.000Z\",\n  \"status\": \"active\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
-        },
-        {
-          "name": "Get Offers",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/offers?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "offers?page=1&limit=20"
-              ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('offerId', jsonData.data.id);",
+                  "}"
+                ]
+              }
             }
-          }
-        },
-        {
-          "name": "Get My Offers",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/offers/me?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "offers",
-                "me?page=1&limit=20"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Offer by ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/offers/{{offerId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "offers",
-                "{{offerId}}"
-              ]
-            }
-          }
+          ]
         },
         {
           "name": "Update Offer",
           "request": {
             "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/offers/{{offerId}}",
               "host": [
@@ -615,7 +995,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Sale\",\n  \"is_active\": false\n}",
+              "raw": "{\n  \"title\": \"Updated Summer Sale\",\n  \"description\": \"Updated description for the offer.\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -628,6 +1008,7 @@
           "name": "Delete Offer",
           "request": {
             "method": "DELETE",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/offers/{{offerId}}",
               "host": [
@@ -641,35 +1022,19 @@
           }
         },
         {
-          "name": "Redeem Offer",
+          "name": "Feature Offer",
           "request": {
             "method": "POST",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/offers/{{offerId}}/redeem",
+              "raw": "{{baseUrl}}/offers/{{offerId}}/feature",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "offers",
                 "{{offerId}}",
-                "redeem"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Toggle Like Offer",
-          "request": {
-            "method": "POST",
-            "url": {
-              "raw": "{{baseUrl}}/offers/{{offerId}}/like",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "offers",
-                "{{offerId}}",
-                "like"
+                "feature"
               ]
             }
           }
@@ -680,9 +1045,77 @@
       "name": "5. Ads",
       "item": [
         {
+          "name": "Get Active Ads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/active",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads",
+                "active"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Record Impression",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}/impression",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads",
+                "{{adId}}",
+                "impression"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Record Click",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}/click",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads",
+                "{{adId}}",
+                "click"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
           "name": "Create Ad",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/ads",
               "host": [
@@ -694,66 +1127,39 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"New Ad\",\n  \"description\": \"Ad details\",\n  \"ad_type\": \"banner\",\n  \"target_url\": \"https://example.com\"\n}",
+              "raw": "{\n  \"title\": \"New Banner Ad\",\n  \"description\": \"Promotional banner for summer campaign\",\n  \"media_url\": \"https://example.com/ad-banner.jpg\",\n  \"ad_type\": \"banner\",\n  \"target_url\": \"https://example.com\",\n  \"budget\": 100,\n  \"start_date\": \"2026-06-01T00:00:00.000Z\",\n  \"end_date\": \"2026-12-31T23:59:59.000Z\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
-        },
-        {
-          "name": "Get Ads",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/ads?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ads?page=1&limit=20"
-              ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('adId', jsonData.data.id);",
+                  "}"
+                ]
+              }
             }
-          }
-        },
-        {
-          "name": "Get My Ads",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/ads/me?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ads",
-                "me?page=1&limit=20"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Ad by ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/ads/{{adId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ads",
-                "{{adId}}"
-              ]
-            }
-          }
+          ]
         },
         {
           "name": "Update Ad",
           "request": {
             "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/ads/{{adId}}",
               "host": [
@@ -766,7 +1172,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Ad\",\n  \"is_active\": false\n}",
+              "raw": "{\n  \"title\": \"Updated Banner Ad\",\n  \"budget\": 150\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -776,51 +1182,65 @@
           }
         },
         {
-          "name": "Delete Ad",
+          "name": "Toggle Ad Active",
           "request": {
-            "method": "DELETE",
+            "method": "PATCH",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ads/{{adId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "ads",
-                "{{adId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Track View",
-          "request": {
-            "method": "POST",
-            "url": {
-              "raw": "{{baseUrl}}/ads/{{adId}}/view",
+              "raw": "{{baseUrl}}/ads/{{adId}}/toggle",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ads",
                 "{{adId}}",
-                "view"
+                "toggle"
               ]
             }
           }
         },
         {
-          "name": "Toggle Like Ad",
+          "name": "Get Ad Stats",
           "request": {
-            "method": "POST",
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/ads/{{adId}}/like",
+              "raw": "{{baseUrl}}/ads/{{adId}}/stats",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "ads",
                 "{{adId}}",
-                "like"
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Profile Ads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/profile/{{profileId}}?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ads",
+                "profile",
+                "{{profileId}}"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -831,22 +1251,47 @@
       "name": "6. Subscriptions",
       "item": [
         {
-          "name": "Subscribe",
+          "name": "Get Plans",
           "request": {
-            "method": "POST",
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/subscriptions/subscribe",
+              "raw": "{{baseUrl}}/subscriptions/plans",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "subscriptions",
-                "subscribe"
+                "plans"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Create Subscription",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "subscriptions"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"plan_id\": \"123\"\n}",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"return_url\": \"http://localhost:3000/dashboard/billing\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -859,31 +1304,47 @@
           "name": "Get My Subscription",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/subscriptions/my-subscription",
+              "raw": "{{baseUrl}}/subscriptions/me",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "subscriptions",
-                "my-subscription"
+                "me"
               ]
             }
           }
         },
         {
-          "name": "Cancel Subscription",
+          "name": "Manage Subscription",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/subscriptions/cancel",
+              "raw": "{{baseUrl}}/subscriptions/manage",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "subscriptions",
-                "cancel"
+                "manage"
               ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"return_url\": \"http://localhost:3000/dashboard/billing\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }
@@ -893,9 +1354,41 @@
       "name": "7. Chats",
       "item": [
         {
-          "name": "Create Chat Room",
+          "name": "Get Chats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chats"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Chat",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/chats",
               "host": [
@@ -914,27 +1407,27 @@
                 }
               }
             }
-          }
-        },
-        {
-          "name": "Get My Chat Rooms",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/chats?page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "chats?page=1&limit=20"
-              ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('roomId', jsonData.data.id);",
+                  "}"
+                ]
+              }
             }
-          }
+          ]
         },
         {
-          "name": "Get Messages in Room",
+          "name": "Get Messages",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/chats/{{roomId}}/messages?page=1&limit=50",
               "host": [
@@ -943,7 +1436,17 @@
               "path": [
                 "chats",
                 "{{roomId}}",
-                "messages?page=1&limit=50"
+                "messages"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
               ]
             }
           }
@@ -952,6 +1455,12 @@
           "name": "Send Message",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/chats/{{roomId}}/messages",
               "host": [
@@ -965,12 +1474,47 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"content\": \"Hello!\"\n}",
+              "raw": "{\n  \"content\": \"Hello!\",\n  \"type\": \"text\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
+            }
+          }
+        },
+        {
+          "name": "Mark Messages Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chats",
+                "{{roomId}}",
+                "read"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Chat",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "chats",
+                "{{roomId}}"
+              ]
             }
           }
         }
@@ -983,13 +1527,76 @@
           "name": "Get My Notifications",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/notifications?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "notifications?page=1&limit=20"
+                "notifications"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "read-all"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}",
+                "read"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "notifications",
+                "{{notificationId}}"
               ]
             }
           }
@@ -998,6 +1605,12 @@
           "name": "Register FCM Token",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/notifications/token",
               "host": [
@@ -1018,55 +1631,6 @@
               }
             }
           }
-        },
-        {
-          "name": "Mark All as Read",
-          "request": {
-            "method": "PATCH",
-            "url": {
-              "raw": "{{baseUrl}}/notifications/read-all",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "read-all"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Mark Notification as Read",
-          "request": {
-            "method": "PATCH",
-            "url": {
-              "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "{{notificationId}}",
-                "read"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Delete Notification",
-          "request": {
-            "method": "DELETE",
-            "url": {
-              "raw": "{{baseUrl}}/notifications/{{notificationId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "notifications",
-                "{{notificationId}}"
-              ]
-            }
-          }
         }
       ]
     },
@@ -1074,9 +1638,179 @@
       "name": "9. General",
       "item": [
         {
-          "name": "Upload Image (multipart)",
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Global Search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search?q=test&type=all&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "test"
+                },
+                {
+                  "key": "type",
+                  "value": "all"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Get Category Content",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}/content?page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}",
+                "content"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Get Featured Content",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/featured?placement=home&page=1&limit=20",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "featured"
+              ],
+              "query": [
+                {
+                  "key": "placement",
+                  "value": "home"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        },
+        {
+          "name": "Request Featured",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/featured",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "featured"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placement\": \"home\",\n  \"duration_days\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/image",
               "host": [
@@ -1086,13 +1820,34 @@
                 "upload",
                 "image"
               ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "related_to",
+                  "value": "offer",
+                  "type": "text"
+                },
+                {
+                  "key": "related_id",
+                  "value": "{{offerId}}",
+                  "type": "text"
+                }
+              ]
             }
           }
         },
         {
-          "name": "Upload Video (multipart)",
+          "name": "Upload Video",
           "request": {
             "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/video",
               "host": [
@@ -1102,13 +1857,34 @@
                 "upload",
                 "video"
               ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "related_to",
+                  "value": "offer",
+                  "type": "text"
+                },
+                {
+                  "key": "related_id",
+                  "value": "{{offerId}}",
+                  "type": "text"
+                }
+              ]
             }
           }
         },
         {
-          "name": "Upload File (multipart)",
+          "name": "Upload File",
           "request": {
             "method": "POST",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/file",
               "host": [
@@ -1118,6 +1894,26 @@
                 "upload",
                 "file"
               ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
+                },
+                {
+                  "key": "related_to",
+                  "value": "chat",
+                  "type": "text"
+                },
+                {
+                  "key": "related_id",
+                  "value": "{{roomId}}",
+                  "type": "text"
+                }
+              ]
             }
           }
         },
@@ -1125,6 +1921,7 @@
           "name": "Delete File",
           "request": {
             "method": "DELETE",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/upload/{{fileId}}",
               "host": [
@@ -1138,70 +1935,10 @@
           }
         },
         {
-          "name": "Global Search",
+          "name": "Get Payments History",
           "request": {
             "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/search?query=test&type=all&page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "search?query=test&type=all&page=1&limit=20"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Categories",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Category by ID",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/categories/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "categories",
-                "{{categoryId}}"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Featured Content",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/featured?limit=10",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "featured?limit=10"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get Payment History",
-          "request": {
-            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/payments/history?page=1&limit=20",
               "host": [
@@ -1209,33 +1946,52 @@
               ],
               "path": [
                 "payments",
-                "history?page=1&limit=20"
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
         },
         {
-          "name": "Create Payment Intent",
+          "name": "Create Customer Portal",
           "request": {
             "method": "POST",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/payments/create-intent",
+              "raw": "{{baseUrl}}/payments/portal",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "payments",
-                "create-intent"
+                "portal"
               ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"amount\": 1000,\n  \"currency\": \"usd\",\n  \"description\": \"Top up\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+            }
+          }
+        },
+        {
+          "name": "Get Payment Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "payments",
+                "{{paymentId}}"
+              ]
             }
           }
         },
@@ -1243,15 +1999,33 @@
           "name": "Stripe Webhook",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/webhook/stripe",
+              "raw": "{{baseUrl}}/webhooks/stripe",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "webhook",
+                "webhooks",
                 "stripe"
               ]
+            },
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"checkout.session.completed\",\n  \"data\": {\n    \"object\": {}\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             }
           }
         }
@@ -1264,6 +2038,12 @@
           "name": "Submit Report",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/reports",
               "host": [
@@ -1275,7 +2055,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"reported_id\": \"{{profileId}}\",\n  \"reported_type\": \"profile\",\n  \"reason\": \"Inappropriate content\",\n  \"details\": \"More info\"\n}",
+              "raw": "{\n  \"reported_id\": \"{{profileId}}\",\n  \"reported_type\": \"profile\",\n  \"reason\": \"spam content\",\n  \"details\": \"Optional additional details about the report\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1288,6 +2068,7 @@
           "name": "Get My Reports",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/reports/me?page=1&limit=20",
               "host": [
@@ -1295,7 +2076,17 @@
               ],
               "path": [
                 "reports",
-                "me?page=1&limit=20"
+                "me"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
@@ -1303,12 +2094,13 @@
       ]
     },
     {
-      "name": "11. Admin Dashboard",
+      "name": "11. Admin",
       "item": [
         {
-          "name": "Get Stats",
+          "name": "Get Global Stats",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/admin/stats",
               "host": [
@@ -1322,40 +2114,74 @@
           }
         },
         {
-          "name": "Get Users",
+          "name": "Create Category",
           "request": {
-            "method": "GET",
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
+              "raw": "{{baseUrl}}/admin/categories",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "users?page=1&limit=20"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update User Status",
-          "request": {
-            "method": "PATCH",
-            "url": {
-              "raw": "{{baseUrl}}/admin/users/{{profileId}}/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "users",
-                "{{profileId}}",
-                "status"
+                "categories"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_active\": false,\n  \"reason\": \"Violation\"\n}",
+              "raw": "{\n  \"name_en\": \"Technology\",\n  \"name_ar\": \"تقنية\",\n  \"icon_url\": \"https://example.com/icons/tech.png\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('categoryId', jsonData.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "categories",
+                "{{categoryId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_en\": \"Tech & Innovation\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1365,57 +2191,49 @@
           }
         },
         {
-          "name": "Delete User",
+          "name": "Delete Category",
           "request": {
             "method": "DELETE",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/users/{{profileId}}",
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "users",
-                "{{profileId}}"
+                "categories",
+                "{{categoryId}}"
               ]
             }
           }
         },
         {
-          "name": "Get Content (Offers/Ads)",
-          "request": {
-            "method": "GET",
-            "url": {
-              "raw": "{{baseUrl}}/admin/content?type=offer&page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "content?type=offer&page=1&limit=20"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Update Content Status",
+          "name": "Update Offer Status",
           "request": {
             "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/admin/content/{{offerId}}/status",
+              "raw": "{{baseUrl}}/admin/content/offers/{{offerId}}/status",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "content",
+                "offers",
                 "{{offerId}}",
                 "status"
               ]
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"is_active\": false,\n  \"type\": \"offer\"\n}",
+              "raw": "{\n  \"status\": \"rejected\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1425,18 +2243,90 @@
           }
         },
         {
-          "name": "Delete Content",
+          "name": "Delete Offer (Admin)",
           "request": {
             "method": "DELETE",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/content/{{offerId}}?type=offer",
+              "raw": "{{baseUrl}}/admin/content/offers/{{offerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "content",
-                "{{offerId}}?type=offer"
+                "offers",
+                "{{offerId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Ad Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/ads/{{adId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "content",
+                "ads",
+                "{{adId}}",
+                "status"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Ad (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/ads/{{adId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "content",
+                "ads",
+                "{{adId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Plans",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "plans"
               ]
             }
           }
@@ -1445,6 +2335,12 @@
           "name": "Create Plan",
           "request": {
             "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/admin/plans",
               "host": [
@@ -1457,28 +2353,48 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Pro\",\n  \"price\": 9.99,\n  \"duration_days\": 30,\n  \"features\": {},\n  \"plan_type\": \"subscription\"\n}",
+              "raw": "{\n  \"stripe_price_id\": \"price_1234567890\",\n  \"name_en\": \"Pro Plan\",\n  \"name_ar\": \"الخطة الاحترافية\",\n  \"description_en\": \"Full access to all features\",\n  \"description_ar\": \"وصول كامل لجميع الميزات\",\n  \"price\": 9.99,\n  \"currency\": \"usd\",\n  \"interval\": \"month\",\n  \"features_en\": [\n    \"Unlimited offers\",\n    \"Priority support\"\n  ],\n  \"features_ar\": [\n    \"عروض غير محدودة\",\n    \"دعم أولوية\"\n  ],\n  \"is_active\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
                 }
               }
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.success && jsonData.data && jsonData.data.id) {",
+                  "  pm.collectionVariables.set('planId', jsonData.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
         },
         {
           "name": "Update Plan",
           "request": {
             "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
-              "raw": "{{baseUrl}}/admin/plans/123",
+              "raw": "{{baseUrl}}/admin/plans/{{planId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "plans",
-                "123"
+                "{{planId}}"
               ]
             },
             "body": {
@@ -1496,39 +2412,154 @@
           "name": "Delete Plan",
           "request": {
             "method": "DELETE",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/plans/123",
+              "raw": "{{baseUrl}}/admin/plans/{{planId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
                 "plans",
-                "123"
+                "{{planId}}"
               ]
             }
           }
         },
         {
-          "name": "Get Payments",
+          "name": "Get Users",
           "request": {
             "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/payments?page=1&limit=20",
+              "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "payments?page=1&limit=20"
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
               ]
             }
           }
         },
         {
-          "name": "Get Reports",
+          "name": "Get User Details",
           "request": {
             "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Toggle User Ban",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/ban",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "ban"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Toggle User Verify",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}",
+                "verify"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isVerified\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "users",
+                "{{userId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
             "url": {
               "raw": "{{baseUrl}}/admin/reports?page=1&limit=20&status=pending",
               "host": [
@@ -1536,7 +2567,22 @@
               ],
               "path": [
                 "admin",
-                "reports?page=1&limit=20&status=pending"
+                "reports"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                }
               ]
             }
           }
@@ -1545,6 +2591,12 @@
           "name": "Update Report Status",
           "request": {
             "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/admin/reports/{{reportId}}/status",
               "host": [
@@ -1559,7 +2611,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"resolved\",\n  \"admin_note\": \"Taken care of\"\n}",
+              "raw": "{\n  \"status\": \"resolved\",\n  \"admin_note\": \"Issue has been addressed\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1569,69 +2621,28 @@
           }
         },
         {
-          "name": "Create Category",
+          "name": "Get Admin Payments",
           "request": {
-            "method": "POST",
+            "method": "GET",
+            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/admin/categories",
+              "raw": "{{baseUrl}}/admin/payments?page=1&limit=20",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "admin",
-                "categories"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name_en\": \"Tech\",\n  \"name_ar\": \"تقنية\",\n  \"icon\": \"💻\",\n  \"is_active\": true\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+                "payments"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
                 }
-              }
-            }
-          }
-        },
-        {
-          "name": "Update Category",
-          "request": {
-            "method": "PUT",
-            "url": {
-              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "categories",
-                "{{categoryId}}"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name_en\": \"Technology\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Delete Category",
-          "request": {
-            "method": "DELETE",
-            "url": {
-              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "admin",
-                "categories",
-                "{{categoryId}}"
               ]
             }
           }

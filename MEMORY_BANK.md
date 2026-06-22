@@ -37,6 +37,7 @@
 | 6 | Bilingual (ar + en) | Accept-Language header, dual DB columns | 2026-06-14 |
 | 7 | Stripe Checkout Sessions | Standard flow, client has Stripe account ready | 2026-06-14 |
 | 8 | FCM for Push | Industry standard, works with React Native | 2026-06-14 |
+| 9 | Postponed Multi-Currency Support | Decided to postpone adding a 'currency' column to 'subscription_plans' (e.g. USD/AED) due to local DB migration hang. Removed 'currency' from API validation to unblock testing for now. | 2026-06-22 |
 
 ---
 

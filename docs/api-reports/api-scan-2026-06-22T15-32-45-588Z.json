@@ -1,0 +1,2238 @@
+{
+  "meta": {
+    "baseUrl": "http://localhost:3000/api/v1",
+    "testEmail": "test1@example.com",
+    "generatedAt": "2026-06-22T15:32:45.588Z",
+    "total": 88,
+    "pass": 36,
+    "fail": 33,
+    "expected_fail": 16,
+    "skip": 3
+  },
+  "results": [
+    {
+      "folder": "1. Auth",
+      "name": "Register Email",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/register/email",
+      "status": "expected_fail",
+      "httpStatus": 400,
+      "durationMs": 1063,
+      "requestBody": {
+        "email": "scan_1782142238767@example.com",
+        "password": "password123",
+        "full_name": "API Scan User",
+        "account_type": "user"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Email address \"scan_1782142238767@example.com\" is invalid",
+        "error": {
+          "code": "VALIDATION_ERROR"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Register Phone",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/register/phone",
+      "status": "expected_fail",
+      "httpStatus": 400,
+      "durationMs": 467,
+      "requestBody": {
+        "phone": "+963900000000",
+        "password": "password123",
+        "full_name": "Test User",
+        "account_type": "user"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Phone signups are disabled",
+        "error": {
+          "code": "VALIDATION_ERROR"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Login Email",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/login/email",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 811,
+      "requestBody": {
+        "email": "test1@example.com",
+        "password": "password123"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "user": {
+            "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "aud": "authenticated",
+            "role": "authenticated",
+            "email": "test1@example.com",
+            "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+            "phone": "",
+            "confirmed_at": "2026-06-22T14:47:46.773804Z",
+            "last_sign_in_at": "2026-06-22T15:30:35.883934844Z",
+            "app_metadata": {
+              "provider": "email",
+              "providers": [
+                "email"
+              ]
+            },
+            "user_metadata": {
+              "account_type": "user",
+              "email_verified": true,
+              "full_name": "Test User 1"
+            },
+            "identities": [
+              {
+                "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+                "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                "identity_data": {
+                  "email": "test1@example.com",
+                  "email_verified": false,
+                  "phone_verified": false,
+                  "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+                },
+                "provider": "email",
+                "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+                "created_at": "2026-06-22T14:47:46.770088Z",
+                "updated_at": "2026-06-22T14:47:46.770088Z",
+                "email": "test1@example.com"
+              }
+            ],
+            "created_at": "2026-06-22T14:47:46.753835Z",
+            "updated_at": "2026-06-22T15:30:35.886349Z",
+            "is_anonymous": false
+          },
+          "session": {
+            "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IjhkNTQ0MTVkLTc3MjQtNGM4My05NWM5LTYwODk2MjI1OWMyYiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL21xa2xhcmd5amlzcGJjeXh6ZGpvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIxN2M4OGRmNi01MDgxLTQxMTQtOWI4NS03ZjI3OGQyMzg5NGEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzgyMTQ1ODM1LCJpYXQiOjE3ODIxNDIyMzUsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImFjY291bnRfdHlwZSI6InVzZXIiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiVGVzdCBVc2VyIDEifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc4MjE0MjIzNX1dLCJzZXNzaW9uX2lkIjoiMjI2NmYxMzQtNGVmMi00ZmJlLTkxNTMtMGM2NWIxYWY2NjY5IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.0YYkshgsTnzz42KpOZ6BddBVfW9qEdlHbrHh7vBnqIyrkedJXDuUMYb_GO7JmzvW0N0uj2VFhF26IaoYS6G3bg",
+            "token_type": "bearer",
+            "expires_in": 3600,
+            "expires_at": 1782145835,
+            "refresh_token": "wlw57oithncr",
+            "user": {
+              "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+              "aud": "authenticated",
+              "role": "authenticated",
+              "email": "test1@example.com",
+              "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+              "phone": "",
+              "confirmed_at": "2026-06-22T14:47:46.773804Z",
+              "last_sign_in_at": "2026-06-22T15:30:35.883934844Z",
+              "app_metadata": {
+                "provider": "email",
+                "providers": [
+                  "email"
+                ]
+              },
+              "user_metadata": {
+                "account_type": "user",
+                "email_verified": true,
+                "full_name": "Test User 1"
+              },
+              "identities": [
+                {
+                  "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+                  "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                  "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                  "identity_data": {
+                    "email": "test1@example.com",
+                    "email_verified": false,
+                    "phone_verified": false,
+                    "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+                  },
+                  "provider": "email",
+                  "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+                  "created_at": "2026-06-22T14:47:46.770088Z",
+                  "updated_at": "2026-06-22T14:47:46.770088Z",
+                  "email": "test1@example.com"
+                }
+              ],
+              "created_at": "2026-06-22T14:47:46.753835Z",
+              "updated_at": "2026-06-22T15:30:35.886349Z",
+              "is_anonymous": false
+            },
+            "weak_password": null
+          }
+        },
+        "message": "Login successful"
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Login Phone",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/login/phone",
+      "status": "fail",
+      "httpStatus": 401,
+      "durationMs": 311,
+      "requestBody": {
+        "phone": "+963900000000",
+        "password": "password123"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Phone logins are disabled",
+        "error": {
+          "code": "UNAUTHORIZED"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "OAuth Login",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/login/oauth",
+      "status": "expected_fail",
+      "httpStatus": 401,
+      "durationMs": 290,
+      "requestBody": {
+        "provider": "google",
+        "id_token": "YOUR_ID_TOKEN_HERE"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Provider (issuer \"https://accounts.google.com\") is not enabled",
+        "error": {
+          "code": "UNAUTHORIZED"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Verify OTP",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/verify-otp",
+      "status": "expected_fail",
+      "httpStatus": 400,
+      "durationMs": 721,
+      "requestBody": {
+        "email": "test1@example.com",
+        "token": "000000",
+        "type": "signup"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Token has expired or is invalid",
+        "error": {
+          "code": "VALIDATION_ERROR"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Refresh Token",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/refresh",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 257,
+      "requestBody": {
+        "refresh_token": "wlw57oithncr"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "user": {
+            "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "aud": "authenticated",
+            "role": "authenticated",
+            "email": "test1@example.com",
+            "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+            "phone": "",
+            "confirmed_at": "2026-06-22T14:47:46.773804Z",
+            "last_sign_in_at": "2026-06-22T15:30:35.883934Z",
+            "app_metadata": {
+              "provider": "email",
+              "providers": [
+                "email"
+              ]
+            },
+            "user_metadata": {
+              "account_type": "user",
+              "email_verified": true,
+              "full_name": "Test User 1"
+            },
+            "identities": [
+              {
+                "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+                "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                "identity_data": {
+                  "email": "test1@example.com",
+                  "email_verified": false,
+                  "phone_verified": false,
+                  "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+                },
+                "provider": "email",
+                "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+                "created_at": "2026-06-22T14:47:46.770088Z",
+                "updated_at": "2026-06-22T14:47:46.770088Z",
+                "email": "test1@example.com"
+              }
+            ],
+            "created_at": "2026-06-22T14:47:46.753835Z",
+            "updated_at": "2026-06-22T15:30:37.952612Z",
+            "is_anonymous": false
+          },
+          "session": {
+            "access_token": "eyJhbGciOiJFUzI1NiIsImtpZCI6IjhkNTQ0MTVkLTc3MjQtNGM4My05NWM5LTYwODk2MjI1OWMyYiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL21xa2xhcmd5amlzcGJjeXh6ZGpvLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiIxN2M4OGRmNi01MDgxLTQxMTQtOWI4NS03ZjI3OGQyMzg5NGEiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzgyMTQ1ODM3LCJpYXQiOjE3ODIxNDIyMzcsImVtYWlsIjoidGVzdDFAZXhhbXBsZS5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImFjY291bnRfdHlwZSI6InVzZXIiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiVGVzdCBVc2VyIDEifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc4MjE0MjIzNX1dLCJzZXNzaW9uX2lkIjoiMjI2NmYxMzQtNGVmMi00ZmJlLTkxNTMtMGM2NWIxYWY2NjY5IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.hE3scx5ANfIEi8rl_G-lRrxQwoV9yi3s3_KKgTUT6I5Fv8ANvuEBiylPRutdlTXtouUFXllL6gNuQPIBtCA0Gw",
+            "token_type": "bearer",
+            "expires_in": 3600,
+            "expires_at": 1782145837,
+            "refresh_token": "4iy2jhadbsho",
+            "user": {
+              "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+              "aud": "authenticated",
+              "role": "authenticated",
+              "email": "test1@example.com",
+              "email_confirmed_at": "2026-06-22T14:47:46.773804Z",
+              "phone": "",
+              "confirmed_at": "2026-06-22T14:47:46.773804Z",
+              "last_sign_in_at": "2026-06-22T15:30:35.883934Z",
+              "app_metadata": {
+                "provider": "email",
+                "providers": [
+                  "email"
+                ]
+              },
+              "user_metadata": {
+                "account_type": "user",
+                "email_verified": true,
+                "full_name": "Test User 1"
+              },
+              "identities": [
+                {
+                  "identity_id": "d2ac5b37-b7d9-4a43-afd3-e7eaab937f04",
+                  "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                  "user_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+                  "identity_data": {
+                    "email": "test1@example.com",
+                    "email_verified": false,
+                    "phone_verified": false,
+                    "sub": "17c88df6-5081-4114-9b85-7f278d23894a"
+                  },
+                  "provider": "email",
+                  "last_sign_in_at": "2026-06-22T14:47:46.770027Z",
+                  "created_at": "2026-06-22T14:47:46.770088Z",
+                  "updated_at": "2026-06-22T14:47:46.770088Z",
+                  "email": "test1@example.com"
+                }
+              ],
+              "created_at": "2026-06-22T14:47:46.753835Z",
+              "updated_at": "2026-06-22T15:30:37.952612Z",
+              "is_anonymous": false
+            }
+          }
+        },
+        "message": "Token refreshed successfully"
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Forgot Password",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/forgot-password",
+      "status": "fail",
+      "httpStatus": 400,
+      "durationMs": 236,
+      "requestBody": {
+        "email": "test1@example.com"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "email rate limit exceeded",
+        "error": {
+          "code": "VALIDATION_ERROR"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Reset Password",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/reset-password",
+      "status": "expected_fail",
+      "httpStatus": 429,
+      "durationMs": 2,
+      "requestBody": {
+        "password": "newpassword123"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Too many authentication attempts, please try again later",
+        "error": {
+          "code": "RATE_LIMIT_EXCEEDED"
+        }
+      }
+    },
+    {
+      "folder": "1. Auth",
+      "name": "Logout",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/auth/logout",
+      "status": "skip",
+      "httpStatus": null,
+      "durationMs": 0,
+      "requestBody": null,
+      "responseBody": null,
+      "note": "Skipped (destructive or session-ending)"
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Get My Profile",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/profiles/me",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1505,
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "email": "test1@example.com",
+          "phone": null,
+          "full_name": "Test User 1",
+          "username": null,
+          "avatar_url": null,
+          "cover_url": null,
+          "bio": null,
+          "account_type": "user",
+          "is_verified": false,
+          "is_featured": false,
+          "category_id": null,
+          "location": null,
+          "website": null,
+          "social_links": {},
+          "company_details": {},
+          "influencer_details": {},
+          "service_provider_details": {},
+          "stripe_customer_id": null,
+          "is_admin": false,
+          "created_at": "2026-06-22T14:47:46.753445+00:00",
+          "updated_at": "2026-06-22T14:47:46.753445+00:00",
+          "is_active": true,
+          "categories": null
+        },
+        "message": "Profile retrieved successfully"
+      }
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Update My Profile",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/v1/profiles/me",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1805,
+      "requestBody": {
+        "full_name": "Updated Name",
+        "bio": "New bio text here",
+        "username": "testuser"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "email": "test1@example.com",
+          "phone": null,
+          "full_name": "Updated Name",
+          "username": "testuser",
+          "avatar_url": null,
+          "cover_url": null,
+          "bio": "New bio text here",
+          "account_type": "user",
+          "is_verified": false,
+          "is_featured": false,
+          "category_id": null,
+          "location": null,
+          "website": null,
+          "social_links": {},
+          "company_details": {},
+          "influencer_details": {},
+          "service_provider_details": {},
+          "stripe_customer_id": null,
+          "is_admin": false,
+          "created_at": "2026-06-22T14:47:46.753445+00:00",
+          "updated_at": "2026-06-22T15:30:41.279+00:00",
+          "is_active": true
+        },
+        "message": "Profile updated successfully"
+      }
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Delete Account",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/profiles/me",
+      "status": "skip",
+      "httpStatus": null,
+      "durationMs": 0,
+      "requestBody": null,
+      "responseBody": null,
+      "note": "Skipped (destructive or session-ending)"
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Update Avatar",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/profiles/me/avatar",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1957,
+      "requestBody": {
+        "avatar_url": "https://example.com/avatar.png"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "email": "test1@example.com",
+          "phone": null,
+          "full_name": "Updated Name",
+          "username": "testuser",
+          "avatar_url": "https://example.com/avatar.png",
+          "cover_url": null,
+          "bio": "New bio text here",
+          "account_type": "user",
+          "is_verified": false,
+          "is_featured": false,
+          "category_id": null,
+          "location": null,
+          "website": null,
+          "social_links": {},
+          "company_details": {},
+          "influencer_details": {},
+          "service_provider_details": {},
+          "stripe_customer_id": null,
+          "is_admin": false,
+          "created_at": "2026-06-22T14:47:46.753445+00:00",
+          "updated_at": "2026-06-22T15:30:42.823978+00:00",
+          "is_active": true
+        },
+        "message": "Avatar updated successfully"
+      }
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Update Cover",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/profiles/me/cover",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 2268,
+      "requestBody": {
+        "cover_url": "https://example.com/cover.png"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "email": "test1@example.com",
+          "phone": null,
+          "full_name": "Updated Name",
+          "username": "testuser",
+          "avatar_url": "https://example.com/avatar.png",
+          "cover_url": "https://example.com/cover.png",
+          "bio": "New bio text here",
+          "account_type": "user",
+          "is_verified": false,
+          "is_featured": false,
+          "category_id": null,
+          "location": null,
+          "website": null,
+          "social_links": {},
+          "company_details": {},
+          "influencer_details": {},
+          "service_provider_details": {},
+          "stripe_customer_id": null,
+          "is_admin": false,
+          "created_at": "2026-06-22T14:47:46.753445+00:00",
+          "updated_at": "2026-06-22T15:30:44.933192+00:00",
+          "is_active": true
+        },
+        "message": "Cover updated successfully"
+      }
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Request Verification",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/profiles/me/verify-request",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 2523,
+      "requestBody": {
+        "document_url": "https://example.com/doc.pdf",
+        "notes": "Please verify my account"
+      },
+      "responseBody": {
+        "success": true,
+        "data": null,
+        "message": "Verification requested successfully"
+      }
+    },
+    {
+      "folder": "2. Profiles",
+      "name": "Get Profile by ID/Username",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/profiles/",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 2,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "3. Follows",
+      "name": "Follow Profile",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/follows/",
+      "status": "expected_fail",
+      "httpStatus": 404,
+      "durationMs": 829,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "3. Follows",
+      "name": "Unfollow Profile",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/follows/",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 1743,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "3. Follows",
+      "name": "Check Follow Status",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/follows//status",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 704,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "3. Follows",
+      "name": "Get Followers",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/follows/followers/?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 586,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "3. Follows",
+      "name": "Get Following",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/follows/following/?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 1078,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Get All Offers",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/offers?page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 478,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Offers retrieved successfully",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Get Offer by ID",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/offers/",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 440,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Offers retrieved successfully",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Get Offers by Profile",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/offers/profile/?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 400,
+      "durationMs": 3,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Validation failed",
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "field": "params.id",
+              "message": "Invalid offer ID"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Create Offer",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/offers",
+      "status": "pass",
+      "httpStatus": 201,
+      "durationMs": 5284,
+      "requestBody": {
+        "category_id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+        "title": "Summer Sale",
+        "description": "This is a detailed description of the summer sale offer.",
+        "original_price": 100,
+        "offer_price": 50,
+        "discount_percentage": 50,
+        "media_urls": [
+          "https://example.com/offer.jpg"
+        ],
+        "start_date": "2026-06-01T00:00:00.000Z",
+        "end_date": "2026-12-31T23:59:59.000Z",
+        "status": "active"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "category_id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+          "title": "Summer Sale",
+          "description": "This is a detailed description of the summer sale offer.",
+          "original_price": 100,
+          "offer_price": 50,
+          "discount_percentage": 50,
+          "media_urls": [
+            "https://example.com/offer.jpg"
+          ],
+          "start_date": "2026-06-01T00:00:00+00:00",
+          "end_date": "2026-12-31T23:59:59+00:00",
+          "status": "active",
+          "is_featured": false,
+          "views_count": 0,
+          "created_at": "2026-06-22T15:30:58.882898+00:00",
+          "updated_at": "2026-06-22T15:30:58.882898+00:00",
+          "category": {
+            "id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+            "slug": "technology",
+            "name_ar": "تكنولوجيا",
+            "name_en": "Technology"
+          }
+        },
+        "message": "Offer created successfully"
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Update Offer",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/v1/offers/6b411093-562f-43c7-918b-6f1f1e2a2595",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1551,
+      "requestBody": {
+        "title": "Updated Summer Sale",
+        "description": "Updated description for the offer."
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "category_id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+          "title": "Updated Summer Sale",
+          "description": "Updated description for the offer.",
+          "original_price": 100,
+          "offer_price": 50,
+          "discount_percentage": 50,
+          "media_urls": [
+            "https://example.com/offer.jpg"
+          ],
+          "start_date": "2026-06-01T00:00:00+00:00",
+          "end_date": "2026-12-31T23:59:59+00:00",
+          "status": "active",
+          "is_featured": false,
+          "views_count": 0,
+          "created_at": "2026-06-22T15:30:58.882898+00:00",
+          "updated_at": "2026-06-22T15:31:00.462245+00:00",
+          "category": {
+            "id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+            "slug": "technology",
+            "name_ar": "تكنولوجيا",
+            "name_en": "Technology"
+          }
+        },
+        "message": "Offer updated successfully"
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Delete Offer",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/offers/6b411093-562f-43c7-918b-6f1f1e2a2595",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1809,
+      "responseBody": {
+        "success": true,
+        "data": null,
+        "message": "Offer deleted successfully"
+      }
+    },
+    {
+      "folder": "4. Offers",
+      "name": "Feature Offer",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/offers/6b411093-562f-43c7-918b-6f1f1e2a2595/feature",
+      "status": "expected_fail",
+      "httpStatus": 404,
+      "durationMs": 1393,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Offer not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Get Active Ads",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/ads/active",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 439,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Active ads retrieved successfully"
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Record Impression",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/ads//impression",
+      "status": "fail",
+      "httpStatus": 401,
+      "durationMs": 3,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Missing or invalid authorization header",
+        "error": {
+          "code": "UNAUTHORIZED"
+        }
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Record Click",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/ads//click",
+      "status": "fail",
+      "httpStatus": 401,
+      "durationMs": 2,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Missing or invalid authorization header",
+        "error": {
+          "code": "UNAUTHORIZED"
+        }
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Create Ad",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/ads",
+      "status": "pass",
+      "httpStatus": 201,
+      "durationMs": 679,
+      "requestBody": {
+        "title": "New Banner Ad",
+        "description": "Promotional banner for summer campaign",
+        "media_url": "https://example.com/ad-banner.jpg",
+        "ad_type": "banner",
+        "target_url": "https://example.com",
+        "budget": 100,
+        "start_date": "2026-06-01T00:00:00.000Z",
+        "end_date": "2026-12-31T23:59:59.000Z"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "8ad75ead-ed80-4442-8320-d2513516f07f",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "title": "New Banner Ad",
+          "description": "Promotional banner for summer campaign",
+          "media_url": "https://example.com/ad-banner.jpg",
+          "ad_type": "banner",
+          "target_url": "https://example.com",
+          "budget": 100,
+          "spent": 0,
+          "start_date": "2026-06-01T00:00:00+00:00",
+          "end_date": "2026-12-31T23:59:59+00:00",
+          "status": "pending",
+          "impressions": 0,
+          "clicks": 0,
+          "created_at": "2026-06-22T15:31:05.307691+00:00",
+          "updated_at": "2026-06-22T15:31:05.307691+00:00"
+        },
+        "message": "Ad campaign created successfully. Waiting for activation/payment."
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Update Ad",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/v1/ads/8ad75ead-ed80-4442-8320-d2513516f07f",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1039,
+      "requestBody": {
+        "title": "Updated Banner Ad",
+        "budget": 150
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "8ad75ead-ed80-4442-8320-d2513516f07f",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "title": "Updated Banner Ad",
+          "description": "Promotional banner for summer campaign",
+          "media_url": "https://example.com/ad-banner.jpg",
+          "ad_type": "banner",
+          "target_url": "https://example.com",
+          "budget": 150,
+          "spent": 0,
+          "start_date": "2026-06-01T00:00:00+00:00",
+          "end_date": "2026-12-31T23:59:59+00:00",
+          "status": "pending",
+          "impressions": 0,
+          "clicks": 0,
+          "created_at": "2026-06-22T15:31:05.307691+00:00",
+          "updated_at": "2026-06-22T15:31:06.357316+00:00"
+        },
+        "message": "Ad campaign updated successfully"
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Toggle Ad Active",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/ads/8ad75ead-ed80-4442-8320-d2513516f07f/toggle",
+      "status": "fail",
+      "httpStatus": 400,
+      "durationMs": 681,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Cannot toggle ad with status: pending",
+        "error": {
+          "code": "VALIDATION_ERROR"
+        }
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Get Ad Stats",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/ads/8ad75ead-ed80-4442-8320-d2513516f07f/stats",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1630,
+      "responseBody": {
+        "success": true,
+        "data": {
+          "impressions": 0,
+          "clicks": 0,
+          "budget": 150,
+          "spent": 0,
+          "status": "pending",
+          "ctr": 0
+        },
+        "message": "Ad statistics retrieved successfully"
+      }
+    },
+    {
+      "folder": "5. Ads",
+      "name": "Get Profile Ads",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/ads/profile/?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 430,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "6. Subscriptions",
+      "name": "Get Plans",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/subscriptions/plans",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 429,
+      "responseBody": {
+        "success": true,
+        "data": [
+          {
+            "id": "a951eaab-66db-4e58-a843-f08709741ec1",
+            "name_ar": "الباقة الأساسية",
+            "name_en": "Basic Plan",
+            "description_ar": "مثالية للمبتدئين",
+            "description_en": "Perfect for beginners",
+            "price": 10,
+            "interval": "monthly",
+            "features": [
+              "5 offers per month",
+              "Basic support",
+              "Standard profile"
+            ],
+            "stripe_price_id": "price_basic_monthly_placeholder",
+            "is_active": true,
+            "sort_order": 1,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "37398dcd-112a-4643-85f4-aa5e5f127ce1",
+            "name_ar": "الباقة المميزة",
+            "name_en": "Premium Plan",
+            "description_ar": "للمحترفين والشركات",
+            "description_en": "For professionals and companies",
+            "price": 29,
+            "interval": "monthly",
+            "features": [
+              "Unlimited offers",
+              "Priority support",
+              "Verified badge",
+              "Analytics"
+            ],
+            "stripe_price_id": "price_premium_monthly_placeholder",
+            "is_active": true,
+            "sort_order": 2,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "68917e4a-19cd-4a3b-b2e1-11e0f7ec1fc0",
+            "name_ar": "باقة الشركات",
+            "name_en": "Enterprise Plan",
+            "description_ar": "دعم كامل وميزات غير محدودة",
+            "description_en": "Full support and unlimited features",
+            "price": 290,
+            "interval": "yearly",
+            "features": [
+              "Everything in Premium",
+              "Dedicated account manager",
+              "Custom API access"
+            ],
+            "stripe_price_id": "price_enterprise_yearly_placeholder",
+            "is_active": true,
+            "sort_order": 3,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          }
+        ],
+        "message": "Plans retrieved successfully"
+      }
+    },
+    {
+      "folder": "6. Subscriptions",
+      "name": "Create Subscription",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/subscriptions",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 5213,
+      "requestBody": {
+        "plan_id": "a951eaab-66db-4e58-a843-f08709741ec1",
+        "return_url": "http://localhost:3000/dashboard/billing"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "url": "http://localhost:3000/dashboard/billing?success=true&session_id=mock_session_123"
+        },
+        "message": "Checkout session created successfully"
+      }
+    },
+    {
+      "folder": "6. Subscriptions",
+      "name": "Get My Subscription",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/subscriptions/me",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1234,
+      "responseBody": {
+        "success": true,
+        "data": null,
+        "message": "Subscription retrieved successfully"
+      }
+    },
+    {
+      "folder": "6. Subscriptions",
+      "name": "Manage Subscription",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/subscriptions/manage",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 2522,
+      "requestBody": {
+        "return_url": "http://localhost:3000/dashboard/billing"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "url": "https://billing.stripe.com/p/session/test_YWNjdF8xVGpQQ2c2MmFnOFNobTlSLF9Va2Y4UHJucFdrMVpEckRWNFRicEpsd3hhUzBiN2Ux0100QsSYEEhe"
+        },
+        "message": "Customer portal session created successfully"
+      }
+    },
+    {
+      "folder": "7. Chats",
+      "name": "Get Chats",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/chats?page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 2778,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Chats retrieved",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "7. Chats",
+      "name": "Create Chat",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/chats",
+      "status": "expected_fail",
+      "httpStatus": 400,
+      "durationMs": 1046,
+      "requestBody": {
+        "participant_id": ""
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Validation failed",
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "field": "body.participant_id",
+              "message": "Invalid participant ID"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "folder": "7. Chats",
+      "name": "Get Messages",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/chats//messages?page=1&limit=50",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 687,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "7. Chats",
+      "name": "Send Message",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/chats//messages",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 849,
+      "requestBody": {
+        "content": "Hello!",
+        "type": "text"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "7. Chats",
+      "name": "Mark Messages Read",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/chats//read",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 1201,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "7. Chats",
+      "name": "Delete Chat",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/chats/",
+      "status": "expected_fail",
+      "httpStatus": 404,
+      "durationMs": 1608,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "8. Notifications",
+      "name": "Get My Notifications",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/notifications?page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 3477,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Notifications retrieved",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "8. Notifications",
+      "name": "Mark All as Read",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/notifications/read-all",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 2159,
+      "responseBody": {
+        "success": true,
+        "data": null,
+        "message": "All notifications marked as read"
+      }
+    },
+    {
+      "folder": "8. Notifications",
+      "name": "Mark Notification as Read",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/notifications//read",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 662,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "8. Notifications",
+      "name": "Delete Notification",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/notifications/",
+      "status": "expected_fail",
+      "httpStatus": 404,
+      "durationMs": 422,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "8. Notifications",
+      "name": "Register FCM Token",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/notifications/token",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 3226,
+      "requestBody": {
+        "token": "FCM_TOKEN_HERE",
+        "device_type": "ios"
+      },
+      "responseBody": {
+        "success": true,
+        "data": null,
+        "message": "FCM token registered successfully"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Health Check",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/health",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 4,
+      "responseBody": {
+        "success": true,
+        "data": {
+          "status": "healthy",
+          "timestamp": "2026-06-22T15:31:41.316Z",
+          "uptime": 2977.3307647
+        },
+        "message": "Server is running"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Global Search",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/search?q=test&type=all&page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 2052,
+      "responseBody": {
+        "success": true,
+        "data": {
+          "profiles": [
+            {
+              "id": "cad07724-3ca3-4468-827a-0ebb6e46a3f3",
+              "full_name": "Test User 2",
+              "username": null,
+              "avatar_url": null,
+              "bio": null,
+              "account_type": "user",
+              "is_verified": false,
+              "location": null
+            },
+            {
+              "id": "103bf040-a02b-47e9-8f82-e74825b7ef9e",
+              "full_name": "Test User 3",
+              "username": null,
+              "avatar_url": null,
+              "bio": null,
+              "account_type": "user",
+              "is_verified": false,
+              "location": null
+            },
+            {
+              "id": "bbf62469-896f-433c-8d1d-3561637cbe96",
+              "full_name": "Test User 4",
+              "username": null,
+              "avatar_url": null,
+              "bio": null,
+              "account_type": "user",
+              "is_verified": false,
+              "location": null
+            },
+            {
+              "id": "02c03982-bcb8-43af-bdab-4952c4b7602f",
+              "full_name": "Test User 5",
+              "username": null,
+              "avatar_url": null,
+              "bio": null,
+              "account_type": "user",
+              "is_verified": false,
+              "location": null
+            },
+            {
+              "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+              "full_name": "Updated Name",
+              "username": "testuser",
+              "avatar_url": "https://example.com/avatar.png",
+              "bio": "New bio text here",
+              "account_type": "user",
+              "is_verified": false,
+              "location": null
+            }
+          ],
+          "offers": [],
+          "ads": []
+        },
+        "message": "Search results retrieved"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Get Categories",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/categories",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 434,
+      "responseBody": {
+        "success": true,
+        "data": [
+          {
+            "id": "20361ed2-ab58-427a-ad12-a8ace962b09f",
+            "name_ar": "تكنولوجيا",
+            "name_en": "Technology",
+            "slug": "technology",
+            "icon_url": "https://example.com/icons/tech.png",
+            "parent_id": null,
+            "sort_order": 1,
+            "is_active": true,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "7917160b-3036-4b81-9bcc-adc52405fe44",
+            "name_ar": "تسويق",
+            "name_en": "Marketing",
+            "slug": "marketing",
+            "icon_url": "https://example.com/icons/marketing.png",
+            "parent_id": null,
+            "sort_order": 2,
+            "is_active": true,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "f837e20a-eba4-41d3-bb14-b0ebb8ae0329",
+            "name_ar": "تصميم",
+            "name_en": "Design",
+            "slug": "design",
+            "icon_url": "https://example.com/icons/design.png",
+            "parent_id": null,
+            "sort_order": 3,
+            "is_active": true,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "e4704620-2516-4e23-81e8-fb94ccfba2f3",
+            "name_ar": "برمجة",
+            "name_en": "Programming",
+            "slug": "programming",
+            "icon_url": "https://example.com/icons/programming.png",
+            "parent_id": null,
+            "sort_order": 4,
+            "is_active": true,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "b6618b3a-cdd2-47bd-b270-d3761a8c0739",
+            "name_ar": "استشارات",
+            "name_en": "Consulting",
+            "slug": "consulting",
+            "icon_url": "https://example.com/icons/consulting.png",
+            "parent_id": null,
+            "sort_order": 5,
+            "is_active": true,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          },
+          {
+            "id": "33aa5d76-362b-4b8d-9743-e890bfda274f",
+            "name_ar": "أخرى",
+            "name_en": "Other",
+            "slug": "other",
+            "icon_url": "https://example.com/icons/other.png",
+            "parent_id": null,
+            "sort_order": 99,
+            "is_active": true,
+            "created_at": "2026-06-17T12:58:11.292569+00:00",
+            "updated_at": "2026-06-17T12:58:11.292569+00:00"
+          }
+        ],
+        "message": "Categories retrieved"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Get Category Content",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/categories/20361ed2-ab58-427a-ad12-a8ace962b09f/content?page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 429,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Category content retrieved",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Get Featured Content",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/featured?placement=home&page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 421,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Featured listings retrieved",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Request Featured",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/featured",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 5649,
+      "requestBody": {
+        "placement": "home",
+        "duration_days": 7
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "url": "https://checkout.stripe.com/c/pay/cs_test_a1B2dJCDxi5JaP0uLuBo6cL0caXhKHJ5zRw9el8Zv0fqZoVhaWvYl1o9P9#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicGRmZGhqaWBTZHdsZGtxJz8nZmprcXdqaScpJ2R1bE5gfCc%2FJ3VuWnFgdnFaMDRRb1VGYjM3ZGI9Vm1oPFdnSElxcF9kNWlvQ0FpU0pnQlJrNEAwVWwzMnRQTU19fV9nMGlnSVJsYldLXEBCcTV%2FUH89ZmpjTkg1QmFuXzJuN3BgRG9kQVQ1NW1cUlFHTEdQJyknY3dqaFZgd3Ngdyc%2FcXdwYCknZ2RmbmJ3anBrYUZqaWp3Jz8nJmNjY2NjYycpJ2lkfGpwcVF8dWAnPyd2bGtiaWBabHFgaCcpJ2BrZGdpYFVpZGZgbWppYWB3dic%2FcXdwYHgl"
+        },
+        "message": "Featured checkout session created"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Upload Image",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/upload/image",
+      "status": "pass",
+      "httpStatus": 201,
+      "durationMs": 3889,
+      "requestBody": {
+        "_type": "multipart/form-data",
+        "file": "scan-test.png"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "0d343e4f-6110-4865-812e-228bbf4410e6",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "file_name": "c36c251b-74e9-4116-b6db-684c3b196a3f.png",
+          "file_url": "https://mqklargyjispbcyxzdjo.supabase.co/storage/v1/object/public/general/17c88df6-5081-4114-9b85-7f278d23894a/c36c251b-74e9-4116-b6db-684c3b196a3f.png",
+          "file_type": "image/png",
+          "file_size": 70,
+          "related_to": "offer",
+          "related_id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+          "created_at": "2026-06-22T15:31:49.108583+00:00"
+        },
+        "message": "Image uploaded successfully"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Upload Video",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/upload/video",
+      "status": "pass",
+      "httpStatus": 201,
+      "durationMs": 2527,
+      "requestBody": {
+        "_type": "multipart/form-data",
+        "file": "scan-test.png"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "ba829d7b-ee6b-42dd-a98c-d3cc5dbe9baa",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "file_name": "e34199b4-62f6-4ba0-8da0-94b54f6408f5.png",
+          "file_url": "https://mqklargyjispbcyxzdjo.supabase.co/storage/v1/object/public/general/17c88df6-5081-4114-9b85-7f278d23894a/e34199b4-62f6-4ba0-8da0-94b54f6408f5.png",
+          "file_type": "image/png",
+          "file_size": 70,
+          "related_to": "offer",
+          "related_id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+          "created_at": "2026-06-22T15:31:51.585092+00:00"
+        },
+        "message": "Video uploaded successfully"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Upload File",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/upload/file",
+      "status": "pass",
+      "httpStatus": 201,
+      "durationMs": 2220,
+      "requestBody": {
+        "_type": "multipart/form-data",
+        "file": "scan-test.png"
+      },
+      "responseBody": {
+        "success": true,
+        "data": {
+          "id": "167e16fe-8da6-4d4c-8705-684974489b39",
+          "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+          "file_name": "f7ddf4e9-9cbe-4070-885d-c31b21137d9b.png",
+          "file_url": "https://mqklargyjispbcyxzdjo.supabase.co/storage/v1/object/public/general/17c88df6-5081-4114-9b85-7f278d23894a/f7ddf4e9-9cbe-4070-885d-c31b21137d9b.png",
+          "file_type": "image/png",
+          "file_size": 70,
+          "related_to": "offer",
+          "related_id": "6b411093-562f-43c7-918b-6f1f1e2a2595",
+          "created_at": "2026-06-22T15:31:54.283138+00:00"
+        },
+        "message": "File uploaded successfully"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Delete File",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/upload/",
+      "status": "expected_fail",
+      "httpStatus": 404,
+      "durationMs": 219,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Get Payments History",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/payments/history?page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 1917,
+      "responseBody": {
+        "success": true,
+        "data": [],
+        "message": "Payments retrieved",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 0,
+          "totalPages": 0
+        }
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Create Customer Portal",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/payments/portal",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 4668,
+      "responseBody": {
+        "success": true,
+        "data": {
+          "url": "https://billing.stripe.com/p/session/test_YWNjdF8xVGpQQ2c2MmFnOFNobTlSLF9Va2Y5UEp2T2E5QXBtYmFRWXBnejZrMGZweWVVUzFQ0100u2JtKUfK"
+        },
+        "message": "Portal session created"
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Get Payment Details",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/payments/",
+      "status": "fail",
+      "httpStatus": 404,
+      "durationMs": 2091,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Route not found",
+        "error": {
+          "code": "NOT_FOUND"
+        }
+      }
+    },
+    {
+      "folder": "9. General",
+      "name": "Stripe Webhook",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/webhooks/stripe",
+      "status": "expected_fail",
+      "httpStatus": 400,
+      "durationMs": 3,
+      "requestBody": {
+        "type": "checkout.session.completed",
+        "data": {
+          "object": {}
+        }
+      },
+      "responseBody": "Webhook Error: No stripe-signature header value was provided."
+    },
+    {
+      "folder": "10. Reports",
+      "name": "Submit Report",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/reports",
+      "status": "fail",
+      "httpStatus": 400,
+      "durationMs": 1302,
+      "requestBody": {
+        "reported_id": "",
+        "reported_type": "profile",
+        "reason": "spam content",
+        "details": "Optional additional details about the report"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Validation failed",
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": [
+            {
+              "field": "body.reported_id",
+              "message": "Invalid reported ID"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "folder": "10. Reports",
+      "name": "Get My Reports",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/reports/me?page=1&limit=20",
+      "status": "pass",
+      "httpStatus": 200,
+      "durationMs": 8591,
+      "responseBody": {
+        "success": true,
+        "data": [
+          {
+            "id": "1387c90e-6c1c-4a76-957f-f7e2511c4186",
+            "reporter_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "reported_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+            "reported_type": "profile",
+            "reason": "verification_request",
+            "details": "{\"documentUrl\":\"https://example.com/doc.pdf\",\"notes\":\"Please verify my account\"}",
+            "status": "pending",
+            "admin_note": null,
+            "created_at": "2026-06-22T15:30:48.296865+00:00",
+            "resolved_at": null
+          }
+        ],
+        "message": "Reports retrieved",
+        "meta": {
+          "page": 1,
+          "limit": 20,
+          "total": 1,
+          "totalPages": 1
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Get Global Stats",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/stats",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 3424,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Create Category",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/admin/categories",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 518,
+      "requestBody": {
+        "name_en": "Technology",
+        "name_ar": "تقنية",
+        "icon_url": "https://example.com/icons/tech.png"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Update Category",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/v1/admin/categories/20361ed2-ab58-427a-ad12-a8ace962b09f",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 392,
+      "requestBody": {
+        "name_en": "Tech & Innovation"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Delete Category",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/admin/categories/20361ed2-ab58-427a-ad12-a8ace962b09f",
+      "status": "expected_fail",
+      "httpStatus": 403,
+      "durationMs": 481,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Update Offer Status",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/admin/content/offers/6b411093-562f-43c7-918b-6f1f1e2a2595/status",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 826,
+      "requestBody": {
+        "status": "rejected"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Delete Offer (Admin)",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/admin/content/offers/6b411093-562f-43c7-918b-6f1f1e2a2595",
+      "status": "expected_fail",
+      "httpStatus": 403,
+      "durationMs": 695,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Update Ad Status",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/admin/content/ads/8ad75ead-ed80-4442-8320-d2513516f07f/status",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1190,
+      "requestBody": {
+        "status": "active"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Delete Ad (Admin)",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/admin/content/ads/8ad75ead-ed80-4442-8320-d2513516f07f",
+      "status": "expected_fail",
+      "httpStatus": 403,
+      "durationMs": 1240,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Get Admin Plans",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/plans",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1203,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Create Plan",
+      "method": "POST",
+      "url": "http://localhost:3000/api/v1/admin/plans",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1247,
+      "requestBody": {
+        "stripe_price_id": "price_1234567890",
+        "name_en": "Pro Plan",
+        "name_ar": "الخطة الاحترافية",
+        "description_en": "Full access to all features",
+        "description_ar": "وصول كامل لجميع الميزات",
+        "price": 9.99,
+        "currency": "usd",
+        "interval": "month",
+        "features_en": [
+          "Unlimited offers",
+          "Priority support"
+        ],
+        "features_ar": [
+          "عروض غير محدودة",
+          "دعم أولوية"
+        ],
+        "is_active": true
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Update Plan",
+      "method": "PUT",
+      "url": "http://localhost:3000/api/v1/admin/plans/a951eaab-66db-4e58-a843-f08709741ec1",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 2247,
+      "requestBody": {
+        "is_active": false
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Delete Plan",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/admin/plans/a951eaab-66db-4e58-a843-f08709741ec1",
+      "status": "expected_fail",
+      "httpStatus": 403,
+      "durationMs": 1935,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Get Users",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/users?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1538,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Get User Details",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 3436,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Toggle User Ban",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a/ban",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1330,
+      "requestBody": {
+        "isActive": false
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Toggle User Verify",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a/verify",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1563,
+      "requestBody": {
+        "isVerified": true
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Delete User",
+      "method": "DELETE",
+      "url": "http://localhost:3000/api/v1/admin/users/17c88df6-5081-4114-9b85-7f278d23894a",
+      "status": "skip",
+      "httpStatus": null,
+      "durationMs": 0,
+      "requestBody": null,
+      "responseBody": null,
+      "note": "Skipped (destructive or session-ending)"
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Get All Reports",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/reports?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 2987,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Update Report Status",
+      "method": "PATCH",
+      "url": "http://localhost:3000/api/v1/admin/reports//status",
+      "status": "fail",
+      "httpStatus": 403,
+      "durationMs": 1597,
+      "requestBody": {
+        "status": "resolved",
+        "admin_note": "Issue has been addressed"
+      },
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Admin access required",
+        "error": {
+          "code": "FORBIDDEN"
+        }
+      }
+    },
+    {
+      "folder": "11. Admin",
+      "name": "Get Admin Payments",
+      "method": "GET",
+      "url": "http://localhost:3000/api/v1/admin/payments?page=1&limit=20",
+      "status": "fail",
+      "httpStatus": 429,
+      "durationMs": 1,
+      "responseBody": {
+        "success": false,
+        "data": null,
+        "message": "Too many requests, please try again later",
+        "error": {
+          "code": "RATE_LIMIT_EXCEEDED"
+        }
+      }
+    }
+  ]
+}
