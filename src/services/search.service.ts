@@ -15,6 +15,9 @@ interface ISearchParams {
   maxPrice?: number;
   location?: string;
   accountType?: 'company' | 'influencer' | 'service_provider' | 'user';
+  is_verified?: string;
+  is_featured?: string;
+  sort?: 'price_asc' | 'price_desc' | 'newest';
 }
 
 export class SearchService {
@@ -65,9 +68,17 @@ export class SearchService {
     if (params.location) {
       query = query.ilike('location', `%${params.location}%`);
     }
+    if (params.is_verified !== undefined) {
+      query = query.eq('is_verified', params.is_verified === 'true');
+    }
+
+    if (params.sort === 'newest') {
+      query = query.order('created_at', { ascending: false });
+    } else {
+      query = query.order('is_verified', { ascending: false }); // Verified profiles first
+    }
 
     const { data, count, error } = await query
-      .order('is_verified', { ascending: false }) // Verified profiles first
       .range(offset, offset + limit - 1);
 
     if (error) throw ApiError.internal(error.message);
@@ -86,7 +97,7 @@ export class SearchService {
     const offset = (page - 1) * limit;
     let query = supabaseAdmin
       .from('offers')
-      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' });
+      .select('*, profile:profiles!inner(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' });
 
     if (params.q) {
       query = query.or(`title.ilike.%${params.q}%,description.ilike.%${params.q}%`);
@@ -95,24 +106,33 @@ export class SearchService {
       query = query.eq('category_id', params.categoryId);
     }
     if (params.minPrice !== undefined) {
-      query = query.gte('price', params.minPrice);
+      query = query.gte('offer_price', params.minPrice);
     }
     if (params.maxPrice !== undefined) {
-      query = query.lte('price', params.maxPrice);
+      query = query.lte('offer_price', params.maxPrice);
     }
     if (params.location) {
       query = query.ilike('location', `%${params.location}%`);
     }
     if (params.accountType) {
-      // Need to filter by the related profile's account_type
-      // Supabase supports filtering on embedded resources using standard notation, but it's simpler to filter first or accept we might not get exact count if we do it post-fetch.
-      // However, we can use `profiles!inner(...)` to filter at the DB level.
-      // Since query object is already built, we'd need to re-declare it to use !inner, or we can just append a filter.
-      // E.g., query.eq('profiles.account_type', params.accountType) - this requires inner join.
+      query = query.eq('profiles.account_type', params.accountType);
+    }
+    if (params.is_verified !== undefined) {
+      query = query.eq('profiles.is_verified', params.is_verified === 'true');
+    }
+    if (params.is_featured !== undefined) {
+      query = query.eq('is_featured', params.is_featured === 'true');
+    }
+
+    if (params.sort === 'price_asc') {
+      query = query.order('offer_price', { ascending: true });
+    } else if (params.sort === 'price_desc') {
+      query = query.order('offer_price', { ascending: false });
+    } else {
+      query = query.order('created_at', { ascending: false });
     }
 
     const { data, count, error } = await query
-      .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
     if (error) throw ApiError.internal(error.message);
@@ -131,13 +151,18 @@ export class SearchService {
     const offset = (page - 1) * limit;
     let query = supabaseAdmin
       .from('ads')
-      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, is_verified)', { count: 'exact' })
+      .select('*, profile:profiles!inner(full_name, username, avatar_url, is_verified)', { count: 'exact' })
       .eq('status', 'active');
 
     if (params.q) {
       query = query.or(`title.ilike.%${params.q}%`);
     }
-    // Ads don't typically have price filters in this model, but we could add them if needed.
+    if (params.accountType) {
+      query = query.eq('profiles.account_type', params.accountType);
+    }
+    if (params.is_verified !== undefined) {
+      query = query.eq('profiles.is_verified', params.is_verified === 'true');
+    }
 
     const { data, count, error } = await query
       .order('created_at', { ascending: false })

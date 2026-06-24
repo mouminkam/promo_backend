@@ -38,12 +38,25 @@ export class ProfileController {
     }
   }
 
+  async getProfileMedia(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const profileId = req.params.id as string;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 20;
+
+      const { data, count } = await profileService.getProfileMedia(profileId, page, limit);
+      apiResponse.paginated(res, data, count, page, limit, 'Profile media retrieved successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // ─── Update Profiles ─────────────────────────────────────────
 
   async updateOwnProfile(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const data = await profileService.updateProfile(userId, token, req.body);
       apiResponse.success(res, data, 'Profile updated successfully');
     } catch (error) {
@@ -54,7 +67,7 @@ export class ProfileController {
   async updateAvatar(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const { avatar_url } = req.body; // In a real app, you might use Multer + Supabase Storage upload service here
       const data = await profileService.updateAvatar(userId, token, avatar_url);
       apiResponse.success(res, data, 'Avatar updated successfully');
@@ -66,7 +79,7 @@ export class ProfileController {
   async updateCover(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const { cover_url } = req.body;
       const data = await profileService.updateCover(userId, token, cover_url);
       apiResponse.success(res, data, 'Cover updated successfully');
@@ -83,16 +96,6 @@ export class ProfileController {
       const { document_url, notes } = req.body;
       await profileService.requestVerification(userId, document_url, notes);
       apiResponse.success(res, null, 'Verification requested successfully');
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async deleteAccount(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const userId = req.user!.id;
-      await profileService.deleteAccount(userId);
-      apiResponse.success(res, null, 'Account deleted successfully');
     } catch (error) {
       next(error);
     }

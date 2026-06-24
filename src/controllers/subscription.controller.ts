@@ -21,16 +21,22 @@ export class SubscriptionController {
   }
 
   /**
-   * Create a Subscription Checkout Session
+   * Create a Mobile Subscription Initialization
    */
   async createSubscription(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const { plan_id, return_url } = req.body;
-      const defaultReturnUrl = return_url || 'http://localhost:3000/dashboard/billing'; // In production, replace with env
+      const { plan_id } = req.body;
 
-      const data = await subscriptionService.createSubscriptionCheckout(userId, plan_id, defaultReturnUrl);
-      apiResponse.success(res, data, 'Checkout session created successfully');
+      // Ensure Stripe publishable key is returned so Flutter can initialize PaymentSheet
+      const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY || ''; // Optional: expose this via a separate config endpoint instead
+
+      const data = await subscriptionService.createMobileSubscription(userId, plan_id);
+      
+      apiResponse.success(res, {
+        ...data,
+        publishableKey
+      }, 'Subscription initialized successfully');
     } catch (error) {
       next(error);
     }

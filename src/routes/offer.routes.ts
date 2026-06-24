@@ -6,6 +6,7 @@ import { Router } from 'express';
 import { offerController } from '../controllers/offer.controller';
 import { validate } from '../middleware/validate.middleware';
 import { requireAuth, optionalAuth } from '../middleware/auth.middleware';
+import { requireAccountType } from '../middleware/accountType.middleware';
 import * as offerValidators from '../validators/offer.validator';
 
 const router = Router();
@@ -37,6 +38,7 @@ router.use(requireAuth);
 router.post(
   '/',
   validate(offerValidators.createOfferSchema),
+  requireAccountType(['company', 'service_provider']),
   offerController.createOffer
 );
 

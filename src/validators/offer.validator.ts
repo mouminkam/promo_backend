@@ -17,6 +17,7 @@ export const createOfferSchema = z.object({
     start_date: z.string().datetime({ message: 'Start date must be a valid ISO datetime' }),
     end_date: z.string().datetime({ message: 'End date must be a valid ISO datetime' }).optional(),
     status: z.enum(['draft', 'active']).optional().default('active'),
+    tags: z.array(z.string()).optional().default([]),
   }).refine((data) => {
     if (data.original_price && data.offer_price >= data.original_price) {
       return false;
@@ -44,6 +45,7 @@ export const updateOfferSchema = z.object({
     start_date: z.string().datetime({ message: 'Start date must be a valid ISO datetime' }).optional(),
     end_date: z.string().datetime({ message: 'End date must be a valid ISO datetime' }).optional(),
     status: z.enum(['draft', 'active', 'expired', 'rejected']).optional(),
+    tags: z.array(z.string()).optional(),
   }),
 });
 

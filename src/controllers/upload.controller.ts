@@ -106,7 +106,7 @@ export class UploadController {
     try {
       const fileId = req.params.fileId as string;
       await uploadService.deleteFile(req.user!.id, fileId);
-      apiResponse.noContent(res);
+      apiResponse.success(res, null, 'File deleted successfully');
     } catch (error) {
       next(error);
     }

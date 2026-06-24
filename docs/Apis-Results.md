@@ -1,8 +1,17 @@
-مبدايا نظام ال auth بكل ال apis الخاصة فيو مؤجل لحد ما يصير الفرونت
+# API Documentation & Results
 
-تاني شي ال profiles
+> This document contains actual tested payloads and responses for the Promoo Backend APIs.
+> ⚠️ **Note:** Auth APIs are postponed until frontend integration.
 
-{{baseUrl}}/profiles/me
+## Section 1: Profiles API
+
+### 1.1 Endpoint: /profiles/me
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/profiles/me
 
 {
 "success": true,
@@ -34,8 +43,15 @@
 },
 "message": "Profile retrieved successfully"
 }
+```
 
-{{baseUrl}}/profiles/me
+### 1.2 Update Own Profile
+
+**Method:** `PUT`  
+**Description:** Updates the authenticated user's profile details.
+
+```json
+PUT {{baseUrl}}/profiles/me
 
 {
 "full_name": "Updated Name",
@@ -71,8 +87,15 @@
 },
 "message": "Profile updated successfully"
 }
+```
 
-{{baseUrl}}/profiles/me/avatar
+### 1.3 Update Avatar
+
+**Method:** `POST`  
+**Description:** Sets a new avatar image for the user.
+
+```json
+POST {{baseUrl}}/profiles/me/avatar
 
 {
 "avatar_url": "https://example.com/avatar.png"
@@ -107,8 +130,15 @@
 },
 "message": "Avatar updated successfully"
 }
+```
 
-{{baseUrl}}/profiles/me/cover
+### 1.4 Update Cover
+
+**Method:** `POST`  
+**Description:** Sets a new cover image for the user.
+
+```json
+POST {{baseUrl}}/profiles/me/cover
 
 {
 "cover_url": "https://example.com/cover.png"
@@ -143,8 +173,15 @@
 },
 "message": "Cover updated successfully"
 }
+```
 
-{{baseUrl}}/profiles/me/verify-request
+### 1.5 Endpoint: /profiles/me/verify-request
+
+**Method:** `PATCH`  
+**Description:** Detailed endpoint info
+
+```json
+PATCH {{baseUrl}}/profiles/me/verify-request
 
 {
 "document_url": "https://example.com/doc.pdf",
@@ -156,28 +193,60 @@
 "data": null,
 "message": "Verification requested successfully"
 }
+```
+
+### 1.6 Get Own Profile
+
+**Method:** `GET`  
+**Description:** Retrieves the profile of the currently authenticated user.
+
+```json
+GET {{baseUrl}}/profiles/me
 
 {{baseUrl}}/profiles/me شغال هاد بس ما برجب response لانو حذف
 
 القسم ال 3 ال follows
+```
 
-{{baseUrl}}/follows/{{profileId}}
+## Section 2: Follows API
+
+### 2.1 Follow User
+
+**Method:** `POST`  
+**Description:** Follows a specific profile.
+
+```json
+POST {{baseUrl}}/follows/{{profileId}}
 
 {
 "success": true,
 "data": null,
 "message": "Successfully followed profile"
 }
+```
 
-{{baseUrl}}/follows/{{profileId}}
+### 2.2 Unfollow User
+
+**Method:** `DELETE`  
+**Description:** Unfollows a specific profile.
+
+```json
+DELETE {{baseUrl}}/follows/{{profileId}}
 
 {
 "success": true,
 "data": null,
 "message": "Successfully unfollowed profile"
 }
+```
 
-{{baseUrl}}/follows/{{profileId}}/status
+### 2.3 Endpoint: /follows/{{profileId}}/status
+
+**Method:** `PATCH`  
+**Description:** Detailed endpoint info
+
+```json
+PATCH {{baseUrl}}/follows/{{profileId}}/status
 
 {
 "success": true,
@@ -186,8 +255,15 @@
 },
 "message": "Status retrieved successfully"
 }
+```
 
-{{baseUrl}}/follows/followers/{{profileId}}?page=1&limit=20
+### 2.4 Endpoint: /follows/followers/{{profileId}}?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/follows/followers/{{profileId}}?page=1&limit=20
 
 {
 "success": true,
@@ -211,8 +287,15 @@
 "totalPages": 1
 }
 }
+```
 
-{{baseUrl}}/follows/following/{{profileId}}?page=1&limit=20
+### 2.5 Endpoint: /follows/following/{{profileId}}?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/follows/following/{{profileId}}?page=1&limit=20
 
 {
 "success": true,
@@ -227,8 +310,17 @@
 }
 
 القسم الرابع offers
+```
 
-{{baseUrl}}/offers?page=1&limit=20
+## Section 3: Offers API
+
+### 3.1 Endpoint: /offers?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/offers?page=1&limit=20
 
 {
 "success": true,
@@ -241,8 +333,15 @@
 "totalPages": 0
 }
 }
+```
 
-{{baseUrl}}/offers
+### 3.2 Create Offer
+
+**Method:** `POST`  
+**Description:** Creates a new promotional offer.
+
+```json
+POST {{baseUrl}}/offers
 
 {
 "title": "Sale",
@@ -282,8 +381,15 @@
 },
 "message": "Offer created successfully"
 }
+```
 
-{{baseUrl}}/offers/{{offerId}}
+### 3.3 Endpoint: /offers/{{offerId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/offers/{{offerId}}
 
 {
 "title": "Updated Sale"
@@ -317,8 +423,15 @@
 },
 "message": "Offer updated successfully"
 }
+```
 
-{{baseUrl}}/offers/{{offerId}}/feature
+### 3.4 Feature Offer
+
+**Method:** `POST`  
+**Description:** Requests to make an offer featured for a specific duration.
+
+```json
+POST {{baseUrl}}/offers/{{offerId}}/feature
 
 {
 "duration_days": 7
@@ -346,8 +459,15 @@
 },
 "message": "Offer featured successfully"
 }
+```
 
-{{baseUrl}}/offers/profile/{{profileId}}?page=1&limit=20
+### 3.5 Endpoint: /offers/profile/{{profileId}}?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/offers/profile/{{profileId}}?page=1&limit=20
 
 {
 "success": true,
@@ -360,8 +480,15 @@
 "totalPages": 0
 }
 }
+```
 
-{{baseUrl}}/offers/{{offerId}}
+### 3.6 Update Offer
+
+**Method:** `PUT`  
+**Description:** Updates an existing offer.
+
+```json
+PUT {{baseUrl}}/offers/{{offerId}}
 
 {
 "success": true,
@@ -398,8 +525,15 @@
 },
 "message": "Offer details retrieved successfully"
 }
+```
 
-{{baseUrl}}/offers/{{offerId}}
+### 3.7 Update Offer
+
+**Method:** `PUT`  
+**Description:** Updates an existing offer.
+
+```json
+PUT {{baseUrl}}/offers/{{offerId}}
 
 {
 "success": true,
@@ -408,8 +542,21 @@
 }
 
 القسم الخامس ads
+```
 
-{{baseUrl}}/ads
+## Section 4: Ads API
+
+### 4.1 Create Ad
+
+**Method:** `POST`  
+**Description:** Creates a new advertisement campaign.
+
+> **Options / Enums:**
+>
+> - `ad_type: 'banner' | 'popup' | 'interstitial' | 'sponsored_offer'`
+
+```json
+POST {{baseUrl}}/ads
 
 {
 "title": "New Banner Ad",
@@ -444,8 +591,15 @@
 },
 "message": "Ad campaign created successfully. Waiting for activation/payment."
 }
+```
 
-{{baseUrl}}/ads/{{adId}}
+### 4.2 Endpoint: /ads/{{adId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/ads/{{adId}}
 
 {
 "title": "Updated Banner Ad",
@@ -474,8 +628,15 @@
 },
 "message": "Ad campaign updated successfully"
 }
+```
 
-{{baseUrl}}/ads/{{adId}}/click
+### 4.3 Record Ad Click
+
+**Method:** `POST`  
+**Description:** Records a click event for statistics.
+
+```json
+POST {{baseUrl}}/ads/{{adId}}/click
 
 {
 "success": true,
@@ -486,8 +647,15 @@
 },
 "message": "Ad click recorded successfully"
 }
+```
 
-{{baseUrl}}/ads/{{adId}}/impression
+### 4.4 Record Ad Impression
+
+**Method:** `POST`  
+**Description:** Records an impression event for statistics.
+
+```json
+POST {{baseUrl}}/ads/{{adId}}/impression
 
 {
 "success": true,
@@ -497,8 +665,15 @@
 },
 "message": "Ad impression recorded successfully"
 }
+```
 
-{{baseUrl}}/ads/active
+### 4.5 Endpoint: /ads/active
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/ads/active
 
 {
 "success": true,
@@ -515,8 +690,19 @@
 ],
 "message": "Active ads retrieved successfully"
 }
+```
 
-{{baseUrl}}/ads/{{adId}}/toggle
+### 4.6 Toggle Ad Status
+
+**Method:** `PATCH`  
+**Description:** Pauses or resumes an advertisement.
+
+> **Options / Enums:**
+>
+> - `status toggle: 'active' <-> 'paused'`
+
+```json
+PATCH {{baseUrl}}/ads/{{adId}}/toggle
 
 {
 "success": true,
@@ -540,8 +726,15 @@
 },
 "message": "Ad status toggled successfully to paused"
 }
+```
 
-{{baseUrl}}/ads/{{adId}}/stats
+### 4.7 Endpoint: /ads/{{adId}}/stats
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/ads/{{adId}}/stats
 
 {
 "success": true,
@@ -555,8 +748,15 @@
 },
 "message": "Ad statistics retrieved successfully"
 }
+```
 
-{{baseUrl}}/ads/profile/{{profileId}}?page=1&limit=20
+### 4.8 Endpoint: /ads/profile/{{profileId}}?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/ads/profile/{{profileId}}?page=1&limit=20
 
 {
 "success": true,
@@ -590,8 +790,17 @@
 }
 
 المرحلة ال 6 ال subscriptions
+```
 
-{{baseUrl}}/subscriptions/plans
+## Section 5: Subscriptions API
+
+### 5.1 Endpoint: /subscriptions/plans
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/subscriptions/plans
 
 {
 "success": true,
@@ -657,8 +866,15 @@
 ],
 "message": "Plans retrieved successfully"
 }
+```
 
-{{baseUrl}}/subscriptions
+### 5.2 Subscribe to Plan
+
+**Method:** `POST`  
+**Description:** Creates a Stripe checkout session for a subscription.
+
+```json
+POST {{baseUrl}}/subscriptions
 
 {
 "plan_id": "a951eaab-66db-4e58-a843-f08709741ec1",
@@ -672,16 +888,30 @@
 },
 "message": "Checkout session created successfully"
 }
+```
 
-{{baseUrl}}/subscriptions/me
+### 5.3 Endpoint: /subscriptions/me
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/subscriptions/me
 
 {
 "success": true,
 "data": null,
 "message": "Subscription retrieved successfully"
 }
+```
 
-{{baseUrl}}/subscriptions/manage
+### 5.4 Manage Subscription
+
+**Method:** `POST`  
+**Description:** Creates a Stripe customer portal session to manage billing.
+
+```json
+POST {{baseUrl}}/subscriptions/manage
 
 {
 "return_url": "http://localhost:3000/dashboard/billing"
@@ -696,8 +926,17 @@
 }
 
 القسم ال 7 ال chats
+```
 
-{{baseUrl}}/chats
+## Section 6: Chats API
+
+### 6.1 Create/Get Chat Room
+
+**Method:** `POST`  
+**Description:** Creates a direct chat with another user or gets the existing room.
+
+```json
+POST {{baseUrl}}/chats
 
 {
 "participant_id": "cad07724-3ca3-4468-827a-0ebb6e46a3f3"
@@ -722,8 +961,19 @@
 },
 "message": "Chat created successfully"
 }
+```
 
-{{baseUrl}}/chats/{{roomId}}/messages
+### 6.2 Send Message
+
+**Method:** `POST`  
+**Description:** Sends a new message in the specified chat room.
+
+> **Options / Enums:**
+>
+> - `type: 'text' | 'image' | 'video' | 'audio' | 'file' | 'offer'`
+
+```json
+POST {{baseUrl}}/chats/{{roomId}}/messages
 
 {
 "content": "Hello!",
@@ -749,8 +999,15 @@
 },
 "message": "Message sent successfully"
 }
+```
 
-{{baseUrl}}/chats/{{roomId}}/messages?page=1&limit=50
+### 6.3 Endpoint: /chats/{{roomId}}/messages?page=1&limit=50
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/chats/{{roomId}}/messages?page=1&limit=50
 
 {
 "success": true,
@@ -779,8 +1036,15 @@
 "totalPages": 1
 }
 }
+```
 
-{{baseUrl}}/chats?page=1&limit=20
+### 6.4 Endpoint: /chats?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/chats?page=1&limit=20
 
 {
 "success": true,
@@ -828,20 +1092,45 @@
 "totalPages": 1
 }
 }
+```
 
-{{baseUrl}}/chats/{{roomId}}/read
+### 6.5 Mark Room as Read
+
+**Method:** `PATCH`  
+**Description:** Marks all messages in a room as read.
+
+```json
+PATCH {{baseUrl}}/chats/{{roomId}}/read
 
 {
 "success": true,
 "data": null,
 "message": "Messages marked as read"
 }
+```
+
+### 6.6 Endpoint: /chats/{{roomId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/chats/{{roomId}}
 
 {{baseUrl}}/chats/{{roomId}} - DELETE تم الحذف بس مافي response
 
 القسم 8 الNotifications
+```
 
-{{baseUrl}}/notifications?page=1&limit=20
+## Section 7: Notifications API
+
+### 7.1 Endpoint: /notifications?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/notifications?page=1&limit=20
 
 {
 "success": true,
@@ -865,24 +1154,49 @@
 "totalPages": 1
 }
 }
+```
 
-{{baseUrl}}/notifications/read-all
+### 7.2 Mark All as Read
+
+**Method:** `PATCH`  
+**Description:** Marks all unread notifications as read.
+
+```json
+PATCH {{baseUrl}}/notifications/read-all
 
 {
 "success": true,
 "data": null,
 "message": "All notifications marked as read"
 }
+```
 
-{{baseUrl}}/notifications/{{notificationId}}/read
+### 7.3 Mark as Read
+
+**Method:** `PATCH`  
+**Description:** Marks a specific notification as read.
+
+```json
+PATCH {{baseUrl}}/notifications/{{notificationId}}/read
 
 {
 "success": true,
 "data": null,
 "message": "Notification marked as read"
 }
+```
 
-{{baseUrl}}/notifications/token
+### 7.4 Register Device Token
+
+**Method:** `POST`  
+**Description:** Registers an FCM token for push notifications.
+
+> **Options / Enums:**
+>
+> - `device_type: 'android' | 'ios' | 'web'`
+
+```json
+POST {{baseUrl}}/notifications/token
 
 {
 "token": "FCM_TOKEN_HERE",
@@ -894,12 +1208,30 @@
 "data": null,
 "message": "FCM token registered successfully"
 }
+```
+
+### 7.5 Endpoint: /notifications/{{notificationId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/notifications/{{notificationId}}
 
 {{baseUrl}}/notifications/{{notificationId}} - DELETE تم الحذف بس مافي response
 
 القسم ال 9 General
+```
 
-{{baseUrl}}/health
+## Section 8: General APIs
+
+### 8.1 Endpoint: /health
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/health
 
 {
 "success": true,
@@ -910,8 +1242,15 @@
 },
 "message": "Server is running"
 }
+```
 
-{{baseUrl}}/search?q=test&type=all&page=1&limit=20
+### 8.2 Endpoint: /search?q=test&type=all&page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/search?q=test&type=all&page=1&limit=20
 
 {
 "success": true,
@@ -973,8 +1312,15 @@
 },
 "message": "Search results retrieved"
 }
+```
 
-{{baseUrl}}/categories
+### 8.3 Endpoint: /categories
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/categories
 
 {
 "success": true,
@@ -1054,8 +1400,15 @@
 ],
 "message": "Categories retrieved"
 }
+```
 
-{{baseUrl}}/categories/{{categoryId}}/content?page=1&limit=20
+### 8.4 Endpoint: /categories/{{categoryId}}/content?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/categories/{{categoryId}}/content?page=1&limit=20
 
 {
 "success": true,
@@ -1068,8 +1421,15 @@
 "totalPages": 0
 }
 }
+```
 
-{{baseUrl}}/featured?placement=home&page=1&limit=20
+### 8.5 Endpoint: /featured?placement=home&page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/featured?placement=home&page=1&limit=20
 
 {
 "success": true,
@@ -1082,8 +1442,15 @@
 "totalPages": 0
 }
 }
+```
 
-{{baseUrl}}/featured
+### 8.6 Request Featured Placement
+
+**Method:** `POST`  
+**Description:** Creates a Stripe checkout session for a featured placement.
+
+```json
+POST {{baseUrl}}/featured
 
 {
 "placement": "home",
@@ -1097,8 +1464,15 @@
 },
 "message": "Featured checkout session created"
 }
+```
 
-{{baseUrl}}/upload/image
+### 8.7 Upload Image
+
+**Method:** `POST`  
+**Description:** Uploads an image file to Supabase Storage.
+
+```json
+POST {{baseUrl}}/upload/image
 
 {
     "success": true,
@@ -1115,8 +1489,15 @@
     },
     "message": "Image uploaded successfully"
 }
+```
 
-{{baseUrl}}/upload/video
+### 8.8 Upload Video
+
+**Method:** `POST`  
+**Description:** Uploads a video file to Supabase Storage.
+
+```json
+POST {{baseUrl}}/upload/video
 
 {
     "success": true,
@@ -1133,12 +1514,26 @@
     },
     "message": "Video uploaded successfully"
 }
+```
 
+### 8.9 Endpoint: /upload/{{fileId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/upload/{{fileId}}
 
 {{baseUrl}}/upload/{{fileId}} تم الحذف بس مافي response
+```
 
+### 8.10 Endpoint: /payments/history?page=1&limit=20
 
-{{baseUrl}}/payments/history?page=1&limit=20
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/payments/history?page=1&limit=20
 
 {
     "success": true,
@@ -1151,8 +1546,15 @@
         "totalPages": 0
     }
 }
+```
 
-{{baseUrl}}/payments/portal
+### 8.11 Customer Portal
+
+**Method:** `POST`  
+**Description:** Opens Stripe Customer Portal for billing.
+
+```json
+POST {{baseUrl}}/payments/portal
 
 {
     "success": true,
@@ -1161,10 +1563,15 @@
     },
     "message": "Portal session created"
 }
+```
 
+### 8.12 Endpoint: /payments/{{paymentId}}
 
+**Method:** `POST`  
+**Description:** Detailed endpoint info
 
-{{baseUrl}}/payments/{{paymentId}}
+```json
+POST {{baseUrl}}/payments/{{paymentId}}
 
 {
     "success": true,
@@ -1184,12 +1591,34 @@
     },
     "message": "Payment details retrieved"
 }
+```
 
-{{baseUrl}}/webhooks/stripe هاد جربتو مع اداة Stripe CLI ومشي حالو 
+### 8.13 Endpoint: /webhooks/stripe
+
+**Method:** `GET`  
+**Description:** Detailed endpoint info
+
+```json
+GET {{baseUrl}}/webhooks/stripe
+
+{{baseUrl}}/webhooks/stripe هاد جربتو مع اداة Stripe CLI ومشي حالو
 
 القسم ال 10 قسم ال reports
+```
 
-{{baseUrl}}/reports
+## Section 9: Reports API
+
+### 9.1 Submit Report
+
+**Method:** `POST`  
+**Description:** Reports a profile, offer, or ad for violation.
+
+> **Options / Enums:**
+>
+> - `reported_type: 'profile' | 'offer' | 'ad'`
+
+```json
+POST {{baseUrl}}/reports
 
 {
   "reported_id": "02c03982-bcb8-43af-bdab-4952c4b7602f",
@@ -1214,8 +1643,15 @@
     },
     "message": "Report submitted successfully"
 }
+```
 
-{{baseUrl}}/reports/me?page=1&limit=20
+### 9.2 Endpoint: /reports/me?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/reports/me?page=1&limit=20
 
 {
     "success": true,
@@ -1242,9 +1678,18 @@
     }
 }
 
-القسم ال 11 قسم ال admin 
+القسم ال 11 قسم ال admin
+```
 
-{{baseUrl}}/admin/stats
+## Section 10: Admin API
+
+### 10.1 Endpoint: /admin/stats
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/stats
 
 {
     "success": true,
@@ -1256,9 +1701,15 @@
     },
     "message": "Global statistics retrieved successfully"
 }
+```
 
-{{baseUrl}}/admin/categories
+### 10.2 Create Category
 
+**Method:** `POST`  
+**Description:** Creates a new category (Admin only).
+
+```json
+POST {{baseUrl}}/admin/categories
 
 {
   "name_en": "meow",
@@ -1284,8 +1735,15 @@
     },
     "message": "Category created successfully"
 }
+```
 
-{{baseUrl}}/admin/categories/{{categoryId}}
+### 10.3 Endpoint: /admin/categories/{{categoryId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/categories/{{categoryId}}
 
 {
   "name_en": "Tech & Innovation"
@@ -1307,16 +1765,34 @@
     },
     "message": "Category updated successfully"
 }
+```
 
-{{baseUrl}}/admin/categories/{{categoryId}}
+### 10.4 Delete Category
+
+**Method:** `DELETE`  
+**Description:** Deletes a category (Admin only).
+
+```json
+DELETE {{baseUrl}}/admin/categories/{{categoryId}}
 
 {
     "success": true,
     "data": null,
     "message": "Category deleted successfully"
 }
+```
 
-{{baseUrl}}/admin/content/offers/{{offerId}}/status
+### 10.5 Update Offer Status
+
+**Method:** `PATCH`  
+**Description:** Moderates an offer status (Admin only).
+
+> **Options / Enums:**
+>
+> - `status: 'active' | 'rejected' | 'pending' | 'expired' | 'paused' | 'completed'`
+
+```json
+PATCH {{baseUrl}}/admin/content/offers/{{offerId}}/status
 
 {
   "status": "active"
@@ -1346,17 +1822,34 @@
     },
     "message": "Offer status updated to active"
 }
+```
 
+### 10.6 Endpoint: /admin/content/offers/{{offerId}}
 
-{{baseUrl}}/admin/content/offers/{{offerId}}
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/content/offers/{{offerId}}
 
 {
     "success": true,
     "data": null,
     "message": "Offer deleted successfully"
 }
+```
 
-{{baseUrl}}/admin/content/ads/{{adId}}/status
+### 10.7 Update Ad Status
+
+**Method:** `PATCH`  
+**Description:** Moderates an ad status (Admin only).
+
+> **Options / Enums:**
+>
+> - `status: 'active' | 'rejected' | 'pending' | 'expired' | 'paused' | 'completed'`
+
+```json
+PATCH {{baseUrl}}/admin/content/ads/{{adId}}/status
 
 {
   "status": "active"
@@ -1384,18 +1877,34 @@
     },
     "message": "Ad status updated to active"
 }
+```
 
-{{baseUrl}}/admin/content/ads/{{adId}}
+### 10.8 Endpoint: /admin/content/ads/{{adId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/content/ads/{{adId}}
 
 {
     "success": true,
     "data": null,
     "message": "Ad deleted successfully"
 }
+```
 
+### 10.9 Create Plan
 
-{{baseUrl}}/admin/plans
+**Method:** `POST`  
+**Description:** Creates a new subscription plan (Admin only).
 
+> **Options / Enums:**
+>
+> - `interval: 'monthly' | 'quarterly' | 'yearly'`
+
+```json
+POST {{baseUrl}}/admin/plans
 
 {
     "success": true,
@@ -1461,8 +1970,19 @@
     ],
     "message": "Subscription plans retrieved successfully"
 }
+```
 
-{{baseUrl}}/admin/plans
+### 10.10 Create Plan
+
+**Method:** `POST`  
+**Description:** Creates a new subscription plan (Admin only).
+
+> **Options / Enums:**
+>
+> - `interval: 'monthly' | 'quarterly' | 'yearly'`
+
+```json
+POST {{baseUrl}}/admin/plans
 
 {
   "stripe_price_id": "price_1234567890",
@@ -1516,10 +2036,15 @@
     },
     "message": "Subscription plan created successfully"
 }
+```
 
+### 10.11 Endpoint: /admin/plans/{{planId}}
 
-{{baseUrl}}/admin/plans/{{planId}}
+**Method:** `POST`  
+**Description:** Detailed endpoint info
 
+```json
+POST {{baseUrl}}/admin/plans/{{planId}}
 
 {
   "is_active": false
@@ -1546,18 +2071,30 @@
     },
     "message": "Subscription plan updated successfully"
 }
+```
 
+### 10.12 Delete Plan
 
-{{baseUrl}}/admin/plans/{{planId}}
+**Method:** `DELETE`  
+**Description:** Deletes a plan (Admin only).
+
+```json
+DELETE {{baseUrl}}/admin/plans/{{planId}}
 
 {
     "success": true,
     "data": null,
     "message": "Subscription plan deleted successfully"
 }
+```
 
+### 10.13 Endpoint: /admin/users?page=1&limit=20
 
-{{baseUrl}}/admin/users?page=1&limit=20
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/users?page=1&limit=20
 
 {
     "success": true,
@@ -1721,8 +2258,15 @@
         "totalPages": 1
     }
 }
+```
 
-{{baseUrl}}/admin/users/{{userId}}
+### 10.14 Endpoint: /admin/users/{{userId}}
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/users/{{userId}}
 
 {
     "success": true,
@@ -1753,8 +2297,15 @@
     },
     "message": "User details retrieved"
 }
+```
 
-{{baseUrl}}/admin/users/{{userId}}/ban
+### 10.15 Toggle User Ban
+
+**Method:** `PATCH`  
+**Description:** Bans or unbans a user (Admin only).
+
+```json
+PATCH {{baseUrl}}/admin/users/{{userId}}/ban
 
 {
   "isActive": false
@@ -1789,8 +2340,15 @@
     },
     "message": "User status updated to banned"
 }
+```
 
-{{baseUrl}}/admin/users/{{userId}}/verify
+### 10.16 Toggle Verification
+
+**Method:** `PATCH`  
+**Description:** Verifies or un-verifies a user (Admin only).
+
+```json
+PATCH {{baseUrl}}/admin/users/{{userId}}/verify
 
 {
   "isVerified": true
@@ -1825,18 +2383,30 @@
     },
     "message": "User verification status updated to true"
 }
+```
 
+### 10.17 Delete User
 
+**Method:** `DELETE`  
+**Description:** Permanently deletes a user from the system (Admin only).
 
-{{baseUrl}}/admin/users/{{userId}}
+```json
+DELETE {{baseUrl}}/admin/users/{{userId}}
 
 {
     "success": true,
     "data": null,
     "message": "User deleted permanently"
 }
+```
 
-{{baseUrl}}/admin/reports?page=1&limit=20
+### 10.18 Endpoint: /admin/reports?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/reports?page=1&limit=20
 
 {
     "success": true,
@@ -1910,8 +2480,19 @@
         "totalPages": 1
     }
 }
+```
 
-{{baseUrl}}/admin/reports/{{reportId}}/status
+### 10.19 Update Report Status
+
+**Method:** `PATCH`  
+**Description:** Marks a report as resolved or pending (Admin only).
+
+> **Options / Enums:**
+>
+> - `status: 'pending' | 'resolved' | 'dismissed'`
+
+```json
+PATCH {{baseUrl}}/admin/reports/{{reportId}}/status
 
 {
     "success": true,
@@ -1929,8 +2510,15 @@
     },
     "message": "Report status updated to resolved"
 }
+```
 
-{{baseUrl}}/admin/payments?page=1&limit=20
+### 10.20 Endpoint: /admin/payments?page=1&limit=20
+
+**Method:** `POST`  
+**Description:** Detailed endpoint info
+
+```json
+POST {{baseUrl}}/admin/payments?page=1&limit=20
 
 {
     "success": true,
@@ -1964,4 +2552,4 @@
         "totalPages": 1
     }
 }
-
+```

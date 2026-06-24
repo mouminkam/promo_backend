@@ -81,6 +81,39 @@ export class StripeService {
   }
 
   /**
+   * Create a Subscription with Payment Intent for Mobile (PaymentSheet)
+   */
+  async createMobileSubscription(customerId: string, priceId: string) {
+    // 1. Create an Ephemeral Key for the Customer
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+      { customer: customerId },
+      { apiVersion: '2023-10-16' } // Typically you want to use your current Stripe API version
+    );
+
+    // 2. Create the Subscription with default_incomplete payment behavior
+    const subscription = await stripe.subscriptions.create({
+      customer: customerId,
+      items: [{ price: priceId }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+      metadata: {
+        price_id: priceId,
+      },
+    });
+
+    const invoice = subscription.latest_invoice as any;
+    const paymentIntent = invoice.payment_intent;
+
+    return {
+      subscriptionId: subscription.id,
+      clientSecret: paymentIntent.client_secret,
+      ephemeralKey: ephemeralKey.secret,
+      customerId: customerId,
+    };
+  }
+
+  /**
    * Create a Customer Portal session
    */
   async createPortalSession(customerId: string, returnUrl: string) {

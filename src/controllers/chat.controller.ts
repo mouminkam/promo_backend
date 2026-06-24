@@ -101,7 +101,7 @@ export class ChatController {
       const roomId = req.params.roomId as string;
 
       await chatService.deleteChat(userId, roomId);
-      apiResponse.noContent(res);
+      apiResponse.success(res, null, 'Chat deleted successfully');
     } catch (error) {
       next(error);
     }

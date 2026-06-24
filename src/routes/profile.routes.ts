@@ -15,7 +15,6 @@ const router = Router();
 // We apply requireAuth directly to these so they are protected
 router.get('/me', requireAuth, profileController.getOwnProfile);
 router.put('/me', requireAuth, validate(profileValidators.updateProfileSchema), profileController.updateOwnProfile);
-router.delete('/me', requireAuth, profileController.deleteAccount);
 
 // Avatar & Cover
 router.post('/me/avatar', requireAuth, validate(z.object({ body: z.object({ avatar_url: z.string().url() }) })), profileController.updateAvatar);
@@ -27,5 +26,12 @@ router.post('/me/verify-request', requireAuth, validate(profileValidators.reques
 // ─── Public Routes (Dynamic Params Last) ─────────────────────
 // optionalAuth allows the frontend to send a token if available, to tailor the response
 router.get('/:idOrUsername', optionalAuth, profileController.getProfileByIdOrUsername);
+
+// Media Grid API
+router.get(
+  '/:id/media',
+  validate(z.object({ params: z.object({ id: z.string().uuid() }) })),
+  profileController.getProfileMedia
+);
 
 export default router;

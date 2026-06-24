@@ -6,6 +6,7 @@ import { Router } from 'express';
 import { adController } from '../controllers/ad.controller';
 import { validate } from '../middleware/validate.middleware';
 import { requireAuth } from '../middleware/auth.middleware';
+import { requireAccountType } from '../middleware/accountType.middleware';
 import * as adValidators from '../validators/ad.validator';
 
 const router = Router();
@@ -34,6 +35,7 @@ router.use(requireAuth);
 router.post(
   '/',
   validate(adValidators.createAdSchema),
+  requireAccountType(['company', 'influencer']),
   adController.createAd
 );
 

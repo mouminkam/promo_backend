@@ -41,20 +41,20 @@ export class SubscriptionService {
   }
 
   /**
-   * Create a Subscription Checkout Session
+   * Create a Mobile Subscription using PaymentSheet
    */
-  async createSubscriptionCheckout(userId: string, planId: string, returnUrl: string) {
-    // 1. Get Plan details (to get Stripe Price ID)
+  async createMobileSubscription(userId: string, planId: string) {
+    // 1. Get Plan details
     const plan = await this.getPlanById(planId);
     
     if (!plan.stripe_price_id) {
       throw ApiError.internal('Plan does not have a linked Stripe price');
     }
 
-    // 2. Get or create Stripe Customer for the user
+    // 2. Get or create Stripe Customer
     const customerId = await stripeService.getOrCreateCustomer(userId);
 
-    // 3. Check if user already has an active subscription
+    // 3. Check for existing subscription
     const { data: existingSub } = await supabaseAdmin
       .from('subscriptions')
       .select('status')
@@ -66,19 +66,17 @@ export class SubscriptionService {
       throw ApiError.badRequest('You already have an active subscription');
     }
 
-    // 4. Create Stripe Checkout Session
+    // 4. Create Mobile Subscription via Stripe
     try {
-      const session = await stripeService.createSubscriptionCheckout(
+      const data = await stripeService.createMobileSubscription(
         customerId,
-        plan.stripe_price_id,
-        `${returnUrl}?success=true&session_id={CHECKOUT_SESSION_ID}`,
-        `${returnUrl}?canceled=true`
+        plan.stripe_price_id
       );
-      return { url: session.url };
+      
+      return data; // contains subscriptionId, clientSecret, ephemeralKey, customerId
     } catch (e: any) {
-      console.error('Stripe Checkout Error:', e.message);
-      // Return the actual returnUrl with success=true to simulate a successful payment redirection immediately
-      return { url: `${returnUrl}?success=true&session_id=mock_session_123` };
+      console.error('Stripe Mobile Subscription Error:', e.message);
+      throw ApiError.internal(`Failed to initialize subscription: ${e.message}`);
     }
   }
 

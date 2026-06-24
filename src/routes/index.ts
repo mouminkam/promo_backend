@@ -45,9 +45,23 @@ router.use('/follows', followRoutes);
 import offerRoutes from './offer.routes';
 import adRoutes from './ad.routes';
 
-// Phase 5: Offers & Ads
+// Phase 5: Offers, Ads, Services
 router.use('/offers', offerRoutes);
 router.use('/ads', adRoutes);
+
+import serviceRoutes from './service.routes';
+router.use('/services', serviceRoutes);
+
+import seatRoutes from './seat.routes';
+import storyRoutes from './story.routes';
+import savedRoutes from './saved.routes';
+import homeRoutes from './home.routes';
+
+// Gap Fixes: Seats, Stories, Saved, Home
+router.use('/seats', seatRoutes);
+router.use('/stories', storyRoutes);
+router.use('/saved', savedRoutes);
+router.use('/home', homeRoutes);
 
 import subscriptionRoutes from './subscription.routes';
 

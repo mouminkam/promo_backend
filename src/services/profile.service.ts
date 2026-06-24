@@ -112,17 +112,13 @@ export class ProfileService {
    * Request Verification
    */
   async requestVerification(userId: string, documentUrl: string, notes?: string) {
-    // In a real app, this might create a record in a "verification_requests" table
-    // For now, we will create a report or update profile status to pending_verification (needs DB column)
-    // Let's create a report of type 'profile' assigned to admin.
     const { data, error } = await supabaseAdmin
-      .from('reports')
+      .from('verification_requests')
       .insert({
-        reporter_id: userId,
-        reported_id: userId, // self
-        reported_type: 'profile',
-        reason: 'verification_request',
-        details: JSON.stringify({ documentUrl, notes }),
+        profile_id: userId,
+        document_url: documentUrl,
+        notes: notes || null,
+        status: 'pending',
       })
       .select()
       .single();
@@ -144,6 +140,26 @@ export class ProfileService {
       throw ApiError.internal(error.message);
     }
     return true;
+  }
+
+  /**
+   * Get Profile Media Grid
+   */
+  async getProfileMedia(profileId: string, page: number, limit: number) {
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    const { data, error, count } = await supabaseAdmin
+      .from('media')
+      .select('*', { count: 'exact' })
+      .eq('profile_id', profileId)
+      .range(from, to)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return { data, count: count || 0 };
   }
 }
 

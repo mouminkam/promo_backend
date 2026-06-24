@@ -13,7 +13,7 @@ export class FollowController {
     try {
       const followerId = req.user!.id;
       const followingId = req.params.profileId as string;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
 
       await followService.followProfile(followerId, followingId, token);
       apiResponse.success(res, null, 'Successfully followed profile');
@@ -26,7 +26,7 @@ export class FollowController {
     try {
       const followerId = req.user!.id;
       const followingId = req.params.profileId as string;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
 
       await followService.unfollowProfile(followerId, followingId, token);
       apiResponse.success(res, null, 'Successfully unfollowed profile');

@@ -24,6 +24,19 @@ export class AdService {
         budget: payload.budget,
         start_date: payload.start_date,
         end_date: payload.end_date,
+        phone: payload.phone,
+        whatsapp: payload.whatsapp,
+        contact_email: payload.contact_email,
+        instagram_link: payload.instagram_link,
+        city: payload.city,
+        area: payload.area,
+        full_address: payload.full_address,
+        location_map_url: payload.location_map_url,
+        price: payload.price,
+        currency: payload.currency,
+        service_type: payload.service_type,
+        payment_method: payload.payment_method,
+        tags: payload.tags || [],
         status: 'pending', // Starts as pending until payment/admin approval
       })
       .select()

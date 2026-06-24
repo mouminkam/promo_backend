@@ -133,6 +133,18 @@ export class AuthController {
       next(error);
     }
   }
+
+  // ─── Delete Account ──────────────────────────────────────────
+
+  async deleteAccount(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const userId = req.user!.id;
+      await authService.deleteAccount(userId);
+      apiResponse.success(res, null, 'Account deleted successfully');
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export const authController = new AuthController();

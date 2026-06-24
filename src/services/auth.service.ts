@@ -186,6 +186,17 @@ export class AuthService {
     }
     return data;
   }
+
+  /**
+   * Delete Account (Permanently remove user from Supabase Auth)
+   */
+  async deleteAccount(userId: string) {
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    if (error) {
+      throw ApiError.internal(error.message);
+    }
+    return true;
+  }
 }
 
 export const authService = new AuthService();

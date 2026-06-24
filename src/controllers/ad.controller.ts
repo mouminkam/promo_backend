@@ -14,7 +14,7 @@ export class AdController {
   async createAd(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const payload = req.body;
 
       const data = await adService.createAd(userId, token, payload);
@@ -31,7 +31,7 @@ export class AdController {
     try {
       const id = req.params.id as string;
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const payload = req.body;
 
       const data = await adService.updateAd(id, userId, token, payload);
@@ -48,7 +48,7 @@ export class AdController {
     try {
       const id = req.params.id as string;
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
 
       const data = await adService.toggleAd(id, userId, token);
       apiResponse.success(res, data, `Ad status toggled successfully to ${data.status}`);

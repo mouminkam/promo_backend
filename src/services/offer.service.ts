@@ -37,6 +37,7 @@ export class OfferService {
         media_urls: payload.media_urls || [],
         start_date: payload.start_date,
         end_date: payload.end_date,
+        tags: payload.tags || [],
         status: payload.status || 'active',
       })
       .select('*, category:categories(id, name_ar, name_en, slug)')

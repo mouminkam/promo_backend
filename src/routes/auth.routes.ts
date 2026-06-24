@@ -35,4 +35,7 @@ router.post('/reset-password', requireAuth, validate(authValidators.resetPasswor
 // ─── Logout ──────────────────────────────────────────────────
 router.post('/logout', authController.logout);
 
+// ─── Delete Account ──────────────────────────────────────────
+router.delete('/account', requireAuth, authController.deleteAccount);
+
 export default router;

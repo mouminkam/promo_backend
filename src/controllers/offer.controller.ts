@@ -14,7 +14,7 @@ export class OfferController {
   async createOffer(req: IAuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const payload = req.body;
 
       const data = await offerService.createOffer(userId, token, payload);
@@ -31,7 +31,7 @@ export class OfferController {
     try {
       const id = req.params.id as string;
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
       const payload = req.body;
 
       const data = await offerService.updateOffer(id, userId, token, payload);
@@ -48,7 +48,7 @@ export class OfferController {
     try {
       const id = req.params.id as string;
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
 
       await offerService.deleteOffer(id, userId, token);
       apiResponse.success(res, null, 'Offer deleted successfully');
@@ -125,7 +125,7 @@ export class OfferController {
     try {
       const id = req.params.id as string;
       const userId = req.user!.id;
-      const token = req.headers.authorization!.split(' ')[1];
+      const token = (req.headers.authorization as string).split(' ')[1];
 
       const data = await offerService.featureOffer(id, userId, token);
       apiResponse.success(res, data, 'Offer featured successfully');
