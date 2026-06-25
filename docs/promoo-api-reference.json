@@ -1,0 +1,3800 @@
+{
+  "info": {
+    "name": "Promoo API Reference",
+    "description": "All API routes with correct request payloads — generated from src/routes and validators",
+    "version": "v1",
+    "baseUrl": "http://localhost:3000/api/v1",
+    "generatedAt": "2026-06-25T12:54:31.304Z",
+    "totalEndpoints": 107,
+    "auth": {
+      "type": "Bearer Token",
+      "header": "Authorization: Bearer <access_token>",
+      "howToGetToken": "POST /auth/login/email → data.session.access_token"
+    },
+    "responseFormat": {
+      "success": true,
+      "data": "...",
+      "message": "string",
+      "meta": "optional pagination { page, limit, total, totalPages }"
+    }
+  },
+  "modules": [
+    {
+      "module": "Auth",
+      "count": 11,
+      "endpoints": [
+        {
+          "name": "Register Email",
+          "method": "POST",
+          "path": "/auth/register/email",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "email": "user@example.com",
+            "password": "password123",
+            "full_name": "John Doe",
+            "account_type": "user"
+          },
+          "notes": "account_type: company | influencer | service_provider | user",
+          "fullUrl": "http://localhost:3000/api/v1/auth/register/email",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Register Phone",
+          "method": "POST",
+          "path": "/auth/register/phone",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "phone": "+963900000000",
+            "password": "password123",
+            "full_name": "John Doe",
+            "account_type": "user"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/auth/register/phone",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Login Email",
+          "method": "POST",
+          "path": "/auth/login/email",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "email": "user@example.com",
+            "password": "password123"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/auth/login/email",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Login Phone",
+          "method": "POST",
+          "path": "/auth/login/phone",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "phone": "+963900000000",
+            "password": "password123"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/auth/login/phone",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "OAuth Login",
+          "method": "POST",
+          "path": "/auth/login/oauth",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "provider": "google",
+            "id_token": "YOUR_ID_TOKEN",
+            "nonce": "optional"
+          },
+          "notes": "provider: google | apple",
+          "fullUrl": "http://localhost:3000/api/v1/auth/login/oauth",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "method": "POST",
+          "path": "/auth/verify-otp",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "email": "user@example.com",
+            "token": "123456",
+            "type": "signup"
+          },
+          "notes": "type: signup | magiclink | recovery | sms — email OR phone required",
+          "fullUrl": "http://localhost:3000/api/v1/auth/verify-otp",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "method": "POST",
+          "path": "/auth/refresh",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "refresh_token": "YOUR_REFRESH_TOKEN"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/auth/refresh",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "method": "POST",
+          "path": "/auth/forgot-password",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "email": "user@example.com"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/auth/forgot-password",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Reset Password",
+          "method": "POST",
+          "path": "/auth/reset-password",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "password": "newpassword123"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/auth/reset-password",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Logout",
+          "method": "POST",
+          "path": "/auth/logout",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/auth/logout",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Delete Account",
+          "method": "DELETE",
+          "path": "/auth/account",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/auth/account",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Profiles",
+      "count": 7,
+      "endpoints": [
+        {
+          "name": "Get My Profile",
+          "method": "GET",
+          "path": "/profiles/me",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/profiles/me",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "method": "PUT",
+          "path": "/profiles/me",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "full_name": "Updated Name",
+            "username": "myusername",
+            "bio": "Short bio text",
+            "location": "Dubai",
+            "website": "https://example.com",
+            "category_id": "00000000-0000-0000-0000-000000000001",
+            "social_links": {
+              "instagram": "https://instagram.com/user"
+            }
+          },
+          "fullUrl": "http://localhost:3000/api/v1/profiles/me",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Avatar",
+          "method": "POST",
+          "path": "/profiles/me/avatar",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "avatar_url": "https://example.com/avatar.png"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/profiles/me/avatar",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Cover",
+          "method": "POST",
+          "path": "/profiles/me/cover",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "cover_url": "https://example.com/cover.png"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/profiles/me/cover",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Request Verification",
+          "method": "POST",
+          "path": "/profiles/me/verify-request",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "document_url": "https://example.com/doc.pdf",
+            "notes": "Please verify"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/profiles/me/verify-request",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Get Profile by ID or Username",
+          "method": "GET",
+          "path": "/profiles/:idOrUsername",
+          "requiresAuth": false,
+          "pathParams": {
+            "idOrUsername": "uuid-or-username"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/profiles/:idOrUsername",
+          "headers": {}
+        },
+        {
+          "name": "Get Profile Media",
+          "method": "GET",
+          "path": "/profiles/:id/media",
+          "requiresAuth": false,
+          "pathParams": {
+            "id": "profile-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/profiles/:id/media",
+          "headers": {}
+        }
+      ]
+    },
+    {
+      "module": "Follows",
+      "count": 5,
+      "endpoints": [
+        {
+          "name": "Follow Profile",
+          "method": "POST",
+          "path": "/follows/:profileId",
+          "requiresAuth": true,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/follows/:profileId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Unfollow Profile",
+          "method": "DELETE",
+          "path": "/follows/:profileId",
+          "requiresAuth": true,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/follows/:profileId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Check Follow Status",
+          "method": "GET",
+          "path": "/follows/:profileId/status",
+          "requiresAuth": true,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/follows/:profileId/status",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Followers",
+          "method": "GET",
+          "path": "/follows/followers/:profileId",
+          "requiresAuth": true,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/follows/followers/:profileId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Following",
+          "method": "GET",
+          "path": "/follows/following/:profileId",
+          "requiresAuth": true,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/follows/following/:profileId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Offers",
+      "count": 7,
+      "endpoints": [
+        {
+          "name": "Get All Offers",
+          "method": "GET",
+          "path": "/offers",
+          "requiresAuth": false,
+          "query": {
+            "page": 1,
+            "limit": 20,
+            "category_id": null,
+            "min_price": null,
+            "max_price": null,
+            "search": null,
+            "location": null
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/offers",
+          "headers": {}
+        },
+        {
+          "name": "Get Offer by ID",
+          "method": "GET",
+          "path": "/offers/:id",
+          "requiresAuth": false,
+          "pathParams": {
+            "id": "offer-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/offers/:id",
+          "headers": {}
+        },
+        {
+          "name": "Get Offers by Profile",
+          "method": "GET",
+          "path": "/offers/profile/:profileId",
+          "requiresAuth": false,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/offers/profile/:profileId",
+          "headers": {}
+        },
+        {
+          "name": "Create Offer",
+          "method": "POST",
+          "path": "/offers",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "category_id": "00000000-0000-0000-0000-000000000001",
+            "title": "Summer Sale",
+            "description": "Detailed description of the offer (min 10 chars).",
+            "original_price": 100,
+            "offer_price": 50,
+            "discount_percentage": 50,
+            "media_urls": [
+              "https://example.com/offer.jpg"
+            ],
+            "start_date": "2026-06-01T00:00:00.000Z",
+            "end_date": "2026-12-31T23:59:59.000Z",
+            "status": "active",
+            "tags": [
+              "sale",
+              "summer"
+            ]
+          },
+          "notes": "status: draft | active",
+          "fullUrl": "http://localhost:3000/api/v1/offers",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Offer",
+          "method": "PUT",
+          "path": "/offers/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "offer-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "title": "Updated Sale",
+            "description": "Updated offer description."
+          },
+          "fullUrl": "http://localhost:3000/api/v1/offers/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Offer",
+          "method": "DELETE",
+          "path": "/offers/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "offer-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/offers/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Feature Offer",
+          "method": "POST",
+          "path": "/offers/:id/feature",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "offer-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/offers/:id/feature",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Ads",
+      "count": 8,
+      "endpoints": [
+        {
+          "name": "Get Active Ads",
+          "method": "GET",
+          "path": "/ads/active",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/ads/active",
+          "headers": {}
+        },
+        {
+          "name": "Record Impression",
+          "method": "POST",
+          "path": "/ads/:id/impression",
+          "requiresAuth": false,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/ads/:id/impression",
+          "headers": {}
+        },
+        {
+          "name": "Record Click",
+          "method": "POST",
+          "path": "/ads/:id/click",
+          "requiresAuth": false,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/ads/:id/click",
+          "headers": {}
+        },
+        {
+          "name": "Create Ad",
+          "method": "POST",
+          "path": "/ads",
+          "requiresAuth": true,
+          "accountTypes": [
+            "company",
+            "influencer"
+          ],
+          "bodyType": "json",
+          "body": {
+            "title": "Summer Banner",
+            "description": "Promotional banner campaign",
+            "media_url": "https://example.com/ad-banner.jpg",
+            "ad_type": "banner",
+            "target_url": "https://example.com",
+            "budget": 100,
+            "start_date": "2026-06-01T00:00:00.000Z",
+            "end_date": "2026-12-31T23:59:59.000Z",
+            "phone": "+963900000000",
+            "whatsapp": "+963900000000",
+            "contact_email": "ads@example.com",
+            "instagram_link": "https://instagram.com/brand",
+            "city": "Dubai",
+            "area": "Marina",
+            "full_address": "123 Main St",
+            "location_map_url": "https://maps.google.com/?q=Dubai",
+            "price": 99.99,
+            "currency": "AED",
+            "service_type": "delivery",
+            "payment_method": "card",
+            "tags": [
+              "promo",
+              "summer"
+            ]
+          },
+          "notes": "ad_type: banner | popup | featured",
+          "fullUrl": "http://localhost:3000/api/v1/ads",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Ad",
+          "method": "PUT",
+          "path": "/ads/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "title": "Updated Banner",
+            "budget": 150
+          },
+          "fullUrl": "http://localhost:3000/api/v1/ads/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Toggle Ad",
+          "method": "PATCH",
+          "path": "/ads/:id/toggle",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/ads/:id/toggle",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Ad Stats",
+          "method": "GET",
+          "path": "/ads/:id/stats",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/ads/:id/stats",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Profile Ads",
+          "method": "GET",
+          "path": "/ads/profile/:profileId",
+          "requiresAuth": true,
+          "pathParams": {
+            "profileId": "profile-uuid"
+          },
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/ads/profile/:profileId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Services",
+      "count": 5,
+      "endpoints": [
+        {
+          "name": "Get All Services",
+          "method": "GET",
+          "path": "/services",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/services",
+          "headers": {}
+        },
+        {
+          "name": "Get Service by ID",
+          "method": "GET",
+          "path": "/services/:id",
+          "requiresAuth": false,
+          "pathParams": {
+            "id": "service-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/services/:id",
+          "headers": {}
+        },
+        {
+          "name": "Create Service",
+          "method": "POST",
+          "path": "/services",
+          "requiresAuth": true,
+          "accountTypes": [
+            "service_provider",
+            "company"
+          ],
+          "bodyType": "json",
+          "body": {
+            "category_id": "00000000-0000-0000-0000-000000000001",
+            "title": "Professional Logo Design",
+            "description": "High quality custom logo design for your brand identity.",
+            "price": 500,
+            "currency": "AED",
+            "delivery_days": 3,
+            "media_urls": [
+              "https://example.com/service.jpg"
+            ],
+            "tags": [
+              "design",
+              "logo"
+            ]
+          },
+          "fullUrl": "http://localhost:3000/api/v1/services",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Service",
+          "method": "PUT",
+          "path": "/services/:id",
+          "requiresAuth": true,
+          "accountTypes": [
+            "service_provider",
+            "company"
+          ],
+          "pathParams": {
+            "id": "service-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "price": 600,
+            "status": "active"
+          },
+          "notes": "status: active | paused | deleted",
+          "fullUrl": "http://localhost:3000/api/v1/services/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Service",
+          "method": "DELETE",
+          "path": "/services/:id",
+          "requiresAuth": true,
+          "accountTypes": [
+            "service_provider",
+            "company"
+          ],
+          "pathParams": {
+            "id": "service-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/services/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Seats",
+      "count": 4,
+      "endpoints": [
+        {
+          "name": "Get Available Seats",
+          "method": "GET",
+          "path": "/seats",
+          "requiresAuth": false,
+          "query": {
+            "tier": "gold"
+          },
+          "bodyType": "none",
+          "body": null,
+          "notes": "tier optional: gold | silver | bronze",
+          "fullUrl": "http://localhost:3000/api/v1/seats",
+          "headers": {}
+        },
+        {
+          "name": "Get My Seats",
+          "method": "GET",
+          "path": "/seats/me",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/seats/me",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Book Seat",
+          "method": "POST",
+          "path": "/seats/:id/book",
+          "requiresAuth": true,
+          "accountTypes": [
+            "influencer"
+          ],
+          "pathParams": {
+            "id": "seat-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/seats/:id/book",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Cancel Seat Booking",
+          "method": "DELETE",
+          "path": "/seats/:id/cancel",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "seat-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/seats/:id/cancel",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Stories",
+      "count": 5,
+      "endpoints": [
+        {
+          "name": "Get Active Stories",
+          "method": "GET",
+          "path": "/stories",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/stories",
+          "headers": {}
+        },
+        {
+          "name": "Get User Stories",
+          "method": "GET",
+          "path": "/stories/user/:userId",
+          "requiresAuth": false,
+          "pathParams": {
+            "userId": "user-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/stories/user/:userId",
+          "headers": {}
+        },
+        {
+          "name": "Get My Stories",
+          "method": "GET",
+          "path": "/stories/me",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/stories/me",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Create Story",
+          "method": "POST",
+          "path": "/stories",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "media_url": "https://example.com/story.mp4"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/stories",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Story",
+          "method": "DELETE",
+          "path": "/stories/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "story-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/stories/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Saved Items",
+      "count": 3,
+      "endpoints": [
+        {
+          "name": "Get Saved Items",
+          "method": "GET",
+          "path": "/saved",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/saved",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Save Item",
+          "method": "POST",
+          "path": "/saved",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "item_id": "00000000-0000-0000-0000-000000000001",
+            "item_type": "offer"
+          },
+          "notes": "item_type: offer | ad | profile",
+          "fullUrl": "http://localhost:3000/api/v1/saved",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Unsave Item",
+          "method": "DELETE",
+          "path": "/saved/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "saved-item-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/saved/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Home",
+      "count": 1,
+      "endpoints": [
+        {
+          "name": "Get Home Feed",
+          "method": "GET",
+          "path": "/home",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/home",
+          "headers": {}
+        }
+      ]
+    },
+    {
+      "module": "Subscriptions",
+      "count": 4,
+      "endpoints": [
+        {
+          "name": "Get Plans",
+          "method": "GET",
+          "path": "/subscriptions/plans",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/subscriptions/plans",
+          "headers": {}
+        },
+        {
+          "name": "Create Subscription",
+          "method": "POST",
+          "path": "/subscriptions",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "plan_id": "00000000-0000-0000-0000-000000000001",
+            "return_url": "http://localhost:3000/dashboard/billing"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/subscriptions",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Get My Subscription",
+          "method": "GET",
+          "path": "/subscriptions/me",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/subscriptions/me",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Manage Subscription",
+          "method": "POST",
+          "path": "/subscriptions/manage",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "return_url": "http://localhost:3000/dashboard/billing"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/subscriptions/manage",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Chats",
+      "count": 6,
+      "endpoints": [
+        {
+          "name": "Get Chat List",
+          "method": "GET",
+          "path": "/chats",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/chats",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Start Chat",
+          "method": "POST",
+          "path": "/chats",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "participant_id": "00000000-0000-0000-0000-000000000001"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/chats",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Get Messages",
+          "method": "GET",
+          "path": "/chats/:roomId/messages",
+          "requiresAuth": true,
+          "pathParams": {
+            "roomId": "room-uuid"
+          },
+          "query": {
+            "page": 1,
+            "limit": 50
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/chats/:roomId/messages",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Send Message",
+          "method": "POST",
+          "path": "/chats/:roomId/messages",
+          "requiresAuth": true,
+          "pathParams": {
+            "roomId": "room-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "content": "Hello!",
+            "type": "text",
+            "media_url": "https://example.com/file.jpg"
+          },
+          "notes": "type: text | image | video | file — content OR media_url required",
+          "fullUrl": "http://localhost:3000/api/v1/chats/:roomId/messages",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Mark Messages Read",
+          "method": "PATCH",
+          "path": "/chats/:roomId/read",
+          "requiresAuth": true,
+          "pathParams": {
+            "roomId": "room-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/chats/:roomId/read",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Delete Chat",
+          "method": "DELETE",
+          "path": "/chats/:roomId",
+          "requiresAuth": true,
+          "pathParams": {
+            "roomId": "room-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/chats/:roomId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Notifications",
+      "count": 5,
+      "endpoints": [
+        {
+          "name": "Get Notifications",
+          "method": "GET",
+          "path": "/notifications",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/notifications",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "method": "PATCH",
+          "path": "/notifications/read-all",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/notifications/read-all",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "method": "PATCH",
+          "path": "/notifications/:id/read",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "notification-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/notifications/:id/read",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "method": "DELETE",
+          "path": "/notifications/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "notification-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/notifications/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Register FCM Token",
+          "method": "POST",
+          "path": "/notifications/token",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "token": "FCM_DEVICE_TOKEN",
+            "device_type": "ios"
+          },
+          "notes": "device_type: ios | android | web",
+          "fullUrl": "http://localhost:3000/api/v1/notifications/token",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Search & Categories",
+      "count": 4,
+      "endpoints": [
+        {
+          "name": "Health Check",
+          "method": "GET",
+          "path": "/health",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/health",
+          "headers": {}
+        },
+        {
+          "name": "Global Search",
+          "method": "GET",
+          "path": "/search",
+          "requiresAuth": false,
+          "query": {
+            "q": "test",
+            "type": "all",
+            "page": 1,
+            "limit": 20,
+            "categoryId": null,
+            "minPrice": null,
+            "maxPrice": null,
+            "location": null,
+            "accountType": null
+          },
+          "bodyType": "none",
+          "body": null,
+          "notes": "type: profiles | offers | ads | all",
+          "fullUrl": "http://localhost:3000/api/v1/search",
+          "headers": {}
+        },
+        {
+          "name": "Get Categories",
+          "method": "GET",
+          "path": "/categories",
+          "requiresAuth": false,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/categories",
+          "headers": {}
+        },
+        {
+          "name": "Get Category Content",
+          "method": "GET",
+          "path": "/categories/:id/content",
+          "requiresAuth": false,
+          "pathParams": {
+            "id": "category-uuid"
+          },
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/categories/:id/content",
+          "headers": {}
+        }
+      ]
+    },
+    {
+      "module": "Featured",
+      "count": 2,
+      "endpoints": [
+        {
+          "name": "Get Featured Listings",
+          "method": "GET",
+          "path": "/featured",
+          "requiresAuth": false,
+          "query": {
+            "placement": "home",
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "notes": "placement: home | search | category",
+          "fullUrl": "http://localhost:3000/api/v1/featured",
+          "headers": {}
+        },
+        {
+          "name": "Request Featured",
+          "method": "POST",
+          "path": "/featured",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "placement": "home",
+            "duration_days": 7
+          },
+          "fullUrl": "http://localhost:3000/api/v1/featured",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Upload",
+      "count": 4,
+      "endpoints": [
+        {
+          "name": "Upload Image",
+          "method": "POST",
+          "path": "/upload/image",
+          "requiresAuth": true,
+          "bodyType": "multipart",
+          "body": null,
+          "multipart": [
+            {
+              "field": "file",
+              "type": "file",
+              "required": true
+            },
+            {
+              "field": "related_to",
+              "type": "text",
+              "example": "offer",
+              "required": false
+            },
+            {
+              "field": "related_id",
+              "type": "text",
+              "example": "uuid",
+              "required": false
+            }
+          ],
+          "notes": "related_to: profile | offer | ad | chat",
+          "fullUrl": "http://localhost:3000/api/v1/upload/image",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Upload Video",
+          "method": "POST",
+          "path": "/upload/video",
+          "requiresAuth": true,
+          "bodyType": "multipart",
+          "body": null,
+          "multipart": [
+            {
+              "field": "file",
+              "type": "file",
+              "required": true
+            },
+            {
+              "field": "related_to",
+              "type": "text",
+              "example": "offer",
+              "required": false
+            },
+            {
+              "field": "related_id",
+              "type": "text",
+              "example": "uuid",
+              "required": false
+            }
+          ],
+          "fullUrl": "http://localhost:3000/api/v1/upload/video",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Upload File",
+          "method": "POST",
+          "path": "/upload/file",
+          "requiresAuth": true,
+          "bodyType": "multipart",
+          "body": null,
+          "multipart": [
+            {
+              "field": "file",
+              "type": "file",
+              "required": true
+            },
+            {
+              "field": "related_to",
+              "type": "text",
+              "example": "chat",
+              "required": false
+            },
+            {
+              "field": "related_id",
+              "type": "text",
+              "example": "uuid",
+              "required": false
+            }
+          ],
+          "fullUrl": "http://localhost:3000/api/v1/upload/file",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Delete File",
+          "method": "DELETE",
+          "path": "/upload/:fileId",
+          "requiresAuth": true,
+          "pathParams": {
+            "fileId": "file-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/upload/:fileId",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Payments",
+      "count": 4,
+      "endpoints": [
+        {
+          "name": "Get Payment History",
+          "method": "GET",
+          "path": "/payments/history",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/payments/history",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Create Customer Portal",
+          "method": "POST",
+          "path": "/payments/portal",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/payments/portal",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Payment Details",
+          "method": "GET",
+          "path": "/payments/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "payment-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/payments/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Stripe Webhook",
+          "method": "POST",
+          "path": "/webhooks/stripe",
+          "requiresAuth": false,
+          "bodyType": "json",
+          "body": {
+            "type": "checkout.session.completed",
+            "data": {
+              "object": {}
+            }
+          },
+          "notes": "Registered in app.ts with raw body — requires Stripe-Signature header",
+          "fullUrl": "http://localhost:3000/api/v1/webhooks/stripe",
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Reports",
+      "count": 2,
+      "endpoints": [
+        {
+          "name": "Submit Report",
+          "method": "POST",
+          "path": "/reports",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "reported_id": "00000000-0000-0000-0000-000000000001",
+            "reported_type": "profile",
+            "reason": "spam content",
+            "details": "Additional details (optional)"
+          },
+          "notes": "reported_type: profile | offer | ad | message",
+          "fullUrl": "http://localhost:3000/api/v1/reports",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Get My Reports",
+          "method": "GET",
+          "path": "/reports/me",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/reports/me",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    },
+    {
+      "module": "Admin",
+      "count": 20,
+      "endpoints": [
+        {
+          "name": "Get Global Stats",
+          "method": "GET",
+          "path": "/admin/stats",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "notes": "Requires admin role",
+          "fullUrl": "http://localhost:3000/api/v1/admin/stats",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Create Category",
+          "method": "POST",
+          "path": "/admin/categories",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "name_en": "Technology",
+            "name_ar": "تقنية",
+            "icon_url": "https://example.com/icon.png"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/categories",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Category",
+          "method": "PUT",
+          "path": "/admin/categories/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "category-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "name_en": "Tech & Innovation"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/categories/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Category",
+          "method": "DELETE",
+          "path": "/admin/categories/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "category-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/categories/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Update Offer Status",
+          "method": "PATCH",
+          "path": "/admin/content/offers/:id/status",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "offer-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "status": "rejected"
+          },
+          "notes": "status: active | rejected | pending | expired | paused | completed",
+          "fullUrl": "http://localhost:3000/api/v1/admin/content/offers/:id/status",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Offer (Admin)",
+          "method": "DELETE",
+          "path": "/admin/content/offers/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "offer-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/content/offers/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Update Ad Status",
+          "method": "PATCH",
+          "path": "/admin/content/ads/:id/status",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "status": "active"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/content/ads/:id/status",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Ad (Admin)",
+          "method": "DELETE",
+          "path": "/admin/content/ads/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "ad-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/content/ads/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Admin Plans",
+          "method": "GET",
+          "path": "/admin/plans",
+          "requiresAuth": true,
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/plans",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Create Plan",
+          "method": "POST",
+          "path": "/admin/plans",
+          "requiresAuth": true,
+          "bodyType": "json",
+          "body": {
+            "stripe_price_id": "price_1234567890",
+            "name_en": "Pro Plan",
+            "name_ar": "الخطة الاحترافية",
+            "description_en": "Full access",
+            "description_ar": "وصول كامل",
+            "price": 9.99,
+            "currency": "aed",
+            "interval": "monthly",
+            "features_en": [
+              "Unlimited offers"
+            ],
+            "features_ar": [
+              "عروض غير محدودة"
+            ],
+            "is_active": true
+          },
+          "notes": "interval: monthly | quarterly | yearly",
+          "fullUrl": "http://localhost:3000/api/v1/admin/plans",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Update Plan",
+          "method": "PUT",
+          "path": "/admin/plans/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "plan-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "is_active": false
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/plans/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete Plan",
+          "method": "DELETE",
+          "path": "/admin/plans/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "plan-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/plans/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get Users",
+          "method": "GET",
+          "path": "/admin/users",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20,
+            "search": null,
+            "accountType": null,
+            "isVerified": null,
+            "isActive": null
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/users",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get User Details",
+          "method": "GET",
+          "path": "/admin/users/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "user-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/users/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Toggle User Ban",
+          "method": "PATCH",
+          "path": "/admin/users/:id/ban",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "user-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "isActive": false
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/users/:id/ban",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Toggle User Verify",
+          "method": "PATCH",
+          "path": "/admin/users/:id/verify",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "user-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "isVerified": true
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/users/:id/verify",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Delete User",
+          "method": "DELETE",
+          "path": "/admin/users/:id",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "user-uuid"
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/users/:id",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Get All Reports",
+          "method": "GET",
+          "path": "/admin/reports",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20,
+            "status": "pending",
+            "type": null
+          },
+          "bodyType": "none",
+          "body": null,
+          "notes": "status: pending | reviewed | resolved | dismissed",
+          "fullUrl": "http://localhost:3000/api/v1/admin/reports",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        },
+        {
+          "name": "Update Report Status",
+          "method": "PATCH",
+          "path": "/admin/reports/:id/status",
+          "requiresAuth": true,
+          "pathParams": {
+            "id": "report-uuid"
+          },
+          "bodyType": "json",
+          "body": {
+            "status": "resolved",
+            "admin_note": "Issue addressed"
+          },
+          "fullUrl": "http://localhost:3000/api/v1/admin/reports/:id/status",
+          "headers": {
+            "Authorization": "Bearer <access_token>",
+            "Content-Type": "application/json"
+          }
+        },
+        {
+          "name": "Get Admin Payments",
+          "method": "GET",
+          "path": "/admin/payments",
+          "requiresAuth": true,
+          "query": {
+            "page": 1,
+            "limit": 20
+          },
+          "bodyType": "none",
+          "body": null,
+          "fullUrl": "http://localhost:3000/api/v1/admin/payments",
+          "headers": {
+            "Authorization": "Bearer <access_token>"
+          }
+        }
+      ]
+    }
+  ],
+  "flatEndpoints": [
+    {
+      "module": "Auth",
+      "name": "Register Email",
+      "method": "POST",
+      "path": "/auth/register/email",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "email": "user@example.com",
+        "password": "password123",
+        "full_name": "John Doe",
+        "account_type": "user"
+      },
+      "notes": "account_type: company | influencer | service_provider | user",
+      "fullUrl": "http://localhost:3000/api/v1/auth/register/email",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Register Phone",
+      "method": "POST",
+      "path": "/auth/register/phone",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "phone": "+963900000000",
+        "password": "password123",
+        "full_name": "John Doe",
+        "account_type": "user"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/auth/register/phone",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Login Email",
+      "method": "POST",
+      "path": "/auth/login/email",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "email": "user@example.com",
+        "password": "password123"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/auth/login/email",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Login Phone",
+      "method": "POST",
+      "path": "/auth/login/phone",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "phone": "+963900000000",
+        "password": "password123"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/auth/login/phone",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "OAuth Login",
+      "method": "POST",
+      "path": "/auth/login/oauth",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "provider": "google",
+        "id_token": "YOUR_ID_TOKEN",
+        "nonce": "optional"
+      },
+      "notes": "provider: google | apple",
+      "fullUrl": "http://localhost:3000/api/v1/auth/login/oauth",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Verify OTP",
+      "method": "POST",
+      "path": "/auth/verify-otp",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "email": "user@example.com",
+        "token": "123456",
+        "type": "signup"
+      },
+      "notes": "type: signup | magiclink | recovery | sms — email OR phone required",
+      "fullUrl": "http://localhost:3000/api/v1/auth/verify-otp",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Refresh Token",
+      "method": "POST",
+      "path": "/auth/refresh",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "refresh_token": "YOUR_REFRESH_TOKEN"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/auth/refresh",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Forgot Password",
+      "method": "POST",
+      "path": "/auth/forgot-password",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "email": "user@example.com"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/auth/forgot-password",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Reset Password",
+      "method": "POST",
+      "path": "/auth/reset-password",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "password": "newpassword123"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/auth/reset-password",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Logout",
+      "method": "POST",
+      "path": "/auth/logout",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/auth/logout",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Auth",
+      "name": "Delete Account",
+      "method": "DELETE",
+      "path": "/auth/account",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/auth/account",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Profiles",
+      "name": "Get My Profile",
+      "method": "GET",
+      "path": "/profiles/me",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/profiles/me",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Profiles",
+      "name": "Update My Profile",
+      "method": "PUT",
+      "path": "/profiles/me",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "full_name": "Updated Name",
+        "username": "myusername",
+        "bio": "Short bio text",
+        "location": "Dubai",
+        "website": "https://example.com",
+        "category_id": "00000000-0000-0000-0000-000000000001",
+        "social_links": {
+          "instagram": "https://instagram.com/user"
+        }
+      },
+      "fullUrl": "http://localhost:3000/api/v1/profiles/me",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Profiles",
+      "name": "Update Avatar",
+      "method": "POST",
+      "path": "/profiles/me/avatar",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "avatar_url": "https://example.com/avatar.png"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/profiles/me/avatar",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Profiles",
+      "name": "Update Cover",
+      "method": "POST",
+      "path": "/profiles/me/cover",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "cover_url": "https://example.com/cover.png"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/profiles/me/cover",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Profiles",
+      "name": "Request Verification",
+      "method": "POST",
+      "path": "/profiles/me/verify-request",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "document_url": "https://example.com/doc.pdf",
+        "notes": "Please verify"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/profiles/me/verify-request",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Profiles",
+      "name": "Get Profile by ID or Username",
+      "method": "GET",
+      "path": "/profiles/:idOrUsername",
+      "requiresAuth": false,
+      "pathParams": {
+        "idOrUsername": "uuid-or-username"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/profiles/:idOrUsername",
+      "headers": {}
+    },
+    {
+      "module": "Profiles",
+      "name": "Get Profile Media",
+      "method": "GET",
+      "path": "/profiles/:id/media",
+      "requiresAuth": false,
+      "pathParams": {
+        "id": "profile-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/profiles/:id/media",
+      "headers": {}
+    },
+    {
+      "module": "Follows",
+      "name": "Follow Profile",
+      "method": "POST",
+      "path": "/follows/:profileId",
+      "requiresAuth": true,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/follows/:profileId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Follows",
+      "name": "Unfollow Profile",
+      "method": "DELETE",
+      "path": "/follows/:profileId",
+      "requiresAuth": true,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/follows/:profileId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Follows",
+      "name": "Check Follow Status",
+      "method": "GET",
+      "path": "/follows/:profileId/status",
+      "requiresAuth": true,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/follows/:profileId/status",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Follows",
+      "name": "Get Followers",
+      "method": "GET",
+      "path": "/follows/followers/:profileId",
+      "requiresAuth": true,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/follows/followers/:profileId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Follows",
+      "name": "Get Following",
+      "method": "GET",
+      "path": "/follows/following/:profileId",
+      "requiresAuth": true,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/follows/following/:profileId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Offers",
+      "name": "Get All Offers",
+      "method": "GET",
+      "path": "/offers",
+      "requiresAuth": false,
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "category_id": null,
+        "min_price": null,
+        "max_price": null,
+        "search": null,
+        "location": null
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/offers",
+      "headers": {}
+    },
+    {
+      "module": "Offers",
+      "name": "Get Offer by ID",
+      "method": "GET",
+      "path": "/offers/:id",
+      "requiresAuth": false,
+      "pathParams": {
+        "id": "offer-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/offers/:id",
+      "headers": {}
+    },
+    {
+      "module": "Offers",
+      "name": "Get Offers by Profile",
+      "method": "GET",
+      "path": "/offers/profile/:profileId",
+      "requiresAuth": false,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/offers/profile/:profileId",
+      "headers": {}
+    },
+    {
+      "module": "Offers",
+      "name": "Create Offer",
+      "method": "POST",
+      "path": "/offers",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "category_id": "00000000-0000-0000-0000-000000000001",
+        "title": "Summer Sale",
+        "description": "Detailed description of the offer (min 10 chars).",
+        "original_price": 100,
+        "offer_price": 50,
+        "discount_percentage": 50,
+        "media_urls": [
+          "https://example.com/offer.jpg"
+        ],
+        "start_date": "2026-06-01T00:00:00.000Z",
+        "end_date": "2026-12-31T23:59:59.000Z",
+        "status": "active",
+        "tags": [
+          "sale",
+          "summer"
+        ]
+      },
+      "notes": "status: draft | active",
+      "fullUrl": "http://localhost:3000/api/v1/offers",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Offers",
+      "name": "Update Offer",
+      "method": "PUT",
+      "path": "/offers/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "offer-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "title": "Updated Sale",
+        "description": "Updated offer description."
+      },
+      "fullUrl": "http://localhost:3000/api/v1/offers/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Offers",
+      "name": "Delete Offer",
+      "method": "DELETE",
+      "path": "/offers/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "offer-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/offers/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Offers",
+      "name": "Feature Offer",
+      "method": "POST",
+      "path": "/offers/:id/feature",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "offer-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/offers/:id/feature",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Ads",
+      "name": "Get Active Ads",
+      "method": "GET",
+      "path": "/ads/active",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/ads/active",
+      "headers": {}
+    },
+    {
+      "module": "Ads",
+      "name": "Record Impression",
+      "method": "POST",
+      "path": "/ads/:id/impression",
+      "requiresAuth": false,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/ads/:id/impression",
+      "headers": {}
+    },
+    {
+      "module": "Ads",
+      "name": "Record Click",
+      "method": "POST",
+      "path": "/ads/:id/click",
+      "requiresAuth": false,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/ads/:id/click",
+      "headers": {}
+    },
+    {
+      "module": "Ads",
+      "name": "Create Ad",
+      "method": "POST",
+      "path": "/ads",
+      "requiresAuth": true,
+      "accountTypes": [
+        "company",
+        "influencer"
+      ],
+      "bodyType": "json",
+      "body": {
+        "title": "Summer Banner",
+        "description": "Promotional banner campaign",
+        "media_url": "https://example.com/ad-banner.jpg",
+        "ad_type": "banner",
+        "target_url": "https://example.com",
+        "budget": 100,
+        "start_date": "2026-06-01T00:00:00.000Z",
+        "end_date": "2026-12-31T23:59:59.000Z",
+        "phone": "+963900000000",
+        "whatsapp": "+963900000000",
+        "contact_email": "ads@example.com",
+        "instagram_link": "https://instagram.com/brand",
+        "city": "Dubai",
+        "area": "Marina",
+        "full_address": "123 Main St",
+        "location_map_url": "https://maps.google.com/?q=Dubai",
+        "price": 99.99,
+        "currency": "AED",
+        "service_type": "delivery",
+        "payment_method": "card",
+        "tags": [
+          "promo",
+          "summer"
+        ]
+      },
+      "notes": "ad_type: banner | popup | featured",
+      "fullUrl": "http://localhost:3000/api/v1/ads",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Ads",
+      "name": "Update Ad",
+      "method": "PUT",
+      "path": "/ads/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "title": "Updated Banner",
+        "budget": 150
+      },
+      "fullUrl": "http://localhost:3000/api/v1/ads/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Ads",
+      "name": "Toggle Ad",
+      "method": "PATCH",
+      "path": "/ads/:id/toggle",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/ads/:id/toggle",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Ads",
+      "name": "Get Ad Stats",
+      "method": "GET",
+      "path": "/ads/:id/stats",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/ads/:id/stats",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Ads",
+      "name": "Get Profile Ads",
+      "method": "GET",
+      "path": "/ads/profile/:profileId",
+      "requiresAuth": true,
+      "pathParams": {
+        "profileId": "profile-uuid"
+      },
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/ads/profile/:profileId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Services",
+      "name": "Get All Services",
+      "method": "GET",
+      "path": "/services",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/services",
+      "headers": {}
+    },
+    {
+      "module": "Services",
+      "name": "Get Service by ID",
+      "method": "GET",
+      "path": "/services/:id",
+      "requiresAuth": false,
+      "pathParams": {
+        "id": "service-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/services/:id",
+      "headers": {}
+    },
+    {
+      "module": "Services",
+      "name": "Create Service",
+      "method": "POST",
+      "path": "/services",
+      "requiresAuth": true,
+      "accountTypes": [
+        "service_provider",
+        "company"
+      ],
+      "bodyType": "json",
+      "body": {
+        "category_id": "00000000-0000-0000-0000-000000000001",
+        "title": "Professional Logo Design",
+        "description": "High quality custom logo design for your brand identity.",
+        "price": 500,
+        "currency": "AED",
+        "delivery_days": 3,
+        "media_urls": [
+          "https://example.com/service.jpg"
+        ],
+        "tags": [
+          "design",
+          "logo"
+        ]
+      },
+      "fullUrl": "http://localhost:3000/api/v1/services",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Services",
+      "name": "Update Service",
+      "method": "PUT",
+      "path": "/services/:id",
+      "requiresAuth": true,
+      "accountTypes": [
+        "service_provider",
+        "company"
+      ],
+      "pathParams": {
+        "id": "service-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "price": 600,
+        "status": "active"
+      },
+      "notes": "status: active | paused | deleted",
+      "fullUrl": "http://localhost:3000/api/v1/services/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Services",
+      "name": "Delete Service",
+      "method": "DELETE",
+      "path": "/services/:id",
+      "requiresAuth": true,
+      "accountTypes": [
+        "service_provider",
+        "company"
+      ],
+      "pathParams": {
+        "id": "service-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/services/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Seats",
+      "name": "Get Available Seats",
+      "method": "GET",
+      "path": "/seats",
+      "requiresAuth": false,
+      "query": {
+        "tier": "gold"
+      },
+      "bodyType": "none",
+      "body": null,
+      "notes": "tier optional: gold | silver | bronze",
+      "fullUrl": "http://localhost:3000/api/v1/seats",
+      "headers": {}
+    },
+    {
+      "module": "Seats",
+      "name": "Get My Seats",
+      "method": "GET",
+      "path": "/seats/me",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/seats/me",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Seats",
+      "name": "Book Seat",
+      "method": "POST",
+      "path": "/seats/:id/book",
+      "requiresAuth": true,
+      "accountTypes": [
+        "influencer"
+      ],
+      "pathParams": {
+        "id": "seat-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/seats/:id/book",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Seats",
+      "name": "Cancel Seat Booking",
+      "method": "DELETE",
+      "path": "/seats/:id/cancel",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "seat-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/seats/:id/cancel",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Stories",
+      "name": "Get Active Stories",
+      "method": "GET",
+      "path": "/stories",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/stories",
+      "headers": {}
+    },
+    {
+      "module": "Stories",
+      "name": "Get User Stories",
+      "method": "GET",
+      "path": "/stories/user/:userId",
+      "requiresAuth": false,
+      "pathParams": {
+        "userId": "user-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/stories/user/:userId",
+      "headers": {}
+    },
+    {
+      "module": "Stories",
+      "name": "Get My Stories",
+      "method": "GET",
+      "path": "/stories/me",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/stories/me",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Stories",
+      "name": "Create Story",
+      "method": "POST",
+      "path": "/stories",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "media_url": "https://example.com/story.mp4"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/stories",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Stories",
+      "name": "Delete Story",
+      "method": "DELETE",
+      "path": "/stories/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "story-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/stories/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Saved Items",
+      "name": "Get Saved Items",
+      "method": "GET",
+      "path": "/saved",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/saved",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Saved Items",
+      "name": "Save Item",
+      "method": "POST",
+      "path": "/saved",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "item_id": "00000000-0000-0000-0000-000000000001",
+        "item_type": "offer"
+      },
+      "notes": "item_type: offer | ad | profile",
+      "fullUrl": "http://localhost:3000/api/v1/saved",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Saved Items",
+      "name": "Unsave Item",
+      "method": "DELETE",
+      "path": "/saved/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "saved-item-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/saved/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Home",
+      "name": "Get Home Feed",
+      "method": "GET",
+      "path": "/home",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/home",
+      "headers": {}
+    },
+    {
+      "module": "Subscriptions",
+      "name": "Get Plans",
+      "method": "GET",
+      "path": "/subscriptions/plans",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/subscriptions/plans",
+      "headers": {}
+    },
+    {
+      "module": "Subscriptions",
+      "name": "Create Subscription",
+      "method": "POST",
+      "path": "/subscriptions",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "plan_id": "00000000-0000-0000-0000-000000000001",
+        "return_url": "http://localhost:3000/dashboard/billing"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/subscriptions",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Subscriptions",
+      "name": "Get My Subscription",
+      "method": "GET",
+      "path": "/subscriptions/me",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/subscriptions/me",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Subscriptions",
+      "name": "Manage Subscription",
+      "method": "POST",
+      "path": "/subscriptions/manage",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "return_url": "http://localhost:3000/dashboard/billing"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/subscriptions/manage",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Chats",
+      "name": "Get Chat List",
+      "method": "GET",
+      "path": "/chats",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/chats",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Chats",
+      "name": "Start Chat",
+      "method": "POST",
+      "path": "/chats",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "participant_id": "00000000-0000-0000-0000-000000000001"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/chats",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Chats",
+      "name": "Get Messages",
+      "method": "GET",
+      "path": "/chats/:roomId/messages",
+      "requiresAuth": true,
+      "pathParams": {
+        "roomId": "room-uuid"
+      },
+      "query": {
+        "page": 1,
+        "limit": 50
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/chats/:roomId/messages",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Chats",
+      "name": "Send Message",
+      "method": "POST",
+      "path": "/chats/:roomId/messages",
+      "requiresAuth": true,
+      "pathParams": {
+        "roomId": "room-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "content": "Hello!",
+        "type": "text",
+        "media_url": "https://example.com/file.jpg"
+      },
+      "notes": "type: text | image | video | file — content OR media_url required",
+      "fullUrl": "http://localhost:3000/api/v1/chats/:roomId/messages",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Chats",
+      "name": "Mark Messages Read",
+      "method": "PATCH",
+      "path": "/chats/:roomId/read",
+      "requiresAuth": true,
+      "pathParams": {
+        "roomId": "room-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/chats/:roomId/read",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Chats",
+      "name": "Delete Chat",
+      "method": "DELETE",
+      "path": "/chats/:roomId",
+      "requiresAuth": true,
+      "pathParams": {
+        "roomId": "room-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/chats/:roomId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Notifications",
+      "name": "Get Notifications",
+      "method": "GET",
+      "path": "/notifications",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/notifications",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Notifications",
+      "name": "Mark All as Read",
+      "method": "PATCH",
+      "path": "/notifications/read-all",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/notifications/read-all",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Notifications",
+      "name": "Mark Notification as Read",
+      "method": "PATCH",
+      "path": "/notifications/:id/read",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "notification-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/notifications/:id/read",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Notifications",
+      "name": "Delete Notification",
+      "method": "DELETE",
+      "path": "/notifications/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "notification-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/notifications/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Notifications",
+      "name": "Register FCM Token",
+      "method": "POST",
+      "path": "/notifications/token",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "token": "FCM_DEVICE_TOKEN",
+        "device_type": "ios"
+      },
+      "notes": "device_type: ios | android | web",
+      "fullUrl": "http://localhost:3000/api/v1/notifications/token",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Search & Categories",
+      "name": "Health Check",
+      "method": "GET",
+      "path": "/health",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/health",
+      "headers": {}
+    },
+    {
+      "module": "Search & Categories",
+      "name": "Global Search",
+      "method": "GET",
+      "path": "/search",
+      "requiresAuth": false,
+      "query": {
+        "q": "test",
+        "type": "all",
+        "page": 1,
+        "limit": 20,
+        "categoryId": null,
+        "minPrice": null,
+        "maxPrice": null,
+        "location": null,
+        "accountType": null
+      },
+      "bodyType": "none",
+      "body": null,
+      "notes": "type: profiles | offers | ads | all",
+      "fullUrl": "http://localhost:3000/api/v1/search",
+      "headers": {}
+    },
+    {
+      "module": "Search & Categories",
+      "name": "Get Categories",
+      "method": "GET",
+      "path": "/categories",
+      "requiresAuth": false,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/categories",
+      "headers": {}
+    },
+    {
+      "module": "Search & Categories",
+      "name": "Get Category Content",
+      "method": "GET",
+      "path": "/categories/:id/content",
+      "requiresAuth": false,
+      "pathParams": {
+        "id": "category-uuid"
+      },
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/categories/:id/content",
+      "headers": {}
+    },
+    {
+      "module": "Featured",
+      "name": "Get Featured Listings",
+      "method": "GET",
+      "path": "/featured",
+      "requiresAuth": false,
+      "query": {
+        "placement": "home",
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "notes": "placement: home | search | category",
+      "fullUrl": "http://localhost:3000/api/v1/featured",
+      "headers": {}
+    },
+    {
+      "module": "Featured",
+      "name": "Request Featured",
+      "method": "POST",
+      "path": "/featured",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "placement": "home",
+        "duration_days": 7
+      },
+      "fullUrl": "http://localhost:3000/api/v1/featured",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Upload",
+      "name": "Upload Image",
+      "method": "POST",
+      "path": "/upload/image",
+      "requiresAuth": true,
+      "bodyType": "multipart",
+      "body": null,
+      "multipart": [
+        {
+          "field": "file",
+          "type": "file",
+          "required": true
+        },
+        {
+          "field": "related_to",
+          "type": "text",
+          "example": "offer",
+          "required": false
+        },
+        {
+          "field": "related_id",
+          "type": "text",
+          "example": "uuid",
+          "required": false
+        }
+      ],
+      "notes": "related_to: profile | offer | ad | chat",
+      "fullUrl": "http://localhost:3000/api/v1/upload/image",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Upload",
+      "name": "Upload Video",
+      "method": "POST",
+      "path": "/upload/video",
+      "requiresAuth": true,
+      "bodyType": "multipart",
+      "body": null,
+      "multipart": [
+        {
+          "field": "file",
+          "type": "file",
+          "required": true
+        },
+        {
+          "field": "related_to",
+          "type": "text",
+          "example": "offer",
+          "required": false
+        },
+        {
+          "field": "related_id",
+          "type": "text",
+          "example": "uuid",
+          "required": false
+        }
+      ],
+      "fullUrl": "http://localhost:3000/api/v1/upload/video",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Upload",
+      "name": "Upload File",
+      "method": "POST",
+      "path": "/upload/file",
+      "requiresAuth": true,
+      "bodyType": "multipart",
+      "body": null,
+      "multipart": [
+        {
+          "field": "file",
+          "type": "file",
+          "required": true
+        },
+        {
+          "field": "related_to",
+          "type": "text",
+          "example": "chat",
+          "required": false
+        },
+        {
+          "field": "related_id",
+          "type": "text",
+          "example": "uuid",
+          "required": false
+        }
+      ],
+      "fullUrl": "http://localhost:3000/api/v1/upload/file",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Upload",
+      "name": "Delete File",
+      "method": "DELETE",
+      "path": "/upload/:fileId",
+      "requiresAuth": true,
+      "pathParams": {
+        "fileId": "file-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/upload/:fileId",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Payments",
+      "name": "Get Payment History",
+      "method": "GET",
+      "path": "/payments/history",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/payments/history",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Payments",
+      "name": "Create Customer Portal",
+      "method": "POST",
+      "path": "/payments/portal",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/payments/portal",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Payments",
+      "name": "Get Payment Details",
+      "method": "GET",
+      "path": "/payments/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "payment-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/payments/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Payments",
+      "name": "Stripe Webhook",
+      "method": "POST",
+      "path": "/webhooks/stripe",
+      "requiresAuth": false,
+      "bodyType": "json",
+      "body": {
+        "type": "checkout.session.completed",
+        "data": {
+          "object": {}
+        }
+      },
+      "notes": "Registered in app.ts with raw body — requires Stripe-Signature header",
+      "fullUrl": "http://localhost:3000/api/v1/webhooks/stripe",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Reports",
+      "name": "Submit Report",
+      "method": "POST",
+      "path": "/reports",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "reported_id": "00000000-0000-0000-0000-000000000001",
+        "reported_type": "profile",
+        "reason": "spam content",
+        "details": "Additional details (optional)"
+      },
+      "notes": "reported_type: profile | offer | ad | message",
+      "fullUrl": "http://localhost:3000/api/v1/reports",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Reports",
+      "name": "Get My Reports",
+      "method": "GET",
+      "path": "/reports/me",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/reports/me",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Get Global Stats",
+      "method": "GET",
+      "path": "/admin/stats",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "notes": "Requires admin role",
+      "fullUrl": "http://localhost:3000/api/v1/admin/stats",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Create Category",
+      "method": "POST",
+      "path": "/admin/categories",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "name_en": "Technology",
+        "name_ar": "تقنية",
+        "icon_url": "https://example.com/icon.png"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/categories",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Update Category",
+      "method": "PUT",
+      "path": "/admin/categories/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "category-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "name_en": "Tech & Innovation"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/categories/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Delete Category",
+      "method": "DELETE",
+      "path": "/admin/categories/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "category-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/categories/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Update Offer Status",
+      "method": "PATCH",
+      "path": "/admin/content/offers/:id/status",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "offer-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "status": "rejected"
+      },
+      "notes": "status: active | rejected | pending | expired | paused | completed",
+      "fullUrl": "http://localhost:3000/api/v1/admin/content/offers/:id/status",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Delete Offer (Admin)",
+      "method": "DELETE",
+      "path": "/admin/content/offers/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "offer-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/content/offers/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Update Ad Status",
+      "method": "PATCH",
+      "path": "/admin/content/ads/:id/status",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "status": "active"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/content/ads/:id/status",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Delete Ad (Admin)",
+      "method": "DELETE",
+      "path": "/admin/content/ads/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "ad-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/content/ads/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Get Admin Plans",
+      "method": "GET",
+      "path": "/admin/plans",
+      "requiresAuth": true,
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/plans",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Create Plan",
+      "method": "POST",
+      "path": "/admin/plans",
+      "requiresAuth": true,
+      "bodyType": "json",
+      "body": {
+        "stripe_price_id": "price_1234567890",
+        "name_en": "Pro Plan",
+        "name_ar": "الخطة الاحترافية",
+        "description_en": "Full access",
+        "description_ar": "وصول كامل",
+        "price": 9.99,
+        "currency": "aed",
+        "interval": "monthly",
+        "features_en": [
+          "Unlimited offers"
+        ],
+        "features_ar": [
+          "عروض غير محدودة"
+        ],
+        "is_active": true
+      },
+      "notes": "interval: monthly | quarterly | yearly",
+      "fullUrl": "http://localhost:3000/api/v1/admin/plans",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Update Plan",
+      "method": "PUT",
+      "path": "/admin/plans/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "plan-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "is_active": false
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/plans/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Delete Plan",
+      "method": "DELETE",
+      "path": "/admin/plans/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "plan-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/plans/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Get Users",
+      "method": "GET",
+      "path": "/admin/users",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "search": null,
+        "accountType": null,
+        "isVerified": null,
+        "isActive": null
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/users",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Get User Details",
+      "method": "GET",
+      "path": "/admin/users/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "user-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/users/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Toggle User Ban",
+      "method": "PATCH",
+      "path": "/admin/users/:id/ban",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "user-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "isActive": false
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/users/:id/ban",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Toggle User Verify",
+      "method": "PATCH",
+      "path": "/admin/users/:id/verify",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "user-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "isVerified": true
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/users/:id/verify",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Delete User",
+      "method": "DELETE",
+      "path": "/admin/users/:id",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "user-uuid"
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/users/:id",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Get All Reports",
+      "method": "GET",
+      "path": "/admin/reports",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "status": "pending",
+        "type": null
+      },
+      "bodyType": "none",
+      "body": null,
+      "notes": "status: pending | reviewed | resolved | dismissed",
+      "fullUrl": "http://localhost:3000/api/v1/admin/reports",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Update Report Status",
+      "method": "PATCH",
+      "path": "/admin/reports/:id/status",
+      "requiresAuth": true,
+      "pathParams": {
+        "id": "report-uuid"
+      },
+      "bodyType": "json",
+      "body": {
+        "status": "resolved",
+        "admin_note": "Issue addressed"
+      },
+      "fullUrl": "http://localhost:3000/api/v1/admin/reports/:id/status",
+      "headers": {
+        "Authorization": "Bearer <access_token>",
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "module": "Admin",
+      "name": "Get Admin Payments",
+      "method": "GET",
+      "path": "/admin/payments",
+      "requiresAuth": true,
+      "query": {
+        "page": 1,
+        "limit": 20
+      },
+      "bodyType": "none",
+      "body": null,
+      "fullUrl": "http://localhost:3000/api/v1/admin/payments",
+      "headers": {
+        "Authorization": "Bearer <access_token>"
+      }
+    }
+  ]
+}

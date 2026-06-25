@@ -24,7 +24,7 @@ export function errorHandler(
       logger.warn({ statusCode: err.statusCode, errorCode: err.errorCode }, err.message);
     }
 
-    require("fs").writeFileSync("scratch/api_error.log", String(err.stack || err)); apiResponse.error(
+    apiResponse.error(
       res,
       err.message,
       err.statusCode,

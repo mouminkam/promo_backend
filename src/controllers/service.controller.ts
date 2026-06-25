@@ -12,7 +12,7 @@ export class ServiceController {
     try {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 20;
-      const categoryId = req.query.category_id as string | undefined;
+      const categoryId = (req.query.categoryId as string | undefined) || (req.query.category_id as string | undefined);
       const q = req.query.q as string | undefined;
 
       const result = await serviceService.getServices({ page, limit, categoryId, q });

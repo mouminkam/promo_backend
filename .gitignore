@@ -32,7 +32,8 @@ coverage/
 
 # Promoo Specific Excludes
 scratch/
-repomix-output.xml
+repomix-output*.xml
+*repomix*
 .agents/
 Projects-Pictures/
 docs/api-reports/

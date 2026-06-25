@@ -2776,7 +2776,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"stripe_price_id\": \"price_1234567890\",\n  \"name_en\": \"Pro Plan\",\n  \"name_ar\": \"الخطة الاحترافية\",\n  \"description_en\": \"Full access to all features\",\n  \"description_ar\": \"وصول كامل لجميع الميزات\",\n  \"price\": 9.99,\n  \"currency\": \"usd\",\n  \"interval\": \"month\",\n  \"features_en\": [\n    \"Unlimited offers\",\n    \"Priority support\"\n  ],\n  \"features_ar\": [\n    \"عروض غير محدودة\",\n    \"دعم أولوية\"\n  ],\n  \"is_active\": true\n}",
+              "raw": "{\n  \"stripe_price_id\": \"price_1234567890\",\n  \"name_en\": \"Pro Plan\",\n  \"name_ar\": \"الخطة الاحترافية\",\n  \"description_en\": \"Full access to all features\",\n  \"description_ar\": \"وصول كامل لجميع الميزات\",\n  \"price\": 9.99,\n  \"currency\": \"aed\",\n  \"interval\": \"monthly\",\n  \"features_en\": [\n    \"Unlimited offers\",\n    \"Priority support\"\n  ],\n  \"features_ar\": [\n    \"عروض غير محدودة\",\n    \"دعم أولوية\"\n  ],\n  \"is_active\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
