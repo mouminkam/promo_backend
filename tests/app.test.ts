@@ -1,5 +1,16 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 import request from 'supertest';
+
+jest.mock('firebase-admin/app', () => ({
+  getApps: jest.fn(() => []),
+  initializeApp: jest.fn(),
+  cert: jest.fn(),
+}));
+
+jest.mock('firebase-admin/messaging', () => ({
+  getMessaging: jest.fn(() => ({ send: jest.fn() })),
+}));
+
 import app from '../src/app';
 
 describe('App & Express Setup', () => {

@@ -565,6 +565,21 @@ const modules: ApiModule[] = [
     ],
   },
   {
+    module: 'Leaderboard',
+    endpoints: [
+      {
+        name: 'Get Leaderboard',
+        method: 'GET',
+        path: '/leaderboard',
+        requiresAuth: false,
+        query: { page: 1, limit: 20, type: 'all' },
+        bodyType: 'none',
+        body: null,
+        notes: 'type: all | company | influencer | service_provider',
+      },
+    ],
+  },
+  {
     module: 'Subscriptions',
     endpoints: [
       { name: 'Get Plans', method: 'GET', path: '/subscriptions/plans', requiresAuth: false, bodyType: 'none', body: null },

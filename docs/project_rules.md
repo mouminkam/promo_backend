@@ -240,6 +240,7 @@ export const registerSchema = z.object({
 - NEVER expose `SUPABASE_SERVICE_ROLE_KEY` or `STRIPE_SECRET_KEY` in responses or logs
 - ALWAYS verify JWT in protected routes via `auth.middleware.ts`
 - ALWAYS sanitize user inputs (Zod handles this)
+- **RLS Hardening (Zero-Trust):** Do not solely rely on RLS `UPDATE` policies to protect sensitive columns if users are allowed to update their own rows (e.g., `profiles`). ALWAYS use `BEFORE UPDATE` database triggers (`protect_sensitive_columns`) to strip modifications to columns like `is_admin`, `is_verified`, `followers_count`, or `stripe_customer_id` when the request comes from the `authenticated` role (direct Supabase access). Node.js backend logic (`service_role`) bypasses this trigger and can update safely.
 - ALWAYS use parameterized queries (Supabase client does this automatically)
 - ALWAYS set security headers via `helmet`
 - ALWAYS apply rate limiting on auth endpoints
@@ -258,6 +259,7 @@ export const registerSchema = z.object({
 - Allowed image types: `jpg, jpeg, png, webp, gif`
 - Allowed video types: `mp4, mov, webm`
 - Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`, `services`, `stories`, `verifications`, `reports`, `general`
+- Bucket Validation: ALWAYS validate the target bucket using strict Zod enums (`z.enum([...])`) in the upload validator to prevent arbitrary bucket attacks or SDK crashes.
 - File naming: `{userId}/{timestamp}_{originalName}`
 - Storage RLS: ALWAYS enforce folder ownership in DB policies using `(storage.foldername(name))[1] = auth.uid()::text` to prevent folder hijacking.
 - **RLS Consistency**: Ensure that `UPDATE` and `INSERT` policies explicitly list ALL active buckets in their `WITH CHECK` conditions, while `DELETE` policies can safely be global if correctly restricted by `owner = auth.uid()`.

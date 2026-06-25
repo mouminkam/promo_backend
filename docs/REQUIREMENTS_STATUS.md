@@ -60,7 +60,7 @@
 OAuth عبر Google وApple.
 
 ### كيف نُفِّذ
-- **نقطة النهاية**: `POST /api/v1/auth/oauth`
+- **نقطة النهاية**: `POST /api/v1/auth/login/oauth`
 - **اللوجيك**:
   1. تطبيق الموبايل (React Native) يستخدم Supabase SDK لإطلاق OAuth Flow مباشرة
   2. بعد نجاح OAuth، Supabase يُرجع token جاهز
@@ -489,6 +489,19 @@ Admin ينشئ ويعدل باقات الاشتراك.
 | 13.11| Final Deep Audit Bug Fixes (Status mutation, Stripe crash guards, OTP typing) | Critical | ✅ Completed |
 | 13.12| Database Final Patches (Seats, Polymorphic, Currency, Orphaned Chats) | Critical | ✅ Completed |
 | 13.13| Feature Offer Webhook Constraint Patch (024_fix_feature_offer_payment.sql) | Critical | ✅ Completed |
+
+---
+
+## 14. Phase 16: Final Backend Polish & Flutter Handover
+
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| 16.1 | Database Triggers for Sensitive Columns (RLS Hardening) | Critical | ✅ Completed |
+| 16.2 | Seat Booking Race Condition Locks | High | ✅ Completed |
+| 16.3 | Upload Bucket Enum Validation | High | ✅ Completed |
+| 16.4 | Jest Testing Environment Fixes | Medium | ✅ Completed |
+| 16.5 | API Contract Generators Sync | High | ✅ Completed |
+| 16.6 | Vulnerability Auditing & Security Fixes | High | ✅ Completed |
 
 ---
 

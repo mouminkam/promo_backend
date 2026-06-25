@@ -25,6 +25,7 @@
 | 13 | Gap Fixes & Deep Audit | ✅ Completed | 2026-06-25 |
 | 14 | Final Deep Audit Bug Fixes | ✅ Completed | 2026-06-25 |
 | 15 | Prototype Audit, Currency Unify & Cup/Leaderboard | ✅ Completed | 2026-06-25 |
+| 16 | Final Backend Polish & Flutter Handover | ✅ Completed | 2026-06-25 |
 
 ---
 
@@ -52,6 +53,10 @@
 | 16 | Currency Unified to AED | Prototype prices are all AED. Migration 026 sets default currency to AED across subscription_plans/payments/services/offers and backfills old 'usd' rows. | 2026-06-25 |
 | 17 | Cup = Leaderboard, Plan A | Cup tab is a followers ranking. Chose Plan A: cached `profiles.followers_count` column maintained by a trigger on `follows` (migration 028), allowing seedable real-world reach numbers that match the prototype's large counts. `type=all` excludes regular `user` accounts. | 2026-06-25 |
 | 18 | Hardened validate middleware | Removed a leftover debug line in `validate.middleware.ts` that wrote `error.stack` to `scratch/api_error.log` on every non-Zod error — would throw (and mask the real error) in production where that path may not exist. | 2026-06-25 |
+| 19 | RLS Hardening (Triggers) | Added `protect_sensitive_columns` DB trigger (Migration 029) to drop direct UPDATEs to fields like `is_admin`, `is_verified`, `followers_count` when called via `authenticated` role (Flutter), protecting against direct Supabase access while leaving Node backend logic unaffected. | 2026-06-25 |
+| 20 | Seat Race Condition Lock | Automatically mark seat status as `pending` and assign `influencer_id` directly in the backend before creating Stripe Checkout, and free them dynamically in `getSeats` if 15 mins have passed. Prevents double booking during checkout. | 2026-06-25 |
+| 21 | Strict Bucket Enumeration | Refactored `upload.validator.ts` from generic strings to an explicit `enum` representing existing storage buckets to prevent arbitrary bucket creation or upload failures. | 2026-06-25 |
+| 22 | Backend Lock | Resolved all NPM audit vulnerabilities and fixed Jest imports for Firebase Admin testing. Backend is now 100% Locked for the Flutter team. | 2026-06-25 |
 
 ---
 
@@ -136,14 +141,21 @@
   - Verified ordering + exclusion of regular users via live SQL.
 - [x] Removed leftover filesystem-write debug line in `validate.middleware.ts` (production crash risk).
 
+### Phase 16 — Final Backend Polish & Flutter Handover
+- [x] **RLS Hardening:** Applied migration `029_harden_rls_and_seats.sql` dropping public `UPDATE` capabilities on `seats` and enforcing `protect_sensitive_columns` database triggers for `profiles`, `offers`, `ads`, and `services`.
+- [x] **Race Conditions:** Ensured `seat.service.ts` locks a seat immediately upon checkout init and releases it if abandoned for over 15 minutes.
+- [x] **Jest Setup:** Configured `jest.config.js` and `jest.setup.js` and implemented `firebase-admin` module mocking to resolve ESM import crashes in `npm test`.
+- [x] **API Generators:** Inserted `Leaderboard` into `scripts/generate_api_reference.ts` and `scripts/generate_postman.ts`, successfully generating new contracts.
+- [x] **NPM Audit:** Cleared all moderate/high Node vulnerabilities (`multer`, `lodash`, etc.) via `npm audit fix`.
+
 ---
 
 ## Current Context
 
-**Currently working on**: v1 polish based on the client prototype audit (Cup/Leaderboard done).
-**Next up**: Front-end integration of `/leaderboard` into the Cup tab. v2 backlog: Reviews/Ratings, Likes/Comments, content Packages.
+**Currently working on**: Backend is officially **Locked** and fully handed over to the Flutter Team.
+**Next up**: Front-end Flutter integration relying exclusively on Postman Collection & API Docs. v2 backlog: Reviews/Ratings, Likes/Comments, content Packages.
 **Blockers**: Stripe `stripe_price_id` values in the seed are still placeholders — must be replaced with real IDs before live payment testing.
-**Notes**: All Backend Phases (1-15) complete. DB synced local+remote through migration 028. Currency unified to AED. Cup/Leaderboard live on Supabase. Security advisors are all WARN-level (no ERRORs); RLS enabled on all 21 tables.
+**Notes**: All Backend Phases (1-16) are fully complete. DB synced local+remote through migration 029. Security audited with triggers preventing RLS escalation.
 
 ---
 

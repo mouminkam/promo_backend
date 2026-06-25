@@ -1,0 +1,10 @@
+process.env.NODE_ENV = 'test';
+process.env.SUPABASE_URL = 'http://localhost:54321';
+process.env.SUPABASE_ANON_KEY = 'test_anon_key';
+process.env.SUPABASE_SERVICE_ROLE_KEY = 'test_service_key';
+process.env.STRIPE_PUBLISHABLE_KEY = 'pk_test_123';
+process.env.STRIPE_SECRET_KEY = 'sk_test_123';
+process.env.STRIPE_WEBHOOK_SECRET = 'whsec_123';
+process.env.FIREBASE_PROJECT_ID = 'test-project';
+process.env.FIREBASE_CLIENT_EMAIL = 'test@example.com';
+process.env.FIREBASE_PRIVATE_KEY = 'test-key';

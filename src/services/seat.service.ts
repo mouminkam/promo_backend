@@ -27,7 +27,28 @@ export class SeatService {
       throw ApiError.internal(error.message);
     }
 
-    return data;
+    // Release pending seats older than 15 minutes
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60000);
+
+    const releasedSeats = data.map((seat: any) => {
+      if (seat.status === 'pending') {
+        const updatedAt = new Date(seat.updated_at);
+        if (updatedAt < fifteenMinutesAgo) {
+          // Asynchronously release the seat in the DB
+          supabaseAdmin
+            .from('seats')
+            .update({ status: 'available', influencer_id: null, expires_at: null })
+            .eq('id', seat.id)
+            .then(() => {});
+            
+          return { ...seat, status: 'available', influencer_id: null };
+        }
+      }
+      return seat;
+    });
+
+    return releasedSeats;
   }
 
   async getMySeats(userId: string) {
@@ -54,9 +75,20 @@ export class SeatService {
       throw ApiError.notFound('Seat not found');
     }
 
-    if (seat.status === 'booked' && seat.influencer_id) {
-      throw ApiError.badRequest('This seat is already booked');
+    // Treat pending seats older than 15 minutes as available
+    const now = new Date();
+    const fifteenMinutesAgo = new Date(now.getTime() - 15 * 60000);
+    const isExpiredPending = seat.status === 'pending' && new Date(seat.updated_at) < fifteenMinutesAgo;
+
+    if ((seat.status === 'booked' || seat.status === 'pending') && !isExpiredPending && seat.influencer_id) {
+      throw ApiError.badRequest('This seat is already booked or pending payment');
     }
+
+    // Instantly reserve the seat to prevent race conditions
+    await supabaseAdmin
+      .from('seats')
+      .update({ status: 'pending', influencer_id: userId, updated_at: new Date().toISOString() })
+      .eq('id', seatId);
 
     // Create Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({

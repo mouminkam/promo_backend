@@ -4,8 +4,8 @@
     "description": "All API routes with correct request payloads — generated from src/routes and validators",
     "version": "v1",
     "baseUrl": "http://localhost:3000/api/v1",
-    "generatedAt": "2026-06-25T12:54:31.304Z",
-    "totalEndpoints": 107,
+    "generatedAt": "2026-06-25T16:00:16.570Z",
+    "totalEndpoints": 108,
     "auth": {
       "type": "Bearer Token",
       "header": "Authorization: Bearer <access_token>",
@@ -982,6 +982,28 @@
           "bodyType": "none",
           "body": null,
           "fullUrl": "http://localhost:3000/api/v1/home",
+          "headers": {}
+        }
+      ]
+    },
+    {
+      "module": "Leaderboard",
+      "count": 1,
+      "endpoints": [
+        {
+          "name": "Get Leaderboard",
+          "method": "GET",
+          "path": "/leaderboard",
+          "requiresAuth": false,
+          "query": {
+            "page": 1,
+            "limit": 20,
+            "type": "all"
+          },
+          "bodyType": "none",
+          "body": null,
+          "notes": "type: all | company | influencer | service_provider",
+          "fullUrl": "http://localhost:3000/api/v1/leaderboard",
           "headers": {}
         }
       ]
@@ -2873,6 +2895,23 @@
       "bodyType": "none",
       "body": null,
       "fullUrl": "http://localhost:3000/api/v1/home",
+      "headers": {}
+    },
+    {
+      "module": "Leaderboard",
+      "name": "Get Leaderboard",
+      "method": "GET",
+      "path": "/leaderboard",
+      "requiresAuth": false,
+      "query": {
+        "page": 1,
+        "limit": 20,
+        "type": "all"
+      },
+      "bodyType": "none",
+      "body": null,
+      "notes": "type: all | company | influencer | service_provider",
+      "fullUrl": "http://localhost:3000/api/v1/leaderboard",
       "headers": {}
     },
     {

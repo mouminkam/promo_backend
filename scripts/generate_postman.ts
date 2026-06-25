@@ -505,6 +505,17 @@ const folders: PostmanFolder[] = [
     items: [
       { name: 'Health Check', method: 'GET', path: 'health', noAuth: true },
       { name: 'Get Home Feed', method: 'GET', path: 'home', noAuth: true },
+      {
+        name: 'Get Leaderboard',
+        method: 'GET',
+        path: 'leaderboard',
+        noAuth: true,
+        query: [
+          { key: 'page', value: '1' },
+          { key: 'limit', value: '20' },
+          { key: 'type', value: 'all' },
+        ],
+      },
       { name: 'Get Active Stories', method: 'GET', path: 'stories', noAuth: true },
       { name: 'Get User Stories', method: 'GET', path: 'stories/user/{{userId}}', noAuth: true },
       { name: 'Get My Stories', method: 'GET', path: 'stories/me' },
