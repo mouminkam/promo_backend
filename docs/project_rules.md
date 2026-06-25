@@ -230,6 +230,8 @@ export const registerSchema = z.object({
 - **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense. ALWAYS name constraints explicitly (e.g., `CONSTRAINT my_check CHECK (...)`) to allow safe dropping/altering in future migrations.
 - **Polymorphic Relations**: When using polymorphic relations (e.g., `related_id` + `related_to`), use DB triggers (like `cascade_polymorphic_deletes`) to handle cascading deletions cleanly since pure `FOREIGN KEY` constraints cannot enforce cross-table links.
 - **PostgREST Embedded Filters**: When filtering an embedded (joined) table using the Supabase JS SDK, ALWAYS use the table name (e.g. `query.ilike('profiles.location', ...)`) instead of the relation alias to prevent the SDK from misinterpreting it as a JSON path.
+- **Cached Counters**: For values read far more often than written and used for sorting (e.g. `profiles.followers_count` for the Cup leaderboard), store a cached counter column kept in sync via a trigger on the source table (INSERT/DELETE), and add a partial index for the sort. Always backfill existing rows in the same migration. Use `GREATEST(count - 1, 0)` on decrement to avoid negatives.
+- **SECURITY DEFINER Functions**: ALWAYS pin `SET search_path = ''` on `SECURITY DEFINER` functions and fully-qualify every object (`public.table`). Prevents the `function_search_path_mutable` advisor warning and search_path hijacking.
 
 ---
 
@@ -243,6 +245,7 @@ export const registerSchema = z.object({
 - ALWAYS apply rate limiting on auth endpoints
 - NEVER log sensitive data (passwords, tokens, card numbers)
 - Use CORS whitelist, not wildcard, in production
+- **No filesystem writes in the request path**: NEVER write debug output (e.g. `fs.writeFileSync('scratch/...')`) from middleware, controllers, or services. It throws when the path is missing (crashing the request and masking the real error) and risks leaking stack traces. Use the centralized `logger` and `next(error)` instead.
 - **Stripe Placeholders**: Safely intercept `price_*_placeholder` seed data in the API and throw a controlled `400 Bad Request` to prevent catastrophic `500 resource_missing` crashes in the Stripe SDK.
 
 ---

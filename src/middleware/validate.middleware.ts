@@ -53,7 +53,7 @@ export function validate(schema: ZodSchema) {
         );
         return;
       }
-      require("fs").writeFileSync("scratch/api_error.log", error.stack); next(error);
+      next(error);
     }
   };
 }

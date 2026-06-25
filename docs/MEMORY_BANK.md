@@ -24,6 +24,7 @@
 | 12 | Admin Dashboard APIs | ✅ Completed | 2026-06-16 |
 | 13 | Gap Fixes & Deep Audit | ✅ Completed | 2026-06-25 |
 | 14 | Final Deep Audit Bug Fixes | ✅ Completed | 2026-06-25 |
+| 15 | Prototype Audit, Currency Unify & Cup/Leaderboard | ✅ Completed | 2026-06-25 |
 
 ---
 
@@ -48,6 +49,9 @@
 | 13 | Post-Audit Fixes | Resolved Chat list sorting, Chat cross-talk in direct messages, and Offer featuring Stripe flow based on the deep surgical audit report. | 2026-06-25 |
 | 14 | Deep Surgical Audit Patching | Patched state mutation bugs in offer/ad/service, prevented Stripe placeholder crash, fixed ilike PostgREST syntax | 2026-06-25 |
 | 15 | Release Mode Locked | Concluded all deep audits. Applied surgical fix (024) for feature_offer payment type. Backend marked production-ready. | 2026-06-25 |
+| 16 | Currency Unified to AED | Prototype prices are all AED. Migration 026 sets default currency to AED across subscription_plans/payments/services/offers and backfills old 'usd' rows. | 2026-06-25 |
+| 17 | Cup = Leaderboard, Plan A | Cup tab is a followers ranking. Chose Plan A: cached `profiles.followers_count` column maintained by a trigger on `follows` (migration 028), allowing seedable real-world reach numbers that match the prototype's large counts. `type=all` excludes regular `user` accounts. | 2026-06-25 |
+| 18 | Hardened validate middleware | Removed a leftover debug line in `validate.middleware.ts` that wrote `error.stack` to `scratch/api_error.log` on every non-Zod error — would throw (and mask the real error) in production where that path may not exist. | 2026-06-25 |
 
 ---
 
@@ -120,14 +124,26 @@
 - [x] Deployed `024_fix_feature_offer_payment.sql` via MCP to fix Webhook Crash for the `feature_offer` type.
 - [x] Transitioned permanently to BUILD MODE. No further backend audits required.
 
+### Phase 15 — Prototype Audit, Currency Unify & Cup/Leaderboard
+- [x] Deep audit of the client APK prototype (screenshots in `Projects-Pictures/`) against requirements + live Supabase schema.
+- [x] Confirmed v1 scope; deferred to v2: Reviews/Ratings, Likes/Comments on posts, content Packages.
+- [x] Unified currency to **AED** across services, validators, and DB (`026_unify_currency_to_aed.sql`).
+- [x] Added `027_add_unique_seat_tier_position.sql` (unique constraint on seat tier+position).
+- [x] **Built the Cup / Leaderboard module** (Plan A):
+  - `028_add_leaderboard.sql` — `profiles.followers_count` column + partial index + `sync_followers_count` trigger on `follows` + backfill. Applied to Supabase.
+  - `leaderboard.{routes,controller,service,validator}.ts` + registered in `routes/index.ts`.
+  - `GET /api/v1/leaderboard?page&limit&type=all|company|influencer|service_provider` — ranks active non-user accounts by `followers_count DESC`, paginated, `rank` attached.
+  - Verified ordering + exclusion of regular users via live SQL.
+- [x] Removed leftover filesystem-write debug line in `validate.middleware.ts` (production crash risk).
+
 ---
 
 ## Current Context
 
-**Currently working on**: Front-End Integration / Mobile App Prototype
-**Next up**: Mobile App Development
-**Blockers**: None. Awaiting APK screenshots for the next phase.
-**Notes**: All Backend Phases (1-13) are 100% complete. Database schema, RLS policies, triggers, realtime settings, storage buckets, and seed data have been successfully pushed to the Supabase Cloud Production project. The backend is fully operational, thoroughly audited, and ready for Front-End integration.
+**Currently working on**: v1 polish based on the client prototype audit (Cup/Leaderboard done).
+**Next up**: Front-end integration of `/leaderboard` into the Cup tab. v2 backlog: Reviews/Ratings, Likes/Comments, content Packages.
+**Blockers**: Stripe `stripe_price_id` values in the seed are still placeholders — must be replaced with real IDs before live payment testing.
+**Notes**: All Backend Phases (1-15) complete. DB synced local+remote through migration 028. Currency unified to AED. Cup/Leaderboard live on Supabase. Security advisors are all WARN-level (no ERRORs); RLS enabled on all 21 tables.
 
 ---
 

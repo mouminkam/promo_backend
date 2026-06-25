@@ -56,12 +56,16 @@ import seatRoutes from './seat.routes';
 import storyRoutes from './story.routes';
 import savedRoutes from './saved.routes';
 import homeRoutes from './home.routes';
+import leaderboardRoutes from './leaderboard.routes';
 
 // Gap Fixes: Seats, Stories, Saved, Home
 router.use('/seats', seatRoutes);
 router.use('/stories', storyRoutes);
 router.use('/saved', savedRoutes);
 router.use('/home', homeRoutes);
+
+// Cup: Leaderboard (ranking by followers)
+router.use('/leaderboard', leaderboardRoutes);
 
 import subscriptionRoutes from './subscription.routes';
 

@@ -1,6 +1,6 @@
 # Promoo Backend — Requirements Status
 > تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
-> آخر تحديث: 2026-06-25 | الوضع الحالي: المشروع الخلفي (Backend) مكتمل بالكامل وتم إجراء المراجعة النهائية (Final Audit) بنجاح 100% ✅
+> آخر تحديث: 2026-06-25 | الوضع الحالي: Backend مكتمل + تدقيق على الـ Prototype + توحيد العملة (AED) + بناء صفحة Cup/Leaderboard ✅
 
 ---
 
@@ -393,6 +393,37 @@ Admin ينشئ ويعدل باقات الاشتراك.
 
 ---
 
+## 23. صفحة Cup — لوحة الترتيب (Leaderboard) ✅
+
+**الحالة**: مُنفَّذ بالكامل — Phase 15
+
+### المتطلب
+تبويب "Cup" في التطبيق يعرض ترتيب الحسابات (شركات + مؤثرين + مقدمي خدمات) تنازلياً حسب عدد المتابعين، مع ميداليات للمراكز الأولى (#1 ذهبي، #2 فضي، #3 برونزي).
+
+### كيف نُفِّذ (Plan A — رقم متابعين مخزّن)
+- **الجدول/العمود**: `profiles.followers_count` (INTEGER، cached) — migration `028_add_leaderboard.sql`
+- **المزامنة**: Trigger `sync_followers_count` على جدول `follows` يزيد/ينقص العدد تلقائياً عند كل متابعة/إلغاء + backfill للبيانات الموجودة. الرقم الأساسي قابل للضبط يدوياً (يمثّل الوصول الحقيقي على السوشال ميديا).
+- **الأداء**: Partial index `idx_profiles_followers_count` على `(followers_count DESC) WHERE is_active`.
+- **الملفات**: `leaderboard.validator.ts` → `leaderboard.service.ts` → `leaderboard.controller.ts` → `leaderboard.routes.ts` (مسجّل في `routes/index.ts`).
+- **نقطة النهاية**: `GET /api/v1/leaderboard?page=1&limit=20&type=all|company|influencer|service_provider`
+  - `type=all` (افتراضي) يستثني الحسابات العادية (`user`).
+  - الترتيب: `followers_count DESC` + tie-breaker `created_at`.
+  - يُرفق `rank` لكل عنصر + pagination meta.
+- **الفرونت**: يحوّل `rank` لميدالية ويفرمت الأرقام (1.2M / 980K). ضغط الكرت → شاشة البروفايل الموجودة عبر `id`.
+
+---
+
+## ميزات مؤجَّلة لـ v2 (ظاهرة في الـ Prototype، غير مطلوبة في نطاق العميل الأساسي) ⬜
+
+| الميزة | الملاحظة |
+|--------|---------|
+| التقييمات والمراجعات (Reviews/Ratings) | الـ prototype يعرض نجوماً و"4.7 (1240 reviews)" — لا يوجد جدول/endpoint. يحتاج تأكيد العميل. |
+| اللايكات والتعليقات على البوستات | بوستات البروفايل تعرض لايكات/تعليقات/مشاركة — غير منفّذة. |
+| باقات المحتوى (Content Packages) | Basic/Standard/Premium "Includes X posts" + "MyPackages" — منطق مختلف عن `subscription_plans` الدورية. |
+| تسجيل الدخول بـ Facebook | أيقونة موجودة في شاشة الدخول؛ غير مطلوبة في النطاق ولا منفّذة (google/apple فقط). |
+
+---
+
 ## ملخص الحالة العامة
 
 | المتطلب | الحالة | Phase |
@@ -424,6 +455,7 @@ Admin ينشئ ويعدل باقات الاشتراك.
 | نظام القصص (Stories) | ✅ مُنفَّذ | Phase 13 |
 | الحفظ والمفضلة (Saved) | ✅ مُنفَّذ | Phase 13 |
 | الصفحة الرئيسية (Home API) | ✅ مُنفَّذ | Phase 13 |
+| صفحة Cup — لوحة الترتيب (Leaderboard) | ✅ مُنفَّذ | Phase 15 |
 
 ---
 

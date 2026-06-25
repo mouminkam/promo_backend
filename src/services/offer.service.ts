@@ -252,9 +252,9 @@ export class OfferService {
   /**
    * Feature an offer (for now, sets is_featured to true; payment integration will be in Phase 10)
    */
-  async featureOffer(offerId: string, userId: string, token: string) {
-    const supabase = createSupabaseClient(token);
-
+  async featureOffer(offerId: string, userId: string, _token: string) {
+    // Ownership is enforced explicitly below via supabaseAdmin; no user-scoped client needed here.
+    // _token is kept in the signature for call-site consistency with other service methods.
     // Check ownership
     const { data: existing, error: existError } = await supabaseAdmin
       .from('offers')
