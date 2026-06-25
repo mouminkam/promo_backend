@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 export const uploadMediaSchema = z.object({
   body: z.object({
-    related_to: z.enum(['profile', 'offer', 'ad', 'chat']).optional(),
+    related_to: z.enum(['profile', 'offer', 'ad', 'chat', 'service', 'story', 'report', 'verification']).optional(),
     related_id: z.string().uuid('Invalid related ID').optional(),
   }),
 });

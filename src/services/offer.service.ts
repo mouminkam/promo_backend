@@ -4,6 +4,8 @@
 
 import { supabaseAdmin, createSupabaseClient } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
+import { stripe } from '../config/stripe';
+import { env } from '../config/env';
 
 export class OfferService {
   /**
@@ -59,7 +61,7 @@ export class OfferService {
     // Verify offer existence and ownership
     const { data: existing, error: existError } = await supabaseAdmin
       .from('offers')
-      .select('profile_id')
+      .select('profile_id, status')
       .eq('id', offerId)
       .single();
 
@@ -83,9 +85,19 @@ export class OfferService {
       }
     }
 
+    // Sanitize payload to prevent security bypass
+    const { is_featured, views_count, profile_id, id, created_at, updated_at, ...safePayload } = payload;
+
+    // Prevent user from un-rejecting an offer or maliciously setting it to rejected
+    if (safePayload.status) {
+      if (existing.status === 'rejected' || safePayload.status === 'rejected') {
+        delete safePayload.status;
+      }
+    }
+
     const { data, error } = await supabase
       .from('offers')
-      .update(payload)
+      .update(safePayload)
       .eq('id', offerId)
       .select('*, category:categories(id, name_ar, name_en, slug)')
       .single();
@@ -191,7 +203,7 @@ export class OfferService {
       query = query.lte('offer_price', max_price);
     }
     if (location) {
-      query = query.ilike('profile.location', `%${location}%`);
+      query = query.ilike('profiles.location', `%${location}%`);
     }
     if (search) {
       query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
@@ -246,7 +258,7 @@ export class OfferService {
     // Check ownership
     const { data: existing, error: existError } = await supabaseAdmin
       .from('offers')
-      .select('profile_id, is_featured')
+      .select('profile_id, is_featured, title')
       .eq('id', offerId)
       .single();
 
@@ -262,19 +274,56 @@ export class OfferService {
       throw ApiError.badRequest('Offer is already featured');
     }
 
-    // In the future: redirect to Stripe or check paid status. For now, mark it featured directly.
-    const { data, error } = await supabase
-      .from('offers')
-      .update({ is_featured: true })
-      .eq('id', offerId)
-      .select()
+    // Get user stripe_customer_id
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id, full_name')
+      .eq('id', userId)
       .single();
 
-    if (error) {
-      throw ApiError.badRequest(error.message);
+    let customerId = profile?.stripe_customer_id;
+
+    if (!customerId) {
+      const customer = await stripe.customers.create({
+        name: profile?.full_name || 'Promoo User',
+        metadata: { profileId: userId },
+      });
+      customerId = customer.id;
+
+      await supabaseAdmin
+         .from('profiles')
+         .update({ stripe_customer_id: customerId })
+         .eq('id', userId);
     }
 
-    return data;
+    // Create Checkout Session
+    const session = await stripe.checkout.sessions.create({
+      customer: customerId,
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: `Feature Offer - ${existing.title}`,
+              description: `Feature this offer to boost visibility`,
+            },
+            unit_amount: 500, // $5.00
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${env.CLIENT_URL}/featured/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${env.CLIENT_URL}/featured/cancel`,
+      metadata: {
+        type: 'feature_offer',
+        offerId: offerId,
+        profileId: userId,
+      },
+    });
+
+    return { checkoutUrl: session.url };
   }
 }
 

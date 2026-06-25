@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const saveItemSchema = z.object({
   body: z.object({
     item_id: z.string().uuid('Invalid item ID'),
-    item_type: z.enum(['offer', 'ad', 'profile']),
+    item_type: z.enum(['offer', 'ad', 'profile', 'service']),
   }),
 });
 

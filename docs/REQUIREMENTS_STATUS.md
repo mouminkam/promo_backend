@@ -1,6 +1,6 @@
 # Promoo Backend — Requirements Status
 > تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
-> آخر تحديث: 2026-06-17 | الوضع الحالي: المشروع الخلفي (Backend) مكتمل بالكامل 100% ومرفوع على Supabase Cloud ✅
+> آخر تحديث: 2026-06-25 | الوضع الحالي: المشروع الخلفي (Backend) مكتمل بالكامل وتم إجراء المراجعة النهائية (Final Audit) بنجاح 100% ✅
 
 ---
 
@@ -419,6 +419,11 @@ Admin ينشئ ويعدل باقات الاشتراك.
 | Admin — إدارة الاشتراكات | ✅ مُنفَّذ | Phase 12 |
 | Admin — إدارة المدفوعات | ✅ مُنفَّذ | Phase 12 |
 | Admin — التقارير والإحصائيات | ✅ مُنفَّذ | Phase 12 |
+| نظام الخدمات (Services) | ✅ مُنفَّذ | Phase 13 |
+| نظام حجز المقاعد (Seats) | ✅ مُنفَّذ | Phase 13 |
+| نظام القصص (Stories) | ✅ مُنفَّذ | Phase 13 |
+| الحفظ والمفضلة (Saved) | ✅ مُنفَّذ | Phase 13 |
+| الصفحة الرئيسية (Home API) | ✅ مُنفَّذ | Phase 13 |
 
 ---
 
@@ -435,6 +440,26 @@ Admin ينشئ ويعدل باقات الاشتراك.
 
 ---
 
+## 13. Phase 13: Gap Fixes & Deep Audit (Current & Final)
+
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| 13.1 | Services Module (CRUD) | Core | ✅ Completed |
+| 13.2 | Seats Booking & Webhooks | Core | ✅ Completed |
+| 13.3 | Stories Module | Core | ✅ Completed |
+| 13.4 | Saved Items (Bookmarks) | Core | ✅ Completed |
+| 13.5 | Home API Aggregator | Core | ✅ Completed |
+| 13.6 | Webhook Architecture Refactoring | High | ✅ Completed |
+| 13.7 | DB Constraints Audit (Media, Reports, Subs) | Critical | ✅ Completed |
+| 13.8 | Zero-Trust Security Patches (Mass Assign, RLS Hijacking) | Critical | ✅ Completed |
+| 13.9 | Bug Fixes & Refactoring (Webhooks, Chat, Seats, Offers) | Critical | ✅ Completed |
+| 13.10| Database Optimization (Missing Indexes) | High | ✅ Completed |
+| 13.11| Final Deep Audit Bug Fixes (Status mutation, Stripe crash guards, OTP typing) | Critical | ✅ Completed |
+| 13.12| Database Final Patches (Seats, Polymorphic, Currency, Orphaned Chats) | Critical | ✅ Completed |
+| 13.13| Feature Offer Webhook Constraint Patch (024_fix_feature_offer_payment.sql) | Critical | ✅ Completed |
+
+---
+
 ## ملاحظات معمارية مهمة
 
 ### ✅ ما نحن عليه صح تماماً
@@ -444,9 +469,11 @@ Admin ينشئ ويعدل باقات الاشتراك.
 4. **أنواع TypeScript صارمة**: لا يوجد `any` في الكود، `type-check` ينجح بدون أخطاء.
 5. **Pagination على كل القوائم**: كل endpoint يُرجع قائمة يدعم `?page=&limit=`.
 6. **Bilingual جاهز**: الـ DB فيه `name_ar` و `name_en` لكل الجداول التي تحتاجها.
-7. **Database جاهزة 100%**: كل 9 migrations مكتوبة — حتى الجداول الخاصة بـ Phase 8-12 موجودة.
+7. **Database جاهزة 100%**: كل 18 migrations مكتوبة — وتم إصلاح التضاربات (NO-OP) لضمان بيئة آمنة للتحديثات.
+8. **المراجعة النهائية (Surgical Audit)**: تم إجراء تدقيق كامل للـ Webhooks، والتأكد من توافر Services للمسارات، وتأمين RLS بشكل كامل للمحادثات والملفات، وإصلاح ثغرات Mass Assignment واختراق المجلدات (Folder Hijacking).
+9. **Release Mode Locked**: تمت إضافة التعديل النهائي 024 لإصلاح قيود الدفع في الـ Database، وتم قفل الـ Backend كـ Production-Ready تماماً دون الحاجة لمزيد من التدقيق.
 
 ### ⚠️ ما يحتاج انتباه لاحقاً
 1. **Front-End Integration**: الباك إند جاهز تماماً. يجب ربط تطبيق الموبايل بالـ Endpoints و Supabase SDK مباشرة (للـ Realtime و OAuth).
 2. **Dashboard Configuration**: يجب على مالك المشروع تفعيل Google/Apple OAuth من داخل الـ Supabase Dashboard، ووضع Client IDs الفعلية.
-3. **Stripe IDs**: باقات الاشتراك الـ Seeded تحتوي على `price_placeholder`. يجب تغييرها بـ `stripe_price_id` الفعلي بعد إنشاء الباقات من لوحة تحكم Stripe.
+3. **Stripe IDs**: باقات الاشتراك الـ Seeded تحتوي على `price_placeholder`. تم وضع كود حماية لمنع انهيار السيرفر (Server Crash) إذا تم استخدامها، ولكن يجب تغييرها بـ `stripe_price_id` الفعلي بعد إنشاء الباقات من لوحة تحكم Stripe لكي تعمل الدفعات الحقيقية.

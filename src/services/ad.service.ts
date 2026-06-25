@@ -57,7 +57,7 @@ export class AdService {
 
     const { data: existing, error: existError } = await supabaseAdmin
       .from('ads')
-      .select('profile_id')
+      .select('profile_id, status')
       .eq('id', adId)
       .single();
 
@@ -69,8 +69,15 @@ export class AdService {
       throw ApiError.forbidden('You do not have permission to update this ad');
     }
 
-    // Don't let users update status directly here
-    const { status, spent, impressions, clicks, ...updatablePayload } = payload;
+    // Safely allow status update if not bypassing moderation
+    const { spent, impressions, clicks, ...updatablePayload } = payload;
+
+    if (updatablePayload.status) {
+      const protectedStatuses = ['pending', 'completed', 'rejected'];
+      if (protectedStatuses.includes(updatablePayload.status) || protectedStatuses.includes(existing.status)) {
+        delete updatablePayload.status;
+      }
+    }
 
     const { data, error } = await supabase
       .from('ads')

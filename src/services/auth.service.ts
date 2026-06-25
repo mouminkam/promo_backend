@@ -110,7 +110,7 @@ export class AuthService {
   /**
    * Verify OTP (for email signup, phone signup, or password recovery)
    */
-  async verifyOtp(email: string | undefined, phone: string | undefined, token: string, type: any) {
+  async verifyOtp(email: string | undefined, phone: string | undefined, token: string, type: 'signup' | 'magiclink' | 'recovery' | 'sms') {
     const payload: any = { token, type };
     if (email) payload.email = email;
     if (phone) payload.phone = phone;

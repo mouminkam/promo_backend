@@ -158,7 +158,7 @@ export class SubscriptionService {
             // Activate Featured Account if applicable
             if (paymentType === 'featured') {
               const placement = session.metadata?.placement;
-              const durationDays = parseInt(session.metadata?.duration_days || '0', 10);
+              const durationDays = parseInt(session.metadata?.duration_days || '30', 10);
               
               if (placement && durationDays > 0) {
                 const startDate = new Date();
@@ -172,6 +172,17 @@ export class SubscriptionService {
                   amount_paid: amount,
                   is_active: true
                 });
+              }
+            }
+
+            // Feature an offer if applicable
+            if (paymentType === 'feature_offer') {
+              const offerId = session.metadata?.offerId;
+              if (offerId) {
+                await supabaseAdmin
+                  .from('offers')
+                  .update({ is_featured: true })
+                  .eq('id', offerId);
               }
             }
           }
@@ -248,23 +259,10 @@ export class SubscriptionService {
         canceled_at: cancelAt,
       };
 
-      // We need to check if it exists first because we only UPSERT by stripe_subscription_id
-      const { data: existingSub } = await supabaseAdmin
+      // Use atomic upsert to avoid race conditions on concurrent webhooks
+      await supabaseAdmin
         .from('subscriptions')
-        .select('id')
-        .eq('stripe_subscription_id', stripeSubId)
-        .maybeSingle();
-
-      if (existingSub) {
-        await supabaseAdmin
-          .from('subscriptions')
-          .update(payload)
-          .eq('id', existingSub.id);
-      } else {
-        await supabaseAdmin
-          .from('subscriptions')
-          .insert(payload);
-      }
+        .upsert(payload, { onConflict: 'stripe_subscription_id' });
     } else if (type === 'customer.subscription.deleted') {
       const stripeSubId = data.id;
       await supabaseAdmin

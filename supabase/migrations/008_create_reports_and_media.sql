@@ -24,7 +24,7 @@ create table public.media (
   file_url text not null,
   file_type text not null,
   file_size int not null,
-  related_to text check (related_to in ('profile', 'offer', 'ad', 'chat')),
+  related_to text constraint media_related_to_check check (related_to in ('profile', 'offer', 'ad', 'chat')),
   related_id uuid,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

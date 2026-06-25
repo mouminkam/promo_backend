@@ -1,0 +1,2040 @@
+﻿
+  src\services\ad.service.ts:14:
+  src\services\ad.service.ts:15:    const { data, error } = await supabase
+> src\services\ad.service.ts:16:      .from('ads')
+  src\services\ad.service.ts:17:      .insert({
+  src\services\ad.service.ts:18:        profile_id: userId,
+  src\services\ad.service.ts:19:        title: payload.title,
+  src\services\ad.service.ts:20:        description: payload.description,
+  src\services\ad.service.ts:21:        media_url: payload.media_url,
+  src\services\ad.service.ts:22:        ad_type: payload.ad_type,
+  src\services\ad.service.ts:23:        target_url: payload.target_url,
+  src\services\ad.service.ts:24:        budget: payload.budget,
+  src\services\ad.service.ts:25:        start_date: payload.start_date,
+  src\services\ad.service.ts:26:        end_date: payload.end_date,
+  src\services\ad.service.ts:57:
+  src\services\ad.service.ts:58:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\ad.service.ts:59:      .from('ads')
+  src\services\ad.service.ts:60:      .select('profile_id')
+  src\services\ad.service.ts:61:      .eq('id', adId)
+  src\services\ad.service.ts:62:      .single();
+  src\services\ad.service.ts:63:
+  src\services\ad.service.ts:64:    if (existError || !existing) {
+  src\services\ad.service.ts:65:      throw ApiError.notFound('Ad not found');
+  src\services\ad.service.ts:66:    }
+  src\services\ad.service.ts:67:
+  src\services\ad.service.ts:68:    if (existing.profile_id !== userId) {
+  src\services\ad.service.ts:69:      throw ApiError.forbidden('You do not have permission to update this ad');
+  src\services\ad.service.ts:74:
+  src\services\ad.service.ts:75:    const { data, error } = await supabase
+> src\services\ad.service.ts:76:      .from('ads')
+  src\services\ad.service.ts:77:      .update(updatablePayload)
+  src\services\ad.service.ts:78:      .eq('id', adId)
+  src\services\ad.service.ts:79:      .select()
+  src\services\ad.service.ts:80:      .single();
+  src\services\ad.service.ts:81:
+  src\services\ad.service.ts:82:    if (error) {
+  src\services\ad.service.ts:83:      throw ApiError.badRequest(error.message);
+  src\services\ad.service.ts:84:    }
+  src\services\ad.service.ts:85:
+  src\services\ad.service.ts:86:    return data;
+  src\services\ad.service.ts:94:
+  src\services\ad.service.ts:95:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\ad.service.ts:96:      .from('ads')
+  src\services\ad.service.ts:97:      .select('profile_id, status')
+  src\services\ad.service.ts:98:      .eq('id', adId)
+  src\services\ad.service.ts:99:      .single();
+  src\services\ad.service.ts:100:
+  src\services\ad.service.ts:101:    if (existError || !existing) {
+  src\services\ad.service.ts:102:      throw ApiError.notFound('Ad not found');
+  src\services\ad.service.ts:103:    }
+  src\services\ad.service.ts:104:
+  src\services\ad.service.ts:105:    if (existing.profile_id !== userId) {
+  src\services\ad.service.ts:106:      throw ApiError.forbidden('You do not have permission to toggle this ad');
+  src\services\ad.service.ts:117:
+  src\services\ad.service.ts:118:    const { data, error } = await supabase
+> src\services\ad.service.ts:119:      .from('ads')
+  src\services\ad.service.ts:120:      .update({ status: newStatus })
+  src\services\ad.service.ts:121:      .eq('id', adId)
+  src\services\ad.service.ts:122:      .select()
+  src\services\ad.service.ts:123:      .single();
+  src\services\ad.service.ts:124:
+  src\services\ad.service.ts:125:    if (error) {
+  src\services\ad.service.ts:126:      throw ApiError.badRequest(error.message);
+  src\services\ad.service.ts:127:    }
+  src\services\ad.service.ts:128:
+  src\services\ad.service.ts:129:    return data;
+  src\services\ad.service.ts:135:  async getAdStats(adId: string, userId: string) {
+  src\services\ad.service.ts:136:    const { data, error } = await supabaseAdmin
+> src\services\ad.service.ts:137:      .from('ads')
+  src\services\ad.service.ts:138:      .select('id, profile_id, impressions, clicks, budget, spent, status')
+  src\services\ad.service.ts:139:      .eq('id', adId)
+  src\services\ad.service.ts:140:      .single();
+  src\services\ad.service.ts:141:
+  src\services\ad.service.ts:142:    if (error || !data) {
+  src\services\ad.service.ts:143:      throw ApiError.notFound('Ad not found');
+  src\services\ad.service.ts:144:    }
+  src\services\ad.service.ts:145:
+  src\services\ad.service.ts:146:    if (data.profile_id !== userId) {
+  src\services\ad.service.ts:147:      throw ApiError.forbidden('You do not have permission to view stats for this 
+ad');
+  src\services\ad.service.ts:163:  async recordImpression(adId: string) {
+  src\services\ad.service.ts:164:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\ad.service.ts:165:      .from('ads')
+  src\services\ad.service.ts:166:      .select('impressions, budget, spent, status')
+  src\services\ad.service.ts:167:      .eq('id', adId)
+  src\services\ad.service.ts:168:      .single();
+  src\services\ad.service.ts:169:
+  src\services\ad.service.ts:170:    if (existError || !existing) {
+  src\services\ad.service.ts:171:      throw ApiError.notFound('Ad not found');
+  src\services\ad.service.ts:172:    }
+  src\services\ad.service.ts:173:
+  src\services\ad.service.ts:174:    if (existing.status !== 'active') {
+  src\services\ad.service.ts:175:      throw ApiError.badRequest('Ad is not active');
+  src\services\ad.service.ts:182:
+  src\services\ad.service.ts:183:    const { data, error } = await supabaseAdmin
+> src\services\ad.service.ts:184:      .from('ads')
+  src\services\ad.service.ts:185:      .update({
+  src\services\ad.service.ts:186:        impressions: (existing.impressions || 0) + 1,
+  src\services\ad.service.ts:187:        spent: newSpent,
+  src\services\ad.service.ts:188:        status: isCompleted ? 'completed' : 'active',
+  src\services\ad.service.ts:189:      })
+  src\services\ad.service.ts:190:      .eq('id', adId)
+  src\services\ad.service.ts:191:      .select()
+  src\services\ad.service.ts:192:      .single();
+  src\services\ad.service.ts:193:
+  src\services\ad.service.ts:194:    if (error) {
+  src\services\ad.service.ts:204:  async recordClick(adId: string) {
+  src\services\ad.service.ts:205:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\ad.service.ts:206:      .from('ads')
+  src\services\ad.service.ts:207:      .select('clicks, budget, spent, status')
+  src\services\ad.service.ts:208:      .eq('id', adId)
+  src\services\ad.service.ts:209:      .single();
+  src\services\ad.service.ts:210:
+  src\services\ad.service.ts:211:    if (existError || !existing) {
+  src\services\ad.service.ts:212:      throw ApiError.notFound('Ad not found');
+  src\services\ad.service.ts:213:    }
+  src\services\ad.service.ts:214:
+  src\services\ad.service.ts:215:    if (existing.status !== 'active') {
+  src\services\ad.service.ts:216:      throw ApiError.badRequest('Ad is not active');
+  src\services\ad.service.ts:223:
+  src\services\ad.service.ts:224:    const { data, error } = await supabaseAdmin
+> src\services\ad.service.ts:225:      .from('ads')
+  src\services\ad.service.ts:226:      .update({
+  src\services\ad.service.ts:227:        clicks: (existing.clicks || 0) + 1,
+  src\services\ad.service.ts:228:        spent: newSpent,
+  src\services\ad.service.ts:229:        status: isCompleted ? 'completed' : 'active',
+  src\services\ad.service.ts:230:      })
+  src\services\ad.service.ts:231:      .eq('id', adId)
+  src\services\ad.service.ts:232:      .select()
+  src\services\ad.service.ts:233:      .single();
+  src\services\ad.service.ts:234:
+  src\services\ad.service.ts:235:    if (error) {
+  src\services\ad.service.ts:245:  async getActiveAds(adType?: string) {
+  src\services\ad.service.ts:246:    let query = supabaseAdmin
+> src\services\ad.service.ts:247:      .from('ads')
+  src\services\ad.service.ts:248:      .select('id, profile_id, title, description, media_url, ad_type, target_url')
+  src\services\ad.service.ts:249:      .eq('status', 'active');
+  src\services\ad.service.ts:250:
+  src\services\ad.service.ts:251:    if (adType) {
+  src\services\ad.service.ts:252:      query = query.eq('ad_type', adType);
+  src\services\ad.service.ts:253:    }
+  src\services\ad.service.ts:254:
+  src\services\ad.service.ts:255:    const { data, error } = await query;
+  src\services\ad.service.ts:256:
+  src\services\ad.service.ts:257:    if (error) {
+  src\services\ad.service.ts:275:
+  src\services\ad.service.ts:276:    const { data, error, count } = await supabaseAdmin
+> src\services\ad.service.ts:277:      .from('ads')
+  src\services\ad.service.ts:278:      .select('*', { count: 'exact' })
+  src\services\ad.service.ts:279:      .eq('profile_id', profileId)
+  src\services\ad.service.ts:280:      .range(from, to)
+  src\services\ad.service.ts:281:      .order('created_at', { ascending: false });
+  src\services\ad.service.ts:282:
+  src\services\ad.service.ts:283:    if (error) {
+  src\services\ad.service.ts:284:      throw ApiError.internal(error.message);
+  src\services\ad.service.ts:285:    }
+  src\services\ad.service.ts:286:
+  src\services\ad.service.ts:287:    return { data, count: count || 0 };
+  src\services\auth.service.ts:66:    if (data.user) {
+  src\services\auth.service.ts:67:      const { data: profile } = await supabaseAdmin
+> src\services\auth.service.ts:68:        .from('profiles')
+  src\services\auth.service.ts:69:        .select('is_active')
+  src\services\auth.service.ts:70:        .eq('id', data.user.id)
+  src\services\auth.service.ts:71:        .single();
+  src\services\auth.service.ts:72:        
+  src\services\auth.service.ts:73:      if (profile && profile.is_active === false) {
+  src\services\auth.service.ts:74:        throw ApiError.unauthorized('Account is banned');
+  src\services\auth.service.ts:75:      }
+  src\services\auth.service.ts:76:    }
+  src\services\auth.service.ts:77:
+  src\services\auth.service.ts:78:    return data;
+  src\services\auth.service.ts:95:    if (data.user) {
+  src\services\auth.service.ts:96:      const { data: profile } = await supabaseAdmin
+> src\services\auth.service.ts:97:        .from('profiles')
+  src\services\auth.service.ts:98:        .select('is_active')
+  src\services\auth.service.ts:99:        .eq('id', data.user.id)
+  src\services\auth.service.ts:100:        .single();
+  src\services\auth.service.ts:101:        
+  src\services\auth.service.ts:102:      if (profile && profile.is_active === false) {
+  src\services\auth.service.ts:103:        throw ApiError.unauthorized('Account is banned');
+  src\services\auth.service.ts:104:      }
+  src\services\auth.service.ts:105:    }
+  src\services\auth.service.ts:106:
+  src\services\auth.service.ts:107:    return data;
+  src\services\category.service.ts:12:  async getCategories(): Promise<Record<string, unknown>[]> {
+  src\services\category.service.ts:13:    const { data, error } = await supabaseAdmin
+> src\services\category.service.ts:14:      .from('categories')
+  src\services\category.service.ts:15:      .select('*')
+  src\services\category.service.ts:16:      .order('sort_order', { ascending: true });
+  src\services\category.service.ts:17:
+  src\services\category.service.ts:18:    if (error) throw ApiError.internal(error.message);
+  src\services\category.service.ts:19:    return data || [];
+  src\services\category.service.ts:20:  }
+  src\services\category.service.ts:21:
+  src\services\category.service.ts:22:  /**
+  src\services\category.service.ts:23:   * Get content (offers) for a specific category
+  src\services\category.service.ts:24:   */
+  src\services\category.service.ts:27:
+  src\services\category.service.ts:28:    const { data, count, error } = await supabaseAdmin
+> src\services\category.service.ts:29:      .from('offers')
+  src\services\category.service.ts:30:      .select('*, profile:profiles!profile_id(full_name, username, avatar_url, 
+is_verified, account_type)', { count: 'exact' })
+  src\services\category.service.ts:31:      .eq('category_id', categoryId)
+  src\services\category.service.ts:32:      .order('created_at', { ascending: false })
+  src\services\category.service.ts:33:      .range(offset, offset + limit - 1);
+  src\services\category.service.ts:34:
+  src\services\category.service.ts:35:    if (error) throw ApiError.internal(error.message);
+  src\services\category.service.ts:36:    
+  src\services\category.service.ts:37:    const total = count || 0;
+  src\services\category.service.ts:38:
+  src\services\category.service.ts:39:    return {
+  src\services\chat.service.ts:26:    // Check if participant exists
+  src\services\chat.service.ts:27:    const { data: participant } = await supabaseAdmin
+> src\services\chat.service.ts:28:      .from('profiles')
+  src\services\chat.service.ts:29:      .select('id, full_name, avatar_url')
+  src\services\chat.service.ts:30:      .eq('id', participantId)
+  src\services\chat.service.ts:31:      .single();
+  src\services\chat.service.ts:32:
+  src\services\chat.service.ts:33:    if (!participant) {
+  src\services\chat.service.ts:34:      throw ApiError.notFound('User not found');
+  src\services\chat.service.ts:35:    }
+  src\services\chat.service.ts:36:
+  src\services\chat.service.ts:37:    // Check if a direct chat already exists between these two users
+  src\services\chat.service.ts:38:    const { data: existingRooms } = await supabaseAdmin
+> src\services\chat.service.ts:39:      .from('chat_participants')
+  src\services\chat.service.ts:40:      .select('room_id')
+  src\services\chat.service.ts:41:      .eq('profile_id', currentUserId);
+  src\services\chat.service.ts:42:
+  src\services\chat.service.ts:43:    if (existingRooms && existingRooms.length > 0) {
+  src\services\chat.service.ts:44:      const roomIds = existingRooms.map((r) => r.room_id);
+  src\services\chat.service.ts:45:
+  src\services\chat.service.ts:46:      // Check if participant is in any of these rooms AND the room is 'direct'
+  src\services\chat.service.ts:47:      const { data: sharedRoom } = await supabaseAdmin
+> src\services\chat.service.ts:48:        .from('chat_participants')
+  src\services\chat.service.ts:49:        .select('room_id, chat_rooms!inner(id, type)')
+  src\services\chat.service.ts:50:        .eq('profile_id', participantId)
+  src\services\chat.service.ts:51:        .in('room_id', roomIds)
+  src\services\chat.service.ts:52:        .eq('chat_rooms.type', 'direct')
+  src\services\chat.service.ts:53:        .limit(1)
+  src\services\chat.service.ts:54:        .maybeSingle();
+  src\services\chat.service.ts:55:
+  src\services\chat.service.ts:56:      if (sharedRoom) {
+  src\services\chat.service.ts:57:        // Return the existing room with participant info
+  src\services\chat.service.ts:58:        const { data: room } = await supabaseAdmin
+> src\services\chat.service.ts:59:          .from('chat_rooms')
+  src\services\chat.service.ts:60:          .select('*')
+  src\services\chat.service.ts:61:          .eq('id', sharedRoom.room_id)
+  src\services\chat.service.ts:62:          .single();
+  src\services\chat.service.ts:63:
+  src\services\chat.service.ts:64:        return { room, participant, isNew: false };
+  src\services\chat.service.ts:65:      }
+  src\services\chat.service.ts:66:    }
+  src\services\chat.service.ts:67:
+  src\services\chat.service.ts:68:    // Create new chat room
+  src\services\chat.service.ts:69:    const { data: newRoom, error: roomError } = await supabaseAdmin
+> src\services\chat.service.ts:70:      .from('chat_rooms')
+  src\services\chat.service.ts:71:      .insert({ type: 'direct' })
+  src\services\chat.service.ts:72:      .select()
+  src\services\chat.service.ts:73:      .single();
+  src\services\chat.service.ts:74:
+  src\services\chat.service.ts:75:    if (roomError || !newRoom) {
+  src\services\chat.service.ts:76:      throw ApiError.internal(roomError?.message || 'Failed to create chat room');
+  src\services\chat.service.ts:77:    }
+  src\services\chat.service.ts:78:
+  src\services\chat.service.ts:79:    // Add both participants
+  src\services\chat.service.ts:80:    const { error: participantsError } = await supabaseAdmin
+> src\services\chat.service.ts:81:      .from('chat_participants')
+  src\services\chat.service.ts:82:      .insert([
+  src\services\chat.service.ts:83:        { room_id: newRoom.id, profile_id: currentUserId },
+  src\services\chat.service.ts:84:        { room_id: newRoom.id, profile_id: participantId },
+  src\services\chat.service.ts:85:      ]);
+  src\services\chat.service.ts:86:
+  src\services\chat.service.ts:87:    if (participantsError) {
+  src\services\chat.service.ts:88:      // Cleanup: delete the room if we failed to add participants
+> src\services\chat.service.ts:89:      await supabaseAdmin.from('chat_rooms').delete().eq('id', newRoom.id);
+  src\services\chat.service.ts:90:      throw ApiError.internal(participantsError.message);
+  src\services\chat.service.ts:91:    }
+  src\services\chat.service.ts:92:
+  src\services\chat.service.ts:93:    return { room: newRoom, participant, isNew: true };
+  src\services\chat.service.ts:94:  }
+  src\services\chat.service.ts:95:
+  src\services\chat.service.ts:96:  /**
+  src\services\chat.service.ts:97:   * Send a message to a chat room
+  src\services\chat.service.ts:98:   */
+  src\services\chat.service.ts:99:  async sendMessage(
+  src\services\chat.service.ts:106:
+  src\services\chat.service.ts:107:    const { data: message, error } = await supabaseAdmin
+> src\services\chat.service.ts:108:      .from('messages')
+  src\services\chat.service.ts:109:      .insert({
+  src\services\chat.service.ts:110:        room_id: roomId,
+  src\services\chat.service.ts:111:        sender_id: currentUserId,
+  src\services\chat.service.ts:112:        content: payload.content || null,
+  src\services\chat.service.ts:113:        type: payload.type,
+  src\services\chat.service.ts:114:        media_url: payload.media_url || null,
+  src\services\chat.service.ts:115:      })
+  src\services\chat.service.ts:116:      .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
+  src\services\chat.service.ts:117:      .single();
+  src\services\chat.service.ts:118:
+  src\services\chat.service.ts:123:    // Send push notification to the other participant
+  src\services\chat.service.ts:124:    const { data: participants } = await supabaseAdmin
+> src\services\chat.service.ts:125:      .from('chat_participants')
+  src\services\chat.service.ts:126:      .select('profile_id')
+  src\services\chat.service.ts:127:      .eq('room_id', roomId)
+  src\services\chat.service.ts:128:      .neq('profile_id', currentUserId);
+  src\services\chat.service.ts:129:
+  src\services\chat.service.ts:130:    if (participants && participants.length > 0) {
+  src\services\chat.service.ts:131:      const otherParticipantId = participants[0].profile_id;
+  src\services\chat.service.ts:132:      
+  src\services\chat.service.ts:133:      const senderName = message.sender?.full_name || 'Someone';
+  src\services\chat.service.ts:134:      const bodyText = payload.type === 'text' 
+  src\services\chat.service.ts:135:        ? (payload.content || 'Sent an attachment') 
+  src\services\chat.service.ts:167:    // Get total count
+  src\services\chat.service.ts:168:    const { count } = await supabaseAdmin
+> src\services\chat.service.ts:169:      .from('messages')
+  src\services\chat.service.ts:170:      .select('*', { count: 'exact', head: true })
+  src\services\chat.service.ts:171:      .eq('room_id', roomId);
+  src\services\chat.service.ts:172:
+  src\services\chat.service.ts:173:    const total = count || 0;
+  src\services\chat.service.ts:174:
+  src\services\chat.service.ts:175:    // Get messages (newest first)
+  src\services\chat.service.ts:176:    const { data: messages, error } = await supabaseAdmin
+> src\services\chat.service.ts:177:      .from('messages')
+  src\services\chat.service.ts:178:      .select('*, sender:profiles!sender_id(id, full_name, avatar_url)')
+  src\services\chat.service.ts:179:      .eq('room_id', roomId)
+  src\services\chat.service.ts:180:      .order('created_at', { ascending: false })
+  src\services\chat.service.ts:181:      .range(offset, offset + limit - 1);
+  src\services\chat.service.ts:182:
+  src\services\chat.service.ts:183:    if (error) {
+  src\services\chat.service.ts:184:      throw ApiError.internal(error.message);
+  src\services\chat.service.ts:185:    }
+  src\services\chat.service.ts:186:
+  src\services\chat.service.ts:187:    return {
+  src\services\chat.service.ts:206:    // We can query chat_rooms directly, joining chat_participants to filter by the 
+current user
+  src\services\chat.service.ts:207:    const { count } = await supabaseAdmin
+> src\services\chat.service.ts:208:      .from('chat_rooms')
+  src\services\chat.service.ts:209:      .select('id, chat_participants!inner(profile_id)', { count: 'exact', head: 
+true })
+  src\services\chat.service.ts:210:      .eq('chat_participants.profile_id', currentUserId);
+  src\services\chat.service.ts:211:
+  src\services\chat.service.ts:212:    const total = count || 0;
+  src\services\chat.service.ts:213:
+  src\services\chat.service.ts:214:    const { data: rooms, error: pError } = await supabaseAdmin
+> src\services\chat.service.ts:215:      .from('chat_rooms')
+  src\services\chat.service.ts:216:      .select('*, chat_participants!inner(profile_id, last_read_at)')
+  src\services\chat.service.ts:217:      .eq('chat_participants.profile_id', currentUserId)
+  src\services\chat.service.ts:218:      .order('last_message_at', { ascending: false })
+  src\services\chat.service.ts:219:      .range(offset, offset + limit - 1);
+  src\services\chat.service.ts:220:
+  src\services\chat.service.ts:221:    if (pError) {
+  src\services\chat.service.ts:222:      throw ApiError.internal(pError?.message || 'Failed to fetch chats');
+  src\services\chat.service.ts:223:    }
+  src\services\chat.service.ts:224:
+  src\services\chat.service.ts:225:    if (!rooms || rooms.length === 0) {
+  src\services\chat.service.ts:239:      // Get the other participant
+  src\services\chat.service.ts:240:      const { data: otherParticipant } = await supabaseAdmin
+> src\services\chat.service.ts:241:        .from('chat_participants')
+  src\services\chat.service.ts:242:        .select('profile_id, profiles!inner(id, full_name, avatar_url)')
+  src\services\chat.service.ts:243:        .eq('room_id', room.id)
+  src\services\chat.service.ts:244:        .neq('profile_id', currentUserId)
+  src\services\chat.service.ts:245:        .single();
+  src\services\chat.service.ts:246:
+  src\services\chat.service.ts:247:      // Get the last message
+  src\services\chat.service.ts:248:      const { data: lastMessage } = await supabaseAdmin
+> src\services\chat.service.ts:249:        .from('messages')
+  src\services\chat.service.ts:250:        .select('id, content, type, created_at, sender_id')
+  src\services\chat.service.ts:251:        .eq('room_id', room.id)
+  src\services\chat.service.ts:252:        .order('created_at', { ascending: false })
+  src\services\chat.service.ts:253:        .limit(1)
+  src\services\chat.service.ts:254:        .maybeSingle();
+  src\services\chat.service.ts:255:
+  src\services\chat.service.ts:256:      // Count unread messages
+  src\services\chat.service.ts:257:      const participantEntry = participantEntries.find((p) => p.room_id === 
+room.id);
+  src\services\chat.service.ts:258:      const lastReadAt = participantEntry?.last_read_at || room.created_at;
+  src\services\chat.service.ts:259:
+  src\services\chat.service.ts:260:      const { count: unreadCount } = await supabaseAdmin
+> src\services\chat.service.ts:261:        .from('messages')
+  src\services\chat.service.ts:262:        .select('*', { count: 'exact', head: true })
+  src\services\chat.service.ts:263:        .eq('room_id', room.id)
+  src\services\chat.service.ts:264:        .neq('sender_id', currentUserId)
+  src\services\chat.service.ts:265:        .gt('created_at', lastReadAt);
+  src\services\chat.service.ts:266:
+  src\services\chat.service.ts:267:      chatList.push({
+  src\services\chat.service.ts:268:        room,
+  src\services\chat.service.ts:269:        otherParticipant: otherParticipant?.profiles || null,
+  src\services\chat.service.ts:270:        lastMessage: lastMessage || null,
+  src\services\chat.service.ts:271:        unreadCount: unreadCount || 0,
+  src\services\chat.service.ts:290:    // Update last_read_at for the current user
+  src\services\chat.service.ts:291:    const { error } = await supabaseAdmin
+> src\services\chat.service.ts:292:      .from('chat_participants')
+  src\services\chat.service.ts:293:      .update({ last_read_at: new Date().toISOString() })
+  src\services\chat.service.ts:294:      .eq('room_id', roomId)
+  src\services\chat.service.ts:295:      .eq('profile_id', currentUserId);
+  src\services\chat.service.ts:296:
+  src\services\chat.service.ts:297:    if (error) {
+  src\services\chat.service.ts:298:      throw ApiError.internal(error.message);
+  src\services\chat.service.ts:299:    }
+  src\services\chat.service.ts:300:
+  src\services\chat.service.ts:301:    // Also mark messages as read
+  src\services\chat.service.ts:302:    await supabaseAdmin
+> src\services\chat.service.ts:303:      .from('messages')
+  src\services\chat.service.ts:304:      .update({ is_read: true })
+  src\services\chat.service.ts:305:      .eq('room_id', roomId)
+  src\services\chat.service.ts:306:      .neq('sender_id', currentUserId)
+  src\services\chat.service.ts:307:      .eq('is_read', false);
+  src\services\chat.service.ts:308:  }
+  src\services\chat.service.ts:309:
+  src\services\chat.service.ts:310:  /**
+  src\services\chat.service.ts:311:   * Delete a chat (remove user from participants, not the room itself)
+  src\services\chat.service.ts:312:   */
+  src\services\chat.service.ts:313:  async deleteChat(currentUserId: string, roomId: string): Promise<void> {
+  src\services\chat.service.ts:316:    // Remove user from participants
+  src\services\chat.service.ts:317:    const { error } = await supabaseAdmin
+> src\services\chat.service.ts:318:      .from('chat_participants')
+  src\services\chat.service.ts:319:      .delete()
+  src\services\chat.service.ts:320:      .eq('room_id', roomId)
+  src\services\chat.service.ts:321:      .eq('profile_id', currentUserId);
+  src\services\chat.service.ts:322:
+  src\services\chat.service.ts:323:    if (error) {
+  src\services\chat.service.ts:324:      throw ApiError.internal(error.message);
+  src\services\chat.service.ts:325:    }
+  src\services\chat.service.ts:326:
+  src\services\chat.service.ts:327:    // If no participants remain, delete the room entirely
+  src\services\chat.service.ts:328:    const { count } = await supabaseAdmin
+> src\services\chat.service.ts:329:      .from('chat_participants')
+  src\services\chat.service.ts:330:      .select('*', { count: 'exact', head: true })
+  src\services\chat.service.ts:331:      .eq('room_id', roomId);
+  src\services\chat.service.ts:332:
+  src\services\chat.service.ts:333:    if (count === 0) {
+> src\services\chat.service.ts:334:      await supabaseAdmin.from('chat_rooms').delete().eq('id', roomId);
+  src\services\chat.service.ts:335:    }
+  src\services\chat.service.ts:336:  }
+  src\services\chat.service.ts:337:
+  src\services\chat.service.ts:338:  // ──────────────────────────────────────────
+  src\services\chat.service.ts:339:  // Private Helpers
+  src\services\chat.service.ts:340:  // ──────────────────────────────────────────
+  src\services\chat.service.ts:341:
+  src\services\chat.service.ts:342:  /**
+  src\services\chat.service.ts:343:   * Verify that the user is a participant of the room
+  src\services\chat.service.ts:344:   */
+  src\services\chat.service.ts:345:  private async verifyParticipant(userId: string, roomId: string): Promise<void> {
+  src\services\chat.service.ts:346:    const { data, error } = await supabaseAdmin
+> src\services\chat.service.ts:347:      .from('chat_participants')
+  src\services\chat.service.ts:348:      .select('id')
+  src\services\chat.service.ts:349:      .eq('room_id', roomId)
+  src\services\chat.service.ts:350:      .eq('profile_id', userId)
+  src\services\chat.service.ts:351:      .maybeSingle();
+  src\services\chat.service.ts:352:
+  src\services\chat.service.ts:353:    if (error) {
+  src\services\chat.service.ts:354:      throw ApiError.internal(error.message);
+  src\services\chat.service.ts:355:    }
+  src\services\chat.service.ts:356:
+  src\services\chat.service.ts:357:    if (!data) {
+  src\services\featured.service.ts:17:    // Check if user already has an active featured account for this placement
+  src\services\featured.service.ts:18:    const { data: existing } = await supabaseAdmin
+> src\services\featured.service.ts:19:      .from('featured_accounts')
+  src\services\featured.service.ts:20:      .select('id')
+  src\services\featured.service.ts:21:      .eq('profile_id', userId)
+  src\services\featured.service.ts:22:      .eq('placement', placement)
+  src\services\featured.service.ts:23:      .eq('is_active', true)
+  src\services\featured.service.ts:24:      .maybeSingle();
+  src\services\featured.service.ts:25:
+  src\services\featured.service.ts:26:    if (existing) {
+  src\services\featured.service.ts:27:      throw ApiError.badRequest('You already have an active featured placement 
+of this type');
+  src\services\featured.service.ts:28:    }
+  src\services\featured.service.ts:29:
+  src\services\featured.service.ts:30:    // Get user email
+  src\services\featured.service.ts:31:    const { data: profile } = await supabaseAdmin
+> src\services\featured.service.ts:32:      .from('profiles')
+  src\services\featured.service.ts:33:      .select('stripe_customer_id, full_name')
+  src\services\featured.service.ts:34:      .eq('id', userId)
+  src\services\featured.service.ts:35:      .single();
+  src\services\featured.service.ts:36:
+  src\services\featured.service.ts:37:    let customerId = profile?.stripe_customer_id;
+  src\services\featured.service.ts:38:
+  src\services\featured.service.ts:39:    if (!customerId) {
+  src\services\featured.service.ts:40:      // Create Stripe customer if doesn't exist
+  src\services\featured.service.ts:41:      // We don't have email in profiles directly, but Stripe customer might 
+need it.
+  src\services\featured.service.ts:42:      // We can just create customer with name and metadata.
+  src\services\featured.service.ts:48:
+  src\services\featured.service.ts:49:      await supabaseAdmin
+> src\services\featured.service.ts:50:         .from('profiles')
+  src\services\featured.service.ts:51:         .update({ stripe_customer_id: customerId })
+  src\services\featured.service.ts:52:         .eq('id', userId);
+  src\services\featured.service.ts:53:    }
+  src\services\featured.service.ts:54:
+  src\services\featured.service.ts:55:    const totalAmount = this.PRICE_PER_DAY * duration_days;
+  src\services\featured.service.ts:56:
+  src\services\featured.service.ts:57:    // Create Checkout Session
+  src\services\featured.service.ts:58:    const session = await stripe.checkout.sessions.create({
+  src\services\featured.service.ts:59:      customer: customerId,
+  src\services\featured.service.ts:60:      payment_method_types: ['card'],
+  src\services\featured.service.ts:93:
+  src\services\featured.service.ts:94:    let query = supabaseAdmin
+> src\services\featured.service.ts:95:      .from('featured_accounts')
+  src\services\featured.service.ts:96:      .select('*, profile:profiles!profile_id(id, full_name, username, 
+avatar_url, bio, account_type)', { count: 'exact' })
+  src\services\featured.service.ts:97:      .eq('is_active', true);
+  src\services\featured.service.ts:98:      // RLS already filters to "now() between start_date and end_date" for 
+public reads
+  src\services\featured.service.ts:99:
+  src\services\featured.service.ts:100:    if (placement) {
+  src\services\featured.service.ts:101:      query = query.eq('placement', placement);
+  src\services\featured.service.ts:102:    }
+  src\services\featured.service.ts:103:
+  src\services\featured.service.ts:104:    const { data, error, count } = await query
+  src\services\featured.service.ts:105:      .order('created_at', { ascending: false })
+  src\services\follow.service.ts:18:    const supabase = createSupabaseClient(token);
+  src\services\follow.service.ts:19:    const { data, error } = await supabase
+> src\services\follow.service.ts:20:      .from('follows')
+  src\services\follow.service.ts:21:      .insert({
+  src\services\follow.service.ts:22:        follower_id: followerId,
+  src\services\follow.service.ts:23:        following_id: followingId,
+  src\services\follow.service.ts:24:      })
+  src\services\follow.service.ts:25:      .select()
+  src\services\follow.service.ts:26:      .single();
+  src\services\follow.service.ts:27:
+  src\services\follow.service.ts:28:    if (error) {
+  src\services\follow.service.ts:29:      if (error.code === '23505') { // Unique violation
+  src\services\follow.service.ts:30:        throw ApiError.badRequest('You are already following this profile');
+  src\services\follow.service.ts:51:    const supabase = createSupabaseClient(token);
+  src\services\follow.service.ts:52:    const { error } = await supabase
+> src\services\follow.service.ts:53:      .from('follows')
+  src\services\follow.service.ts:54:      .delete()
+  src\services\follow.service.ts:55:      .match({ follower_id: followerId, following_id: followingId });
+  src\services\follow.service.ts:56:
+  src\services\follow.service.ts:57:    if (error) {
+  src\services\follow.service.ts:58:      throw ApiError.badRequest(error.message);
+  src\services\follow.service.ts:59:    }
+  src\services\follow.service.ts:60:    return true;
+  src\services\follow.service.ts:61:  }
+  src\services\follow.service.ts:62:
+  src\services\follow.service.ts:63:  /**
+  src\services\follow.service.ts:66:  async checkFollowStatus(followerId: string, followingId: string) {
+  src\services\follow.service.ts:67:    const { data, error } = await supabaseAdmin
+> src\services\follow.service.ts:68:      .from('follows')
+  src\services\follow.service.ts:69:      .select('id')
+  src\services\follow.service.ts:70:      .match({ follower_id: followerId, following_id: followingId })
+  src\services\follow.service.ts:71:      .maybeSingle();
+  src\services\follow.service.ts:72:
+  src\services\follow.service.ts:73:    if (error) {
+  src\services\follow.service.ts:74:      throw ApiError.internal(error.message);
+  src\services\follow.service.ts:75:    }
+  src\services\follow.service.ts:76:    return { isFollowing: !!data };
+  src\services\follow.service.ts:77:  }
+  src\services\follow.service.ts:78:
+  src\services\follow.service.ts:85:
+  src\services\follow.service.ts:86:    const { data, error, count } = await supabaseAdmin
+> src\services\follow.service.ts:87:      .from('follows')
+  src\services\follow.service.ts:88:      .select('created_at, follower:profiles!follower_id(id, full_name, username, 
+avatar_url, account_type)', { count: 'exact' })
+  src\services\follow.service.ts:89:      .eq('following_id', profileId)
+  src\services\follow.service.ts:90:      .range(from, to)
+  src\services\follow.service.ts:91:      .order('created_at', { ascending: false });
+  src\services\follow.service.ts:92:
+  src\services\follow.service.ts:93:    if (error) {
+  src\services\follow.service.ts:94:      throw ApiError.internal(error.message);
+  src\services\follow.service.ts:95:    }
+  src\services\follow.service.ts:96:    return { data, count: count || 0 };
+  src\services\follow.service.ts:97:  }
+  src\services\follow.service.ts:105:
+  src\services\follow.service.ts:106:    const { data, error, count } = await supabaseAdmin
+> src\services\follow.service.ts:107:      .from('follows')
+  src\services\follow.service.ts:108:      .select('created_at, following:profiles!following_id(id, full_name, 
+username, avatar_url, account_type)', { count: 'exact' })
+  src\services\follow.service.ts:109:      .eq('follower_id', profileId)
+  src\services\follow.service.ts:110:      .range(from, to)
+  src\services\follow.service.ts:111:      .order('created_at', { ascending: false });
+  src\services\follow.service.ts:112:
+  src\services\follow.service.ts:113:    if (error) {
+  src\services\follow.service.ts:114:      throw ApiError.internal(error.message);
+  src\services\follow.service.ts:115:    }
+  src\services\follow.service.ts:116:    return { data, count: count || 0 };
+  src\services\follow.service.ts:117:  }
+  src\services\home.service.ts:17:      // 2. Fetch top categories
+  src\services\home.service.ts:18:      const { data: categories } = await supabaseAdmin
+> src\services\home.service.ts:19:        .from('categories')
+  src\services\home.service.ts:20:        .select('*')
+  src\services\home.service.ts:21:        .limit(10);
+  src\services\home.service.ts:22:
+  src\services\home.service.ts:23:      // 3. Fetch featured profiles (from featured_accounts table)
+  src\services\home.service.ts:24:      const now = new Date().toISOString();
+  src\services\home.service.ts:25:      const { data: featuredProfiles } = await supabaseAdmin
+> src\services\home.service.ts:26:        .from('featured_accounts')
+  src\services\home.service.ts:27:        .select('*, profile:profiles(id, full_name, username, avatar_url, 
+account_type)')
+  src\services\home.service.ts:28:        .eq('status', 'active')
+  src\services\home.service.ts:29:        .gt('end_date', now)
+  src\services\home.service.ts:30:        .order('position', { ascending: true })
+  src\services\home.service.ts:31:        .limit(10);
+  src\services\home.service.ts:32:
+  src\services\home.service.ts:33:      // 4. Fetch latest active offers (limit 10)
+  src\services\home.service.ts:34:      const { data: offers } = await offerService.getOffers({ page: 1, limit: 10 
+}).catch(() => ({ data: [] }));
+  src\services\home.service.ts:35:
+  src\services\home.service.ts:36:      // 5. Fetch active ads (banners/popups)
+  src\services\notification.service.ts:16:
+  src\services\notification.service.ts:17:    const { count } = await supabaseAdmin
+> src\services\notification.service.ts:18:      .from('notifications')
+  src\services\notification.service.ts:19:      .select('*', { count: 'exact', head: true })
+  src\services\notification.service.ts:20:      .eq('profile_id', userId);
+  src\services\notification.service.ts:21:
+  src\services\notification.service.ts:22:    const total = count || 0;
+  src\services\notification.service.ts:23:
+  src\services\notification.service.ts:24:    const { data, error } = await supabaseAdmin
+> src\services\notification.service.ts:25:      .from('notifications')
+  src\services\notification.service.ts:26:      .select('*')
+  src\services\notification.service.ts:27:      .eq('profile_id', userId)
+  src\services\notification.service.ts:28:      .order('created_at', { ascending: false })
+  src\services\notification.service.ts:29:      .range(offset, offset + limit - 1);
+  src\services\notification.service.ts:30:
+  src\services\notification.service.ts:31:    if (error) {
+  src\services\notification.service.ts:32:      throw ApiError.internal(error.message);
+  src\services\notification.service.ts:33:    }
+  src\services\notification.service.ts:34:
+  src\services\notification.service.ts:35:    return {
+  src\services\notification.service.ts:47:  async markAsRead(userId: string, notificationId: string) {
+  src\services\notification.service.ts:48:    const { error } = await supabaseAdmin
+> src\services\notification.service.ts:49:      .from('notifications')
+  src\services\notification.service.ts:50:      .update({ is_read: true })
+  src\services\notification.service.ts:51:      .eq('id', notificationId)
+  src\services\notification.service.ts:52:      .eq('profile_id', userId);
+  src\services\notification.service.ts:53:
+  src\services\notification.service.ts:54:    if (error) {
+  src\services\notification.service.ts:55:      throw ApiError.internal(error.message);
+  src\services\notification.service.ts:56:    }
+  src\services\notification.service.ts:57:  }
+  src\services\notification.service.ts:58:
+  src\services\notification.service.ts:59:  /**
+  src\services\notification.service.ts:62:  async markAllAsRead(userId: string) {
+  src\services\notification.service.ts:63:    const { error } = await supabaseAdmin
+> src\services\notification.service.ts:64:      .from('notifications')
+  src\services\notification.service.ts:65:      .update({ is_read: true })
+  src\services\notification.service.ts:66:      .eq('profile_id', userId)
+  src\services\notification.service.ts:67:      .eq('is_read', false);
+  src\services\notification.service.ts:68:
+  src\services\notification.service.ts:69:    if (error) {
+  src\services\notification.service.ts:70:      throw ApiError.internal(error.message);
+  src\services\notification.service.ts:71:    }
+  src\services\notification.service.ts:72:  }
+  src\services\notification.service.ts:73:
+  src\services\notification.service.ts:74:  /**
+  src\services\notification.service.ts:77:  async deleteNotification(userId: string, notificationId: string) {
+  src\services\notification.service.ts:78:    const { error } = await supabaseAdmin
+> src\services\notification.service.ts:79:      .from('notifications')
+  src\services\notification.service.ts:80:      .delete()
+  src\services\notification.service.ts:81:      .eq('id', notificationId)
+  src\services\notification.service.ts:82:      .eq('profile_id', userId);
+  src\services\notification.service.ts:83:
+  src\services\notification.service.ts:84:    if (error) {
+  src\services\notification.service.ts:85:      throw ApiError.internal(error.message);
+  src\services\notification.service.ts:86:    }
+  src\services\notification.service.ts:87:  }
+  src\services\notification.service.ts:88:
+  src\services\notification.service.ts:89:  /**
+  src\services\notification.service.ts:93:    // Check if token already exists for this user to avoid unique 
+constraint errors on upsert
+  src\services\notification.service.ts:94:    const { data: existingToken } = await supabaseAdmin
+> src\services\notification.service.ts:95:      .from('fcm_tokens')
+  src\services\notification.service.ts:96:      .select('id')
+  src\services\notification.service.ts:97:      .eq('token', token)
+  src\services\notification.service.ts:98:      .maybeSingle();
+  src\services\notification.service.ts:99:
+  src\services\notification.service.ts:100:    if (existingToken) {
+  src\services\notification.service.ts:101:      // If it exists, make sure it belongs to the current user
+  src\services\notification.service.ts:102:      const { error } = await supabaseAdmin
+> src\services\notification.service.ts:103:        .from('fcm_tokens')
+  src\services\notification.service.ts:104:        .update({ profile_id: userId, device_type: device_type || null })
+  src\services\notification.service.ts:105:        .eq('token', token);
+  src\services\notification.service.ts:106:
+  src\services\notification.service.ts:107:      if (error) throw ApiError.internal(error.message);
+  src\services\notification.service.ts:108:    } else {
+  src\services\notification.service.ts:109:      // Insert new token
+  src\services\notification.service.ts:110:      const { error } = await supabaseAdmin
+> src\services\notification.service.ts:111:        .from('fcm_tokens')
+  src\services\notification.service.ts:112:        .insert({
+  src\services\notification.service.ts:113:          profile_id: userId,
+  src\services\notification.service.ts:114:          token,
+  src\services\notification.service.ts:115:          device_type: device_type || null,
+  src\services\notification.service.ts:116:        });
+  src\services\notification.service.ts:117:
+  src\services\notification.service.ts:118:      if (error) throw ApiError.internal(error.message);
+  src\services\notification.service.ts:119:    }
+  src\services\notification.service.ts:120:  }
+  src\services\notification.service.ts:121:
+  src\services\notification.service.ts:135:      // 1. Create in-app notification if requested
+  src\services\notification.service.ts:136:      if (createInAppRecord) {
+> src\services\notification.service.ts:137:        await supabaseAdmin.from('notifications').insert({
+  src\services\notification.service.ts:138:          profile_id: userId,
+  src\services\notification.service.ts:139:          title,
+  src\services\notification.service.ts:140:          body,
+  src\services\notification.service.ts:141:          type,
+  src\services\notification.service.ts:142:          data: dataObj || {},
+  src\services\notification.service.ts:143:        });
+  src\services\notification.service.ts:144:      }
+  src\services\notification.service.ts:145:
+  src\services\notification.service.ts:146:      // 2. Fetch user's FCM tokens
+  src\services\notification.service.ts:147:      const { data: tokens } = await supabaseAdmin
+> src\services\notification.service.ts:148:        .from('fcm_tokens')
+  src\services\notification.service.ts:149:        .select('token')
+  src\services\notification.service.ts:150:        .eq('profile_id', userId);
+  src\services\notification.service.ts:151:
+  src\services\notification.service.ts:152:      if (!tokens || tokens.length === 0) return;
+  src\services\notification.service.ts:153:
+  src\services\notification.service.ts:154:      const fcmTokens = tokens.map((t) => t.token);
+  src\services\notification.service.ts:155:
+  src\services\notification.service.ts:156:      // Convert dataObj values to strings for FCM
+  src\services\notification.service.ts:157:      const fcmData: Record<string, string> = { type };
+  src\services\notification.service.ts:158:      if (dataObj) {
+  src\services\notification.service.ts:189:
+  src\services\notification.service.ts:190:        if (failedTokens.length > 0) {
+> src\services\notification.service.ts:191:          await supabaseAdmin.from('fcm_tokens').delete().in('token', 
+failedTokens);
+  src\services\notification.service.ts:192:        }
+  src\services\notification.service.ts:193:      }
+  src\services\notification.service.ts:194:    } catch (error: any) {
+  src\services\notification.service.ts:195:      logger.error(`Failed to send notification to user ${userId}: 
+${error.message}`);
+  src\services\notification.service.ts:196:    }
+  src\services\notification.service.ts:197:  }
+  src\services\notification.service.ts:198:}
+  src\services\notification.service.ts:199:
+  src\services\notification.service.ts:200:export const notificationService = new NotificationService();
+  src\services\offer.service.ts:17:    // Verify category exists
+  src\services\offer.service.ts:18:    const { data: category, error: catError } = await supabaseAdmin
+> src\services\offer.service.ts:19:      .from('categories')
+  src\services\offer.service.ts:20:      .select('id')
+  src\services\offer.service.ts:21:      .eq('id', payload.category_id)
+  src\services\offer.service.ts:22:      .single();
+  src\services\offer.service.ts:23:
+  src\services\offer.service.ts:24:    if (catError || !category) {
+  src\services\offer.service.ts:25:      throw ApiError.badRequest('Invalid category ID');
+  src\services\offer.service.ts:26:    }
+  src\services\offer.service.ts:27:
+  src\services\offer.service.ts:28:    // Insert offer
+  src\services\offer.service.ts:29:    const { data, error } = await supabase
+> src\services\offer.service.ts:30:      .from('offers')
+  src\services\offer.service.ts:31:      .insert({
+  src\services\offer.service.ts:32:        profile_id: userId,
+  src\services\offer.service.ts:33:        category_id: payload.category_id,
+  src\services\offer.service.ts:34:        title: payload.title,
+  src\services\offer.service.ts:35:        description: payload.description,
+  src\services\offer.service.ts:36:        original_price: payload.original_price,
+  src\services\offer.service.ts:37:        offer_price: payload.offer_price,
+  src\services\offer.service.ts:38:        discount_percentage: payload.discount_percentage,
+  src\services\offer.service.ts:39:        media_urls: payload.media_urls || [],
+  src\services\offer.service.ts:40:        start_date: payload.start_date,
+  src\services\offer.service.ts:61:    // Verify offer existence and ownership
+  src\services\offer.service.ts:62:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\offer.service.ts:63:      .from('offers')
+  src\services\offer.service.ts:64:      .select('profile_id')
+  src\services\offer.service.ts:65:      .eq('id', offerId)
+  src\services\offer.service.ts:66:      .single();
+  src\services\offer.service.ts:67:
+  src\services\offer.service.ts:68:    if (existError || !existing) {
+  src\services\offer.service.ts:69:      throw ApiError.notFound('Offer not found');
+  src\services\offer.service.ts:70:    }
+  src\services\offer.service.ts:71:
+  src\services\offer.service.ts:72:    if (existing.profile_id !== userId) {
+  src\services\offer.service.ts:73:      throw ApiError.forbidden('You do not have permission to update this offer');
+  src\services\offer.service.ts:76:    if (payload.category_id) {
+  src\services\offer.service.ts:77:      const { data: category, error: catError } = await supabaseAdmin
+> src\services\offer.service.ts:78:        .from('categories')
+  src\services\offer.service.ts:79:        .select('id')
+  src\services\offer.service.ts:80:        .eq('id', payload.category_id)
+  src\services\offer.service.ts:81:        .single();
+  src\services\offer.service.ts:82:
+  src\services\offer.service.ts:83:      if (catError || !category) {
+  src\services\offer.service.ts:84:        throw ApiError.badRequest('Invalid category ID');
+  src\services\offer.service.ts:85:      }
+  src\services\offer.service.ts:86:    }
+  src\services\offer.service.ts:87:
+  src\services\offer.service.ts:88:    // Sanitize payload to prevent security bypass
+  src\services\offer.service.ts:90:
+  src\services\offer.service.ts:91:    const { data, error } = await supabase
+> src\services\offer.service.ts:92:      .from('offers')
+  src\services\offer.service.ts:93:      .update(safePayload)
+  src\services\offer.service.ts:94:      .eq('id', offerId)
+  src\services\offer.service.ts:95:      .select('*, category:categories(id, name_ar, name_en, slug)')
+  src\services\offer.service.ts:96:      .single();
+  src\services\offer.service.ts:97:
+  src\services\offer.service.ts:98:    if (error) {
+  src\services\offer.service.ts:99:      throw ApiError.badRequest(error.message);
+  src\services\offer.service.ts:100:    }
+  src\services\offer.service.ts:101:
+  src\services\offer.service.ts:102:    return data;
+  src\services\offer.service.ts:110:
+  src\services\offer.service.ts:111:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\offer.service.ts:112:      .from('offers')
+  src\services\offer.service.ts:113:      .select('profile_id')
+  src\services\offer.service.ts:114:      .eq('id', offerId)
+  src\services\offer.service.ts:115:      .single();
+  src\services\offer.service.ts:116:
+  src\services\offer.service.ts:117:    if (existError || !existing) {
+  src\services\offer.service.ts:118:      throw ApiError.notFound('Offer not found');
+  src\services\offer.service.ts:119:    }
+  src\services\offer.service.ts:120:
+  src\services\offer.service.ts:121:    if (existing.profile_id !== userId) {
+  src\services\offer.service.ts:122:      throw ApiError.forbidden('You do not have permission to delete this offer');
+  src\services\offer.service.ts:124:
+  src\services\offer.service.ts:125:    const { error } = await supabase
+> src\services\offer.service.ts:126:      .from('offers')
+  src\services\offer.service.ts:127:      .delete()
+  src\services\offer.service.ts:128:      .eq('id', offerId);
+  src\services\offer.service.ts:129:
+  src\services\offer.service.ts:130:    if (error) {
+  src\services\offer.service.ts:131:      throw ApiError.badRequest(error.message);
+  src\services\offer.service.ts:132:    }
+  src\services\offer.service.ts:133:
+  src\services\offer.service.ts:134:    return true;
+  src\services\offer.service.ts:135:  }
+  src\services\offer.service.ts:136:
+  src\services\offer.service.ts:140:  async getOfferById(offerId: string, requestingUserId?: string) {
+  src\services\offer.service.ts:141:    const { data, error } = await supabaseAdmin
+> src\services\offer.service.ts:142:      .from('offers')
+  src\services\offer.service.ts:143:      .select('*, profile:profiles(id, full_name, username, avatar_url, location), 
+category:categories(id, name_ar, name_en, slug)')
+  src\services\offer.service.ts:144:      .eq('id', offerId)
+  src\services\offer.service.ts:145:      .single();
+  src\services\offer.service.ts:146:
+  src\services\offer.service.ts:147:    if (error || !data) {
+  src\services\offer.service.ts:148:      throw ApiError.notFound('Offer not found');
+  src\services\offer.service.ts:149:    }
+  src\services\offer.service.ts:150:
+  src\services\offer.service.ts:151:    // RLS-like logic for drafts/rejected/expired offers
+  src\services\offer.service.ts:152:    if (data.status !== 'active' && data.profile_id !== requestingUserId) {
+  src\services\offer.service.ts:156:    // Increment view count asynchronously in the background
+  src\services\offer.service.ts:157:    supabaseAdmin
+> src\services\offer.service.ts:158:      .from('offers')
+  src\services\offer.service.ts:159:      .update({ views_count: (data.views_count || 0) + 1 })
+  src\services\offer.service.ts:160:      .eq('id', offerId)
+  src\services\offer.service.ts:161:      .then(({ error: viewErr }) => {
+  src\services\offer.service.ts:162:        if (viewErr) console.error('Error incrementing view count:', 
+viewErr.message);
+  src\services\offer.service.ts:163:      });
+  src\services\offer.service.ts:164:
+  src\services\offer.service.ts:165:    return data;
+  src\services\offer.service.ts:166:  }
+  src\services\offer.service.ts:167:
+  src\services\offer.service.ts:168:  /**
+  src\services\offer.service.ts:183:
+  src\services\offer.service.ts:184:    let query = supabaseAdmin
+> src\services\offer.service.ts:185:      .from('offers')
+  src\services\offer.service.ts:186:      .select('*, profile:profiles!inner(id, full_name, username, avatar_url, 
+location), category:categories(id, name_ar, name_en, slug)', { count: 'exact' })
+  src\services\offer.service.ts:187:      .eq('status', 'active');
+  src\services\offer.service.ts:188:
+  src\services\offer.service.ts:189:    if (category_id) {
+  src\services\offer.service.ts:190:      query = query.eq('category_id', category_id);
+  src\services\offer.service.ts:191:    }
+  src\services\offer.service.ts:192:    if (min_price !== undefined) {
+  src\services\offer.service.ts:193:      query = query.gte('offer_price', min_price);
+  src\services\offer.service.ts:194:    }
+  src\services\offer.service.ts:195:    if (max_price !== undefined) {
+  src\services\offer.service.ts:223:
+  src\services\offer.service.ts:224:    let query = supabaseAdmin
+> src\services\offer.service.ts:225:      .from('offers')
+  src\services\offer.service.ts:226:      .select('*, category:categories(id, name_ar, name_en, slug)', { count: 
+'exact' })
+  src\services\offer.service.ts:227:      .eq('profile_id', profileId);
+  src\services\offer.service.ts:228:
+  src\services\offer.service.ts:229:    // If requester is not the owner, only show active offers
+  src\services\offer.service.ts:230:    if (profileId !== requestingUserId) {
+  src\services\offer.service.ts:231:      query = query.eq('status', 'active');
+  src\services\offer.service.ts:232:    }
+  src\services\offer.service.ts:233:
+  src\services\offer.service.ts:234:    const { data, error, count } = await query
+  src\services\offer.service.ts:235:      .range(from, to)
+  src\services\offer.service.ts:251:    // Check ownership
+  src\services\offer.service.ts:252:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\offer.service.ts:253:      .from('offers')
+  src\services\offer.service.ts:254:      .select('profile_id, is_featured, title')
+  src\services\offer.service.ts:255:      .eq('id', offerId)
+  src\services\offer.service.ts:256:      .single();
+  src\services\offer.service.ts:257:
+  src\services\offer.service.ts:258:    if (existError || !existing) {
+  src\services\offer.service.ts:259:      throw ApiError.notFound('Offer not found');
+  src\services\offer.service.ts:260:    }
+  src\services\offer.service.ts:261:
+  src\services\offer.service.ts:262:    if (existing.profile_id !== userId) {
+  src\services\offer.service.ts:263:      throw ApiError.forbidden('You do not have permission to feature this offer');
+  src\services\offer.service.ts:270:    // Get user stripe_customer_id
+  src\services\offer.service.ts:271:    const { data: profile } = await supabaseAdmin
+> src\services\offer.service.ts:272:      .from('profiles')
+  src\services\offer.service.ts:273:      .select('stripe_customer_id, full_name')
+  src\services\offer.service.ts:274:      .eq('id', userId)
+  src\services\offer.service.ts:275:      .single();
+  src\services\offer.service.ts:276:
+  src\services\offer.service.ts:277:    let customerId = profile?.stripe_customer_id;
+  src\services\offer.service.ts:278:
+  src\services\offer.service.ts:279:    if (!customerId) {
+  src\services\offer.service.ts:280:      const customer = await stripe.customers.create({
+  src\services\offer.service.ts:281:        name: profile?.full_name || 'Promoo User',
+  src\services\offer.service.ts:282:        metadata: { profileId: userId },
+  src\services\offer.service.ts:285:
+  src\services\offer.service.ts:286:      await supabaseAdmin
+> src\services\offer.service.ts:287:         .from('profiles')
+  src\services\offer.service.ts:288:         .update({ stripe_customer_id: customerId })
+  src\services\offer.service.ts:289:         .eq('id', userId);
+  src\services\offer.service.ts:290:    }
+  src\services\offer.service.ts:291:
+  src\services\offer.service.ts:292:    // Create Checkout Session
+  src\services\offer.service.ts:293:    const session = await stripe.checkout.sessions.create({
+  src\services\offer.service.ts:294:      customer: customerId,
+  src\services\offer.service.ts:295:      payment_method_types: ['card'],
+  src\services\offer.service.ts:296:      line_items: [
+  src\services\offer.service.ts:297:        {
+  src\services\payment.service.ts:16:
+  src\services\payment.service.ts:17:    const { count } = await supabaseAdmin
+> src\services\payment.service.ts:18:      .from('payments')
+  src\services\payment.service.ts:19:      .select('*', { count: 'exact', head: true })
+  src\services\payment.service.ts:20:      .eq('profile_id', userId);
+  src\services\payment.service.ts:21:
+  src\services\payment.service.ts:22:    const total = count || 0;
+  src\services\payment.service.ts:23:
+  src\services\payment.service.ts:24:    const { data, error } = await supabaseAdmin
+> src\services\payment.service.ts:25:      .from('payments')
+  src\services\payment.service.ts:26:      .select('*')
+  src\services\payment.service.ts:27:      .eq('profile_id', userId)
+  src\services\payment.service.ts:28:      .order('created_at', { ascending: false })
+  src\services\payment.service.ts:29:      .range(offset, offset + limit - 1);
+  src\services\payment.service.ts:30:
+  src\services\payment.service.ts:31:    if (error) {
+  src\services\payment.service.ts:32:      throw ApiError.internal(error.message);
+  src\services\payment.service.ts:33:    }
+  src\services\payment.service.ts:34:
+  src\services\payment.service.ts:35:    return {
+  src\services\payment.service.ts:47:  async getPaymentDetails(userId: string, paymentId: string) {
+  src\services\payment.service.ts:48:    const { data, error } = await supabaseAdmin
+> src\services\payment.service.ts:49:      .from('payments')
+  src\services\payment.service.ts:50:      .select('*')
+  src\services\payment.service.ts:51:      .eq('id', paymentId)
+  src\services\payment.service.ts:52:      .eq('profile_id', userId)
+  src\services\payment.service.ts:53:      .single();
+  src\services\payment.service.ts:54:
+  src\services\payment.service.ts:55:    if (error || !data) {
+  src\services\payment.service.ts:56:      throw ApiError.notFound('Payment not found');
+  src\services\payment.service.ts:57:    }
+  src\services\payment.service.ts:58:
+  src\services\payment.service.ts:59:    return data;
+  src\services\payment.service.ts:65:  async createCustomerPortalSession(userId: string) {
+  src\services\payment.service.ts:66:    const { data: profile } = await supabaseAdmin
+> src\services\payment.service.ts:67:      .from('profiles')
+  src\services\payment.service.ts:68:      .select('stripe_customer_id')
+  src\services\payment.service.ts:69:      .eq('id', userId)
+  src\services\payment.service.ts:70:      .single();
+  src\services\payment.service.ts:71:
+  src\services\payment.service.ts:72:    if (!profile?.stripe_customer_id) {
+  src\services\payment.service.ts:73:      throw ApiError.badRequest('No billing account found. Please make a payment 
+first.');
+  src\services\payment.service.ts:74:    }
+  src\services\payment.service.ts:75:
+  src\services\payment.service.ts:76:    const session = await stripe.billingPortal.sessions.create({
+  src\services\payment.service.ts:77:      customer: profile.stripe_customer_id,
+  src\services\profile.service.ts:12:  async getProfileById(profileId: string) {
+  src\services\profile.service.ts:13:    const { data, error } = await supabaseAdmin
+> src\services\profile.service.ts:14:      .from('profiles')
+  src\services\profile.service.ts:15:      .select('*, categories(id, name_ar, name_en, slug, icon_url)')
+  src\services\profile.service.ts:16:      .eq('id', profileId)
+  src\services\profile.service.ts:17:      .single();
+  src\services\profile.service.ts:18:
+  src\services\profile.service.ts:19:    if (error || !data) {
+  src\services\profile.service.ts:20:      throw ApiError.notFound('Profile not found');
+  src\services\profile.service.ts:21:    }
+  src\services\profile.service.ts:22:    return data;
+  src\services\profile.service.ts:23:  }
+  src\services\profile.service.ts:24:
+  src\services\profile.service.ts:28:  async getProfileByUsername(username: string) {
+  src\services\profile.service.ts:29:    const { data, error } = await supabaseAdmin
+> src\services\profile.service.ts:30:      .from('profiles')
+  src\services\profile.service.ts:31:      .select('*, categories(id, name_ar, name_en, slug, icon_url)')
+  src\services\profile.service.ts:32:      .eq('username', username)
+  src\services\profile.service.ts:33:      .single();
+  src\services\profile.service.ts:34:
+  src\services\profile.service.ts:35:    if (error || !data) {
+  src\services\profile.service.ts:36:      throw ApiError.notFound('Profile not found');
+  src\services\profile.service.ts:37:    }
+  src\services\profile.service.ts:38:    return data;
+  src\services\profile.service.ts:39:  }
+  src\services\profile.service.ts:40:
+  src\services\profile.service.ts:48:    if (payload.username) {
+  src\services\profile.service.ts:49:      const { data: existing } = await supabaseAdmin
+> src\services\profile.service.ts:50:        .from('profiles')
+  src\services\profile.service.ts:51:        .select('id')
+  src\services\profile.service.ts:52:        .eq('username', payload.username)
+  src\services\profile.service.ts:53:        .neq('id', userId)
+  src\services\profile.service.ts:54:        .single();
+  src\services\profile.service.ts:55:        
+  src\services\profile.service.ts:56:      if (existing) {
+  src\services\profile.service.ts:57:        throw ApiError.badRequest('Username is already taken');
+  src\services\profile.service.ts:58:      }
+  src\services\profile.service.ts:59:    }
+  src\services\profile.service.ts:60:
+  src\services\profile.service.ts:68:    // Perform update using the user's token (RLS protected)
+  src\services\profile.service.ts:69:    const { data, error } = await supabase
+> src\services\profile.service.ts:70:      .from('profiles')
+  src\services\profile.service.ts:71:      .update(safePayload)
+  src\services\profile.service.ts:72:      .eq('id', userId)
+  src\services\profile.service.ts:73:      .select()
+  src\services\profile.service.ts:74:      .single();
+  src\services\profile.service.ts:75:
+  src\services\profile.service.ts:76:    if (error) {
+  src\services\profile.service.ts:77:      throw ApiError.badRequest(error.message);
+  src\services\profile.service.ts:78:    }
+  src\services\profile.service.ts:79:    return data;
+  src\services\profile.service.ts:80:  }
+  src\services\profile.service.ts:86:    const supabase = createSupabaseClient(token);
+  src\services\profile.service.ts:87:    const { data, error } = await supabase
+> src\services\profile.service.ts:88:      .from('profiles')
+  src\services\profile.service.ts:89:      .update({ avatar_url: avatarUrl })
+  src\services\profile.service.ts:90:      .eq('id', userId)
+  src\services\profile.service.ts:91:      .select()
+  src\services\profile.service.ts:92:      .single();
+  src\services\profile.service.ts:93:
+  src\services\profile.service.ts:94:    if (error) {
+  src\services\profile.service.ts:95:      throw ApiError.badRequest(error.message);
+  src\services\profile.service.ts:96:    }
+  src\services\profile.service.ts:97:    return data;
+  src\services\profile.service.ts:98:  }
+  src\services\profile.service.ts:104:    const supabase = createSupabaseClient(token);
+  src\services\profile.service.ts:105:    const { data, error } = await supabase
+> src\services\profile.service.ts:106:      .from('profiles')
+  src\services\profile.service.ts:107:      .update({ cover_url: coverUrl })
+  src\services\profile.service.ts:108:      .eq('id', userId)
+  src\services\profile.service.ts:109:      .select()
+  src\services\profile.service.ts:110:      .single();
+  src\services\profile.service.ts:111:
+  src\services\profile.service.ts:112:    if (error) {
+  src\services\profile.service.ts:113:      throw ApiError.badRequest(error.message);
+  src\services\profile.service.ts:114:    }
+  src\services\profile.service.ts:115:    return data;
+  src\services\profile.service.ts:116:  }
+  src\services\profile.service.ts:121:  async requestVerification(userId: string, documentUrl: string, notes?: string) 
+{
+  src\services\profile.service.ts:122:    const { data, error } = await supabaseAdmin
+> src\services\profile.service.ts:123:      .from('verification_requests')
+  src\services\profile.service.ts:124:      .insert({
+  src\services\profile.service.ts:125:        profile_id: userId,
+  src\services\profile.service.ts:126:        document_url: documentUrl,
+  src\services\profile.service.ts:127:        notes: notes || null,
+  src\services\profile.service.ts:128:        status: 'pending',
+  src\services\profile.service.ts:129:      })
+  src\services\profile.service.ts:130:      .select()
+  src\services\profile.service.ts:131:      .single();
+  src\services\profile.service.ts:132:
+  src\services\profile.service.ts:133:    if (error) {
+  src\services\profile.service.ts:158:
+  src\services\profile.service.ts:159:    const { data, error, count } = await supabaseAdmin
+> src\services\profile.service.ts:160:      .from('media')
+  src\services\profile.service.ts:161:      .select('*', { count: 'exact' })
+  src\services\profile.service.ts:162:      .eq('profile_id', profileId)
+  src\services\profile.service.ts:163:      .range(from, to)
+  src\services\profile.service.ts:164:      .order('created_at', { ascending: false });
+  src\services\profile.service.ts:165:
+  src\services\profile.service.ts:166:    if (error) {
+  src\services\profile.service.ts:167:      throw ApiError.internal(error.message);
+  src\services\profile.service.ts:168:    }
+  src\services\profile.service.ts:169:    return { data, count: count || 0 };
+  src\services\profile.service.ts:170:  }
+  src\services\report.service.ts:25:    // Check if user already reported this exact item to prevent spam
+  src\services\report.service.ts:26:    const { data: existingReport } = await supabaseAdmin
+> src\services\report.service.ts:27:      .from('reports')
+  src\services\report.service.ts:28:      .select('id')
+  src\services\report.service.ts:29:      .eq('reporter_id', reporterId)
+  src\services\report.service.ts:30:      .eq('reported_id', payload.reported_id)
+  src\services\report.service.ts:31:      .in('status', ['pending', 'reviewed'])
+  src\services\report.service.ts:32:      .maybeSingle();
+  src\services\report.service.ts:33:
+  src\services\report.service.ts:34:    if (existingReport) {
+  src\services\report.service.ts:35:      throw ApiError.badRequest('You have already reported this item and it is 
+currently under review');
+  src\services\report.service.ts:36:    }
+  src\services\report.service.ts:37:
+  src\services\report.service.ts:38:    const { data, error } = await supabaseAdmin
+> src\services\report.service.ts:39:      .from('reports')
+  src\services\report.service.ts:40:      .insert({
+  src\services\report.service.ts:41:        reporter_id: reporterId,
+  src\services\report.service.ts:42:        reported_id: payload.reported_id,
+  src\services\report.service.ts:43:        reported_type: payload.reported_type,
+  src\services\report.service.ts:44:        reason: payload.reason,
+  src\services\report.service.ts:45:        details: payload.details || null,
+  src\services\report.service.ts:46:        status: 'pending',
+  src\services\report.service.ts:47:      })
+  src\services\report.service.ts:48:      .select()
+  src\services\report.service.ts:49:      .single();
+  src\services\report.service.ts:63:
+  src\services\report.service.ts:64:    const { count } = await supabaseAdmin
+> src\services\report.service.ts:65:      .from('reports')
+  src\services\report.service.ts:66:      .select('*', { count: 'exact', head: true })
+  src\services\report.service.ts:67:      .eq('reporter_id', reporterId);
+  src\services\report.service.ts:68:
+  src\services\report.service.ts:69:    const total = count || 0;
+  src\services\report.service.ts:70:
+  src\services\report.service.ts:71:    const { data, error } = await supabaseAdmin
+> src\services\report.service.ts:72:      .from('reports')
+  src\services\report.service.ts:73:      .select('*')
+  src\services\report.service.ts:74:      .eq('reporter_id', reporterId)
+  src\services\report.service.ts:75:      .order('created_at', { ascending: false })
+  src\services\report.service.ts:76:      .range(offset, offset + limit - 1);
+  src\services\report.service.ts:77:
+  src\services\report.service.ts:78:    if (error) {
+  src\services\report.service.ts:79:      throw ApiError.internal(error.message);
+  src\services\report.service.ts:80:    }
+  src\services\report.service.ts:81:
+  src\services\report.service.ts:82:    return {
+  src\services\saved.service.ts:12:    // Check if already saved
+  src\services\saved.service.ts:13:    const { data: existing } = await supabaseAdmin
+> src\services\saved.service.ts:14:      .from('saved_items')
+  src\services\saved.service.ts:15:      .select('id')
+  src\services\saved.service.ts:16:      .eq('profile_id', userId)
+  src\services\saved.service.ts:17:      .eq('item_id', payload.item_id)
+  src\services\saved.service.ts:18:      .single();
+  src\services\saved.service.ts:19:
+  src\services\saved.service.ts:20:    if (existing) {
+  src\services\saved.service.ts:21:      throw ApiError.badRequest('Item is already saved');
+  src\services\saved.service.ts:22:    }
+  src\services\saved.service.ts:23:
+  src\services\saved.service.ts:24:    const { data, error } = await supabase
+> src\services\saved.service.ts:25:      .from('saved_items')
+  src\services\saved.service.ts:26:      .insert({
+  src\services\saved.service.ts:27:        profile_id: userId,
+  src\services\saved.service.ts:28:        item_id: payload.item_id,
+  src\services\saved.service.ts:29:        item_type: payload.item_type,
+  src\services\saved.service.ts:30:      })
+  src\services\saved.service.ts:31:      .select()
+  src\services\saved.service.ts:32:      .single();
+  src\services\saved.service.ts:33:
+  src\services\saved.service.ts:34:    if (error) {
+  src\services\saved.service.ts:35:      throw ApiError.badRequest(error.message);
+  src\services\saved.service.ts:43:
+  src\services\saved.service.ts:44:    const { data, error } = await supabase
+> src\services\saved.service.ts:45:      .from('saved_items')
+  src\services\saved.service.ts:46:      .select('*')
+  src\services\saved.service.ts:47:      .eq('profile_id', userId)
+  src\services\saved.service.ts:48:      .order('created_at', { ascending: false });
+  src\services\saved.service.ts:49:
+  src\services\saved.service.ts:50:    if (error) {
+  src\services\saved.service.ts:51:      throw ApiError.internal(error.message);
+  src\services\saved.service.ts:52:    }
+  src\services\saved.service.ts:53:
+  src\services\saved.service.ts:54:    // Ideally, we'd join with offers/ads/profiles but since item_id is generic
+  src\services\saved.service.ts:55:    // we return the raw list and let the frontend hydrate, or we do multi-queries 
+here.
+  src\services\saved.service.ts:61:
+  src\services\saved.service.ts:62:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\saved.service.ts:63:      .from('saved_items')
+  src\services\saved.service.ts:64:      .select('profile_id')
+  src\services\saved.service.ts:65:      .eq('id', savedId)
+  src\services\saved.service.ts:66:      .single();
+  src\services\saved.service.ts:67:
+  src\services\saved.service.ts:68:    if (existError || !existing) {
+  src\services\saved.service.ts:69:      throw ApiError.notFound('Saved item not found');
+  src\services\saved.service.ts:70:    }
+  src\services\saved.service.ts:71:
+  src\services\saved.service.ts:72:    if (existing.profile_id !== userId) {
+  src\services\saved.service.ts:73:      throw ApiError.forbidden('You do not have permission to delete this item');
+  src\services\saved.service.ts:75:
+  src\services\saved.service.ts:76:    const { error } = await supabase
+> src\services\saved.service.ts:77:      .from('saved_items')
+  src\services\saved.service.ts:78:      .delete()
+  src\services\saved.service.ts:79:      .eq('id', savedId);
+  src\services\saved.service.ts:80:
+  src\services\saved.service.ts:81:    if (error) {
+  src\services\saved.service.ts:82:      throw ApiError.badRequest(error.message);
+  src\services\saved.service.ts:83:    }
+  src\services\saved.service.ts:84:
+  src\services\saved.service.ts:85:    return true;
+  src\services\saved.service.ts:86:  }
+  src\services\saved.service.ts:87:}
+  src\services\search.service.ts:60:    const offset = (page - 1) * limit;
+  src\services\search.service.ts:61:    let query = supabaseAdmin
+> src\services\search.service.ts:62:      .from('profiles')
+  src\services\search.service.ts:63:      .select('id, full_name, username, avatar_url, bio, account_type, 
+is_verified, location', { count: 'exact' })
+  src\services\search.service.ts:64:      .eq('is_active', true);
+  src\services\search.service.ts:65:
+  src\services\search.service.ts:66:    if (params.q) {
+  src\services\search.service.ts:67:      query = 
+query.or(`full_name.ilike.%${params.q}%,username.ilike.%${params.q}%,bio.ilike.%${params.q}%`);
+  src\services\search.service.ts:68:    }
+  src\services\search.service.ts:69:    if (params.accountType) {
+  src\services\search.service.ts:70:      query = query.eq('account_type', params.accountType);
+  src\services\search.service.ts:71:    }
+  src\services\search.service.ts:72:    if (params.location) {
+  src\services\search.service.ts:101:    const offset = (page - 1) * limit;
+  src\services\search.service.ts:102:    let query = supabaseAdmin
+> src\services\search.service.ts:103:      .from('offers')
+  src\services\search.service.ts:104:      .select('*, profile:profiles!inner(full_name, username, avatar_url, 
+is_verified, account_type)', { count: 'exact' });
+  src\services\search.service.ts:105:
+  src\services\search.service.ts:106:    if (params.q) {
+  src\services\search.service.ts:107:      query = 
+query.or(`title.ilike.%${params.q}%,description.ilike.%${params.q}%`);
+  src\services\search.service.ts:108:    }
+  src\services\search.service.ts:109:    if (params.categoryId) {
+  src\services\search.service.ts:110:      query = query.eq('category_id', params.categoryId);
+  src\services\search.service.ts:111:    }
+  src\services\search.service.ts:112:    if (params.minPrice !== undefined) {
+  src\services\search.service.ts:113:      query = query.gte('offer_price', params.minPrice);
+  src\services\search.service.ts:155:    const offset = (page - 1) * limit;
+  src\services\search.service.ts:156:    let query = supabaseAdmin
+> src\services\search.service.ts:157:      .from('ads')
+  src\services\search.service.ts:158:      .select('*, profile:profiles!inner(full_name, username, avatar_url, 
+is_verified)', { count: 'exact' })
+  src\services\search.service.ts:159:      .eq('status', 'active');
+  src\services\search.service.ts:160:
+  src\services\search.service.ts:161:    if (params.q) {
+  src\services\search.service.ts:162:      query = query.or(`title.ilike.%${params.q}%`);
+  src\services\search.service.ts:163:    }
+  src\services\search.service.ts:164:    if (params.accountType) {
+  src\services\search.service.ts:165:      query = query.eq('profiles.account_type', params.accountType);
+  src\services\search.service.ts:166:    }
+  src\services\search.service.ts:167:    if (params.is_verified !== undefined) {
+  src\services\search.service.ts:188:    const offset = (page - 1) * limit;
+  src\services\search.service.ts:189:    let query = supabaseAdmin
+> src\services\search.service.ts:190:      .from('services')
+  src\services\search.service.ts:191:      .select('*, profile:profiles!inner(full_name, username, avatar_url, 
+is_verified, account_type)', { count: 'exact' })
+  src\services\search.service.ts:192:      .eq('status', 'active');
+  src\services\search.service.ts:193:
+  src\services\search.service.ts:194:    if (params.q) {
+  src\services\search.service.ts:195:      query = 
+query.or(`title.ilike.%${params.q}%,description.ilike.%${params.q}%`);
+  src\services\search.service.ts:196:    }
+  src\services\search.service.ts:197:    if (params.categoryId) {
+  src\services\search.service.ts:198:      query = query.eq('category_id', params.categoryId);
+  src\services\search.service.ts:199:    }
+  src\services\search.service.ts:200:    if (params.minPrice !== undefined) {
+  src\services\seat.service.ts:14:  async getSeats(tier?: string) {
+  src\services\seat.service.ts:15:    let query = supabaseAdmin
+> src\services\seat.service.ts:16:      .from('seats')
+  src\services\seat.service.ts:17:      .select('*, profile:profiles(id, full_name, username, avatar_url, 
+category_id)')
+  src\services\seat.service.ts:18:      .order('position', { ascending: true });
+  src\services\seat.service.ts:19:
+  src\services\seat.service.ts:20:    if (tier) {
+  src\services\seat.service.ts:21:      query = query.eq('tier', tier);
+  src\services\seat.service.ts:22:    }
+  src\services\seat.service.ts:23:
+  src\services\seat.service.ts:24:    const { data, error } = await query;
+  src\services\seat.service.ts:25:
+  src\services\seat.service.ts:26:    if (error) {
+  src\services\seat.service.ts:33:  async getMySeats(userId: string) {
+  src\services\seat.service.ts:34:    const { data, error } = await supabaseAdmin
+> src\services\seat.service.ts:35:      .from('seats')
+  src\services\seat.service.ts:36:      .select('*')
+  src\services\seat.service.ts:37:      .eq('influencer_id', userId);
+  src\services\seat.service.ts:38:
+  src\services\seat.service.ts:39:    if (error) {
+  src\services\seat.service.ts:40:      throw ApiError.internal(error.message);
+  src\services\seat.service.ts:41:    }
+  src\services\seat.service.ts:42:
+  src\services\seat.service.ts:43:    return data;
+  src\services\seat.service.ts:44:  }
+  src\services\seat.service.ts:45:
+  src\services\seat.service.ts:46:  async bookSeat(seatId: string, userId: string) {
+  src\services\seat.service.ts:47:    const { data: seat, error: seatError } = await supabaseAdmin
+> src\services\seat.service.ts:48:      .from('seats')
+  src\services\seat.service.ts:49:      .select('*')
+  src\services\seat.service.ts:50:      .eq('id', seatId)
+  src\services\seat.service.ts:51:      .single();
+  src\services\seat.service.ts:52:
+  src\services\seat.service.ts:53:    if (seatError || !seat) {
+  src\services\seat.service.ts:54:      throw ApiError.notFound('Seat not found');
+  src\services\seat.service.ts:55:    }
+  src\services\seat.service.ts:56:
+  src\services\seat.service.ts:57:    if (seat.status === 'booked' && seat.influencer_id) {
+  src\services\seat.service.ts:58:      throw ApiError.badRequest('This seat is already booked');
+  src\services\seat.service.ts:93:
+  src\services\seat.service.ts:94:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\seat.service.ts:95:      .from('seats')
+  src\services\seat.service.ts:96:      .select('influencer_id')
+  src\services\seat.service.ts:97:      .eq('id', seatId)
+  src\services\seat.service.ts:98:      .single();
+  src\services\seat.service.ts:99:
+  src\services\seat.service.ts:100:    if (existError || !existing) {
+  src\services\seat.service.ts:101:      throw ApiError.notFound('Seat not found');
+  src\services\seat.service.ts:102:    }
+  src\services\seat.service.ts:103:
+  src\services\seat.service.ts:104:    if (existing.influencer_id !== userId) {
+  src\services\seat.service.ts:105:      throw ApiError.forbidden('You do not have permission to cancel this seat');
+  src\services\seat.service.ts:107:
+  src\services\seat.service.ts:108:    const { data, error } = await supabase
+> src\services\seat.service.ts:109:      .from('seats')
+  src\services\seat.service.ts:110:      .update({
+  src\services\seat.service.ts:111:        status: 'available',
+  src\services\seat.service.ts:112:        influencer_id: null,
+  src\services\seat.service.ts:113:        expires_at: null,
+  src\services\seat.service.ts:114:      })
+  src\services\seat.service.ts:115:      .eq('id', seatId)
+  src\services\seat.service.ts:116:      .select()
+  src\services\seat.service.ts:117:      .single();
+  src\services\seat.service.ts:118:
+  src\services\seat.service.ts:119:    if (error) {
+  src\services\seat.service.ts:135:        // Find existing seat
+  src\services\seat.service.ts:136:        const { data: seat } = await supabaseAdmin
+> src\services\seat.service.ts:137:          .from('seats')
+  src\services\seat.service.ts:138:          .select('id, status')
+  src\services\seat.service.ts:139:          .eq('id', seatId)
+  src\services\seat.service.ts:140:          .single();
+  src\services\seat.service.ts:141:
+  src\services\seat.service.ts:142:        if (seat && seat.status !== 'booked') {
+  src\services\seat.service.ts:143:          const durationDays = parseInt(session.metadata?.duration_days || '30', 
+10);
+  src\services\seat.service.ts:144:          const expiresAt = new Date();
+  src\services\seat.service.ts:145:          expiresAt.setDate(expiresAt.getDate() + durationDays);
+  src\services\seat.service.ts:146:
+  src\services\seat.service.ts:147:          await supabaseAdmin
+> src\services\seat.service.ts:148:            .from('seats')
+  src\services\seat.service.ts:149:            .update({
+  src\services\seat.service.ts:150:              status: 'booked',
+  src\services\seat.service.ts:151:              influencer_id: userId,
+  src\services\seat.service.ts:152:              expires_at: expiresAt.toISOString(),
+  src\services\seat.service.ts:153:            })
+  src\services\seat.service.ts:154:            .eq('id', seatId);
+  src\services\seat.service.ts:155:        }
+  src\services\seat.service.ts:156:      }
+  src\services\seat.service.ts:157:    }
+  src\services\seat.service.ts:158:  }
+  src\services\service.service.ts:11:
+  src\services\service.service.ts:12:    let query = supabaseAdmin
+> src\services\service.service.ts:13:      .from('services')
+  src\services\service.service.ts:14:      .select('*, profile:profiles(id, full_name, username, avatar_url, 
+is_verified, account_type), category:categories(id, name_ar, name_en, slug)', { count: 'exact' })
+  src\services\service.service.ts:15:      .eq('status', 'active');
+  src\services\service.service.ts:16:
+  src\services\service.service.ts:17:    if (params.categoryId) {
+  src\services\service.service.ts:18:      query = query.eq('category_id', params.categoryId);
+  src\services\service.service.ts:19:    }
+  src\services\service.service.ts:20:    if (params.q) {
+  src\services\service.service.ts:21:      query = 
+query.or(`title.ilike.%${params.q}%,description.ilike.%${params.q}%`);
+  src\services\service.service.ts:22:    }
+  src\services\service.service.ts:23:
+  src\services\service.service.ts:42:  async getServiceById(serviceId: string) {
+  src\services\service.service.ts:43:    const { data, error } = await supabaseAdmin
+> src\services\service.service.ts:44:      .from('services')
+  src\services\service.service.ts:45:      .select('*, profile:profiles(id, full_name, username, avatar_url, 
+is_verified, account_type), category:categories(id, name_ar, name_en, slug)')
+  src\services\service.service.ts:46:      .eq('id', serviceId)
+  src\services\service.service.ts:47:      .single();
+  src\services\service.service.ts:48:
+  src\services\service.service.ts:49:    if (error || !data) {
+  src\services\service.service.ts:50:      throw ApiError.notFound('Service not found');
+  src\services\service.service.ts:51:    }
+  src\services\service.service.ts:52:
+  src\services\service.service.ts:53:    // Increment views
+  src\services\service.service.ts:54:    try {
+  src\services\service.service.ts:65:
+  src\services\service.service.ts:66:    const { data, error } = await supabase
+> src\services\service.service.ts:67:      .from('services')
+  src\services\service.service.ts:68:      .insert({
+  src\services\service.service.ts:69:        profile_id: userId,
+  src\services\service.service.ts:70:        category_id: payload.category_id,
+  src\services\service.service.ts:71:        title: payload.title,
+  src\services\service.service.ts:72:        description: payload.description,
+  src\services\service.service.ts:73:        price: payload.price,
+  src\services\service.service.ts:74:        currency: payload.currency || 'AED',
+  src\services\service.service.ts:75:        delivery_days: payload.delivery_days,
+  src\services\service.service.ts:76:        media_urls: payload.media_urls || [],
+  src\services\service.service.ts:77:        tags: payload.tags || [],
+  src\services\service.service.ts:95:
+  src\services\service.service.ts:96:    const { data, error } = await supabase
+> src\services\service.service.ts:97:      .from('services')
+  src\services\service.service.ts:98:      .update(safePayload)
+  src\services\service.service.ts:99:      .eq('id', serviceId)
+  src\services\service.service.ts:100:      .eq('profile_id', userId)
+  src\services\service.service.ts:101:      .select('*, category:categories(id, name_ar, name_en, slug)')
+  src\services\service.service.ts:102:      .single();
+  src\services\service.service.ts:103:
+  src\services\service.service.ts:104:    if (error) {
+  src\services\service.service.ts:105:      throw ApiError.badRequest(error.message);
+  src\services\service.service.ts:106:    }
+  src\services\service.service.ts:107:
+  src\services\service.service.ts:113:
+  src\services\service.service.ts:114:    const { error } = await supabase
+> src\services\service.service.ts:115:      .from('services')
+  src\services\service.service.ts:116:      .delete()
+  src\services\service.service.ts:117:      .eq('id', serviceId)
+  src\services\service.service.ts:118:      .eq('profile_id', userId);
+  src\services\service.service.ts:119:
+  src\services\service.service.ts:120:    if (error) {
+  src\services\service.service.ts:121:      throw ApiError.badRequest(error.message);
+  src\services\service.service.ts:122:    }
+  src\services\service.service.ts:123:
+  src\services\service.service.ts:124:    return true;
+  src\services\service.service.ts:125:  }
+  src\services\story.service.ts:15:
+  src\services\story.service.ts:16:    const { data, error } = await supabase
+> src\services\story.service.ts:17:      .from('stories')
+  src\services\story.service.ts:18:      .insert({
+  src\services\story.service.ts:19:        profile_id: userId,
+  src\services\story.service.ts:20:        media_url: payload.media_url,
+  src\services\story.service.ts:21:        expires_at: expiresAt.toISOString(),
+  src\services\story.service.ts:22:      })
+  src\services\story.service.ts:23:      .select()
+  src\services\story.service.ts:24:      .single();
+  src\services\story.service.ts:25:
+  src\services\story.service.ts:26:    if (error) {
+  src\services\story.service.ts:27:      throw ApiError.badRequest(error.message);
+  src\services\story.service.ts:34:    const now = new Date().toISOString();
+  src\services\story.service.ts:35:    const { data, error } = await supabaseAdmin
+> src\services\story.service.ts:36:      .from('stories')
+  src\services\story.service.ts:37:      .select('*, profile:profiles(id, full_name, username, avatar_url, 
+account_type)')
+  src\services\story.service.ts:38:      .gt('expires_at', now)
+  src\services\story.service.ts:39:      .order('created_at', { ascending: false });
+  src\services\story.service.ts:40:
+  src\services\story.service.ts:41:    if (error) {
+  src\services\story.service.ts:42:      throw ApiError.internal(error.message);
+  src\services\story.service.ts:43:    }
+  src\services\story.service.ts:44:
+  src\services\story.service.ts:45:    // Group stories by user could be done here or on the frontend.
+  src\services\story.service.ts:46:    // We return flat array for flexibility.
+  src\services\story.service.ts:51:    const now = new Date().toISOString();
+  src\services\story.service.ts:52:    const { data, error } = await supabaseAdmin
+> src\services\story.service.ts:53:      .from('stories')
+  src\services\story.service.ts:54:      .select('*')
+  src\services\story.service.ts:55:      .eq('profile_id', userId)
+  src\services\story.service.ts:56:      .gt('expires_at', now)
+  src\services\story.service.ts:57:      .order('created_at', { ascending: false });
+  src\services\story.service.ts:58:
+  src\services\story.service.ts:59:    if (error) {
+  src\services\story.service.ts:60:      throw ApiError.internal(error.message);
+  src\services\story.service.ts:61:    }
+  src\services\story.service.ts:62:
+  src\services\story.service.ts:63:    return data;
+  src\services\story.service.ts:67:    const now = new Date().toISOString();
+  src\services\story.service.ts:68:    const { data, error } = await supabaseAdmin
+> src\services\story.service.ts:69:      .from('stories')
+  src\services\story.service.ts:70:      .select('*, profile:profiles(id, full_name, username, avatar_url, 
+account_type)')
+  src\services\story.service.ts:71:      .eq('profile_id', userId)
+  src\services\story.service.ts:72:      .gt('expires_at', now)
+  src\services\story.service.ts:73:      .order('created_at', { ascending: true });
+  src\services\story.service.ts:74:
+  src\services\story.service.ts:75:    if (error) {
+  src\services\story.service.ts:76:      throw ApiError.internal(error.message);
+  src\services\story.service.ts:77:    }
+  src\services\story.service.ts:78:
+  src\services\story.service.ts:79:    return data;
+  src\services\story.service.ts:84:
+  src\services\story.service.ts:85:    const { data: existing, error: existError } = await supabaseAdmin
+> src\services\story.service.ts:86:      .from('stories')
+  src\services\story.service.ts:87:      .select('profile_id')
+  src\services\story.service.ts:88:      .eq('id', storyId)
+  src\services\story.service.ts:89:      .single();
+  src\services\story.service.ts:90:
+  src\services\story.service.ts:91:    if (existError || !existing) {
+  src\services\story.service.ts:92:      throw ApiError.notFound('Story not found');
+  src\services\story.service.ts:93:    }
+  src\services\story.service.ts:94:
+  src\services\story.service.ts:95:    if (existing.profile_id !== userId) {
+  src\services\story.service.ts:96:      throw ApiError.forbidden('You do not have permission to delete this story');
+  src\services\story.service.ts:98:
+  src\services\story.service.ts:99:    const { error } = await supabase
+> src\services\story.service.ts:100:      .from('stories')
+  src\services\story.service.ts:101:      .delete()
+  src\services\story.service.ts:102:      .eq('id', storyId);
+  src\services\story.service.ts:103:
+  src\services\story.service.ts:104:    if (error) {
+  src\services\story.service.ts:105:      throw ApiError.badRequest(error.message);
+  src\services\story.service.ts:106:    }
+  src\services\story.service.ts:107:
+  src\services\story.service.ts:108:    return true;
+  src\services\story.service.ts:109:  }
+  src\services\story.service.ts:110:}
+  src\services\stripe.service.ts:14:  async getOrCreateCustomer(profileId: string, email?: string, name?: string): 
+Promise<string> {
+  src\services\stripe.service.ts:15:    const { data: profile } = await supabaseAdmin
+> src\services\stripe.service.ts:16:      .from('profiles')
+  src\services\stripe.service.ts:17:      .select('stripe_customer_id, email, full_name')
+  src\services\stripe.service.ts:18:      .eq('id', profileId)
+  src\services\stripe.service.ts:19:      .single();
+  src\services\stripe.service.ts:20:
+  src\services\stripe.service.ts:21:    if (!profile) {
+  src\services\stripe.service.ts:22:      throw ApiError.notFound('Profile not found');
+  src\services\stripe.service.ts:23:    }
+  src\services\stripe.service.ts:24:
+  src\services\stripe.service.ts:25:    if (profile.stripe_customer_id) {
+  src\services\stripe.service.ts:26:      return profile.stripe_customer_id;
+  src\services\stripe.service.ts:43:    // Save customer ID in profile
+  src\services\stripe.service.ts:44:    await supabaseAdmin
+> src\services\stripe.service.ts:45:      .from('profiles')
+  src\services\stripe.service.ts:46:      .update({ stripe_customer_id: customer.id })
+  src\services\stripe.service.ts:47:      .eq('id', profileId);
+  src\services\stripe.service.ts:48:
+  src\services\stripe.service.ts:49:    return customer.id;
+  src\services\stripe.service.ts:50:  }
+  src\services\stripe.service.ts:51:
+  src\services\stripe.service.ts:52:  /**
+  src\services\stripe.service.ts:53:   * Create a Checkout Session for a subscription
+  src\services\stripe.service.ts:54:   */
+  src\services\stripe.service.ts:55:  // async createSubscriptionCheckout(
+  src\services\subscription.service.ts:13:  async getPlans() {
+  src\services\subscription.service.ts:14:    const { data, error } = await supabaseAdmin
+> src\services\subscription.service.ts:15:      .from('subscription_plans')
+  src\services\subscription.service.ts:16:      .select('*')
+  src\services\subscription.service.ts:17:      .eq('is_active', true)
+  src\services\subscription.service.ts:18:      .order('sort_order', { ascending: true });
+  src\services\subscription.service.ts:19:
+  src\services\subscription.service.ts:20:    if (error) {
+  src\services\subscription.service.ts:21:      throw ApiError.internal(error.message);
+  src\services\subscription.service.ts:22:    }
+  src\services\subscription.service.ts:23:    return data;
+  src\services\subscription.service.ts:24:  }
+  src\services\subscription.service.ts:25:
+  src\services\subscription.service.ts:29:  async getPlanById(planId: string) {
+  src\services\subscription.service.ts:30:    const { data, error } = await supabaseAdmin
+> src\services\subscription.service.ts:31:      .from('subscription_plans')
+  src\services\subscription.service.ts:32:      .select('*')
+  src\services\subscription.service.ts:33:      .eq('id', planId)
+  src\services\subscription.service.ts:34:      .eq('is_active', true)
+  src\services\subscription.service.ts:35:      .single();
+  src\services\subscription.service.ts:36:
+  src\services\subscription.service.ts:37:    if (error || !data) {
+  src\services\subscription.service.ts:38:      throw ApiError.notFound('Plan not found or inactive');
+  src\services\subscription.service.ts:39:    }
+  src\services\subscription.service.ts:40:    return data;
+  src\services\subscription.service.ts:41:  }
+  src\services\subscription.service.ts:57:    // 3. Check for existing subscription
+  src\services\subscription.service.ts:58:    const { data: existingSub } = await supabaseAdmin
+> src\services\subscription.service.ts:59:      .from('subscriptions')
+  src\services\subscription.service.ts:60:      .select('status')
+  src\services\subscription.service.ts:61:      .eq('profile_id', userId)
+  src\services\subscription.service.ts:62:      .in('status', ['active', 'trialing'])
+  src\services\subscription.service.ts:63:      .maybeSingle();
+  src\services\subscription.service.ts:64:
+  src\services\subscription.service.ts:65:    if (existingSub) {
+  src\services\subscription.service.ts:66:      throw ApiError.badRequest('You already have an active subscription');
+  src\services\subscription.service.ts:67:    }
+  src\services\subscription.service.ts:68:
+  src\services\subscription.service.ts:69:    // 4. Create Mobile Subscription via Stripe
+  src\services\subscription.service.ts:86:  async getMySubscription(userId: string) {
+  src\services\subscription.service.ts:87:    const { data, error } = await supabaseAdmin
+> src\services\subscription.service.ts:88:      .from('subscriptions')
+  src\services\subscription.service.ts:89:      .select('*, plan:subscription_plans(*)')
+  src\services\subscription.service.ts:90:      .eq('profile_id', userId)
+  src\services\subscription.service.ts:91:      .order('created_at', { ascending: false })
+  src\services\subscription.service.ts:92:      .limit(1)
+  src\services\subscription.service.ts:93:      .maybeSingle();
+  src\services\subscription.service.ts:94:
+  src\services\subscription.service.ts:95:    if (error) {
+  src\services\subscription.service.ts:96:      throw ApiError.internal(error.message);
+  src\services\subscription.service.ts:97:    }
+  src\services\subscription.service.ts:98:    return data;
+  src\services\subscription.service.ts:104:  async getCustomerPortalUrl(userId: string, returnUrl: string) {
+  src\services\subscription.service.ts:105:    const { data: profile } = await supabaseAdmin
+> src\services\subscription.service.ts:106:      .from('profiles')
+  src\services\subscription.service.ts:107:      .select('stripe_customer_id')
+  src\services\subscription.service.ts:108:      .eq('id', userId)
+  src\services\subscription.service.ts:109:      .single();
+  src\services\subscription.service.ts:110:
+  src\services\subscription.service.ts:111:    if (!profile || !profile.stripe_customer_id) {
+  src\services\subscription.service.ts:112:      throw ApiError.badRequest('No billing account found');
+  src\services\subscription.service.ts:113:    }
+  src\services\subscription.service.ts:114:
+  src\services\subscription.service.ts:115:    const session = await 
+stripeService.createPortalSession(profile.stripe_customer_id, returnUrl);
+  src\services\subscription.service.ts:116:    
+  src\services\subscription.service.ts:135:        // Idempotency check: does this payment already exist?
+  src\services\subscription.service.ts:136:        const { data: existingPayment } = await supabaseAdmin
+> src\services\subscription.service.ts:137:          .from('payments')
+  src\services\subscription.service.ts:138:          .select('id')
+  src\services\subscription.service.ts:139:          .eq('stripe_payment_id', stripePaymentId)
+  src\services\subscription.service.ts:140:          .maybeSingle();
+  src\services\subscription.service.ts:141:
+  src\services\subscription.service.ts:142:        if (!existingPayment) {
+  src\services\subscription.service.ts:143:          const profileId = session.metadata?.profileId;
+  src\services\subscription.service.ts:144:          const amount = session.amount_total / 100;
+  src\services\subscription.service.ts:145:          const paymentType = session.metadata?.type || 'ad';
+  src\services\subscription.service.ts:146:
+  src\services\subscription.service.ts:147:          if (profileId) {
+  src\services\subscription.service.ts:148:            // Insert payment
+> src\services\subscription.service.ts:149:            await supabaseAdmin.from('payments').insert({
+  src\services\subscription.service.ts:150:              profile_id: profileId,
+  src\services\subscription.service.ts:151:              stripe_payment_id: stripePaymentId,
+  src\services\subscription.service.ts:152:              amount: amount,
+  src\services\subscription.service.ts:153:              type: paymentType,
+  src\services\subscription.service.ts:154:              status: 'succeeded',
+  src\services\subscription.service.ts:155:              metadata: session.metadata || {}
+  src\services\subscription.service.ts:156:            });
+  src\services\subscription.service.ts:157:
+  src\services\subscription.service.ts:158:            // Activate Featured Account if applicable
+  src\services\subscription.service.ts:159:            if (paymentType === 'featured') {
+  src\services\subscription.service.ts:165:                const endDate = new Date(startDate.getTime() + durationDays 
+* 24 * 60 * 60 * 1000);
+  src\services\subscription.service.ts:166:                
+> src\services\subscription.service.ts:167:                await supabaseAdmin.from('featured_accounts').insert({
+  src\services\subscription.service.ts:168:                  profile_id: profileId,
+  src\services\subscription.service.ts:169:                  placement: placement,
+  src\services\subscription.service.ts:170:                  start_date: startDate.toISOString(),
+  src\services\subscription.service.ts:171:                  end_date: endDate.toISOString(),
+  src\services\subscription.service.ts:172:                  amount_paid: amount,
+  src\services\subscription.service.ts:173:                  is_active: true
+  src\services\subscription.service.ts:174:                });
+  src\services\subscription.service.ts:175:              }
+  src\services\subscription.service.ts:176:            }
+  src\services\subscription.service.ts:177:
+  src\services\subscription.service.ts:181:              if (offerId) {
+  src\services\subscription.service.ts:182:                await supabaseAdmin
+> src\services\subscription.service.ts:183:                  .from('offers')
+  src\services\subscription.service.ts:184:                  .update({ is_featured: true })
+  src\services\subscription.service.ts:185:                  .eq('id', offerId);
+  src\services\subscription.service.ts:186:              }
+  src\services\subscription.service.ts:187:            }
+  src\services\subscription.service.ts:188:          }
+  src\services\subscription.service.ts:189:        }
+  src\services\subscription.service.ts:190:      }
+  src\services\subscription.service.ts:191:    } else if (type === 'invoice.payment_succeeded') {
+  src\services\subscription.service.ts:192:      const invoice = event.data.object;
+  src\services\subscription.service.ts:193:      const stripePaymentId = invoice.id;
+  src\services\subscription.service.ts:195:      // Idempotency check
+  src\services\subscription.service.ts:196:      const { data: existingPayment } = await supabaseAdmin
+> src\services\subscription.service.ts:197:        .from('payments')
+  src\services\subscription.service.ts:198:        .select('id')
+  src\services\subscription.service.ts:199:        .eq('stripe_payment_id', stripePaymentId)
+  src\services\subscription.service.ts:200:        .maybeSingle();
+  src\services\subscription.service.ts:201:
+  src\services\subscription.service.ts:202:      if (!existingPayment) {
+  src\services\subscription.service.ts:203:        // Find profile by customer
+  src\services\subscription.service.ts:204:        const { data: profile } = await supabaseAdmin
+> src\services\subscription.service.ts:205:          .from('profiles')
+  src\services\subscription.service.ts:206:          .select('id')
+  src\services\subscription.service.ts:207:          .eq('stripe_customer_id', invoice.customer)
+  src\services\subscription.service.ts:208:          .single();
+  src\services\subscription.service.ts:209:
+  src\services\subscription.service.ts:210:        if (profile && invoice.amount_paid > 0) {
+> src\services\subscription.service.ts:211:          await supabaseAdmin.from('payments').insert({
+  src\services\subscription.service.ts:212:            profile_id: profile.id,
+  src\services\subscription.service.ts:213:            stripe_payment_id: stripePaymentId,
+  src\services\subscription.service.ts:214:            amount: invoice.amount_paid / 100,
+  src\services\subscription.service.ts:215:            type: 'subscription',
+  src\services\subscription.service.ts:216:            status: 'succeeded',
+  src\services\subscription.service.ts:217:            metadata: {
+  src\services\subscription.service.ts:218:              invoice_url: invoice.hosted_invoice_url,
+  src\services\subscription.service.ts:219:              subscription_id: invoice.subscription
+  src\services\subscription.service.ts:220:            }
+  src\services\subscription.service.ts:221:          });
+  src\services\subscription.service.ts:233:      // 1. Find profile by stripe_customer_id
+  src\services\subscription.service.ts:234:      const { data: profile } = await supabaseAdmin
+> src\services\subscription.service.ts:235:        .from('profiles')
+  src\services\subscription.service.ts:236:        .select('id')
+  src\services\subscription.service.ts:237:        .eq('stripe_customer_id', customerId)
+  src\services\subscription.service.ts:238:        .single();
+  src\services\subscription.service.ts:239:
+  src\services\subscription.service.ts:240:      if (!profile) return; // User not found, ignore
+  src\services\subscription.service.ts:241:
+  src\services\subscription.service.ts:242:      // 2. Find plan by stripe_price_id
+  src\services\subscription.service.ts:243:      const { data: plan } = await supabaseAdmin
+> src\services\subscription.service.ts:244:        .from('subscription_plans')
+  src\services\subscription.service.ts:245:        .select('id')
+  src\services\subscription.service.ts:246:        .eq('stripe_price_id', priceId)
+  src\services\subscription.service.ts:247:        .single();
+  src\services\subscription.service.ts:248:
+  src\services\subscription.service.ts:249:      if (!plan) return; // Plan not found, ignore
+  src\services\subscription.service.ts:250:
+  src\services\subscription.service.ts:251:      // 3. Upsert Subscription
+  src\services\subscription.service.ts:252:      const payload = {
+  src\services\subscription.service.ts:253:        profile_id: profile.id,
+  src\services\subscription.service.ts:254:        plan_id: plan.id,
+  src\services\subscription.service.ts:262:      // Use atomic upsert to avoid race conditions on concurrent webhooks
+  src\services\subscription.service.ts:263:      await supabaseAdmin
+> src\services\subscription.service.ts:264:        .from('subscriptions')
+  src\services\subscription.service.ts:265:        .upsert(payload, { onConflict: 'stripe_subscription_id' });
+  src\services\subscription.service.ts:266:    } else if (type === 'customer.subscription.deleted') {
+  src\services\subscription.service.ts:267:      const stripeSubId = data.id;
+  src\services\subscription.service.ts:268:      await supabaseAdmin
+> src\services\subscription.service.ts:269:        .from('subscriptions')
+  src\services\subscription.service.ts:270:        .update({ status: 'canceled', canceled_at: new Date().toISOString() 
+})
+  src\services\subscription.service.ts:271:        .eq('stripe_subscription_id', stripeSubId);
+  src\services\subscription.service.ts:272:    }
+  src\services\subscription.service.ts:273:  }
+  src\services\subscription.service.ts:274:}
+  src\services\subscription.service.ts:275:
+  src\services\subscription.service.ts:276:export const subscriptionService = new SubscriptionService();
+  src\services\upload.service.ts:28:    // 1. Upload to Supabase Storage
+  src\services\upload.service.ts:29:    const { error: uploadError } = await supabaseAdmin.storage
+> src\services\upload.service.ts:30:      .from(bucket)
+  src\services\upload.service.ts:31:      .upload(filePath, file.buffer, {
+  src\services\upload.service.ts:32:        contentType: file.mimetype,
+  src\services\upload.service.ts:33:        upsert: false,
+  src\services\upload.service.ts:34:      });
+  src\services\upload.service.ts:35:
+  src\services\upload.service.ts:36:    if (uploadError) {
+  src\services\upload.service.ts:37:      throw ApiError.internal(`Failed to upload to storage: 
+${uploadError.message}`);
+  src\services\upload.service.ts:38:    }
+  src\services\upload.service.ts:39:
+  src\services\upload.service.ts:40:    // 2. Get Public URL
+  src\services\upload.service.ts:41:    const { data: publicUrlData } = supabaseAdmin.storage
+> src\services\upload.service.ts:42:      .from(bucket)
+  src\services\upload.service.ts:43:      .getPublicUrl(filePath);
+  src\services\upload.service.ts:44:
+  src\services\upload.service.ts:45:    const publicUrl = publicUrlData.publicUrl;
+  src\services\upload.service.ts:46:
+  src\services\upload.service.ts:47:    // 3. Create record in `media` table
+  src\services\upload.service.ts:48:    const { data: mediaRecord, error: dbError } = await supabaseAdmin
+> src\services\upload.service.ts:49:      .from('media')
+  src\services\upload.service.ts:50:      .insert({
+  src\services\upload.service.ts:51:        profile_id: userId,
+  src\services\upload.service.ts:52:        file_name: fileName,
+  src\services\upload.service.ts:53:        file_url: publicUrl,
+  src\services\upload.service.ts:54:        file_type: file.mimetype,
+  src\services\upload.service.ts:55:        file_size: file.size,
+  src\services\upload.service.ts:56:        related_to: relatedTo || null,
+  src\services\upload.service.ts:57:        related_id: relatedId || null,
+  src\services\upload.service.ts:58:      })
+  src\services\upload.service.ts:59:      .select()
+  src\services\upload.service.ts:62:    if (dbError) {
+  src\services\upload.service.ts:63:      // Rollback: Cleanup storage if DB insert fails
+> src\services\upload.service.ts:64:      await supabaseAdmin.storage.from(bucket).remove([filePath]);
+  src\services\upload.service.ts:65:      throw ApiError.internal(`Failed to save media record: ${dbError.message}`);
+  src\services\upload.service.ts:66:    }
+  src\services\upload.service.ts:67:
+  src\services\upload.service.ts:68:    return mediaRecord;
+  src\services\upload.service.ts:69:  }
+  src\services\upload.service.ts:70:
+  src\services\upload.service.ts:71:  /**
+  src\services\upload.service.ts:72:   * Delete a file from Storage and DB
+  src\services\upload.service.ts:73:   */
+  src\services\upload.service.ts:74:  async deleteFile(userId: string, fileId: string): Promise<void> {
+  src\services\upload.service.ts:75:    // 1. Get the media record
+  src\services\upload.service.ts:76:    const { data: media, error: fetchError } = await supabaseAdmin
+> src\services\upload.service.ts:77:      .from('media')
+  src\services\upload.service.ts:78:      .select('*')
+  src\services\upload.service.ts:79:      .eq('id', fileId)
+  src\services\upload.service.ts:80:      .single();
+  src\services\upload.service.ts:81:
+  src\services\upload.service.ts:82:    if (fetchError || !media) {
+  src\services\upload.service.ts:83:      throw ApiError.notFound('File not found');
+  src\services\upload.service.ts:84:    }
+  src\services\upload.service.ts:85:
+  src\services\upload.service.ts:86:    // 2. Check ownership
+  src\services\upload.service.ts:87:    if (media.profile_id !== userId) {
+  src\services\upload.service.ts:102:    // 3. Delete from Storage
+  src\services\upload.service.ts:103:    const { error: storageError } = await supabaseAdmin.storage
+> src\services\upload.service.ts:104:      .from(bucket)
+  src\services\upload.service.ts:105:      .remove([filePath]);
+  src\services\upload.service.ts:106:
+  src\services\upload.service.ts:107:    if (storageError) {
+  src\services\upload.service.ts:108:      // Just log it but don't fail, maybe it was already deleted manually
+  src\services\upload.service.ts:109:      console.warn(`Failed to delete file from storage: ${storageError.message}`);
+  src\services\upload.service.ts:110:    }
+  src\services\upload.service.ts:111:
+  src\services\upload.service.ts:112:    // 4. Delete from DB
+  src\services\upload.service.ts:113:    const { error: dbError } = await supabaseAdmin
+> src\services\upload.service.ts:114:      .from('media')
+  src\services\upload.service.ts:115:      .delete()
+  src\services\upload.service.ts:116:      .eq('id', fileId);
+  src\services\upload.service.ts:117:
+  src\services\upload.service.ts:118:    if (dbError) {
+  src\services\upload.service.ts:119:      throw ApiError.internal(dbError.message);
+  src\services\upload.service.ts:120:    }
+  src\services\upload.service.ts:121:  }
+  src\services\upload.service.ts:122:}
+  src\services\upload.service.ts:123:
+  src\services\upload.service.ts:124:export const uploadService = new UploadService();
+  src\services\admin\category.service.ts:16:
+  src\services\admin\category.service.ts:17:    const { data, error } = await supabaseAdmin
+> src\services\admin\category.service.ts:18:      .from('categories')
+  src\services\admin\category.service.ts:19:      .insert(payload)
+  src\services\admin\category.service.ts:20:      .select()
+  src\services\admin\category.service.ts:21:      .single();
+  src\services\admin\category.service.ts:22:
+  src\services\admin\category.service.ts:23:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\category.service.ts:24:    return data;
+  src\services\admin\category.service.ts:25:  }
+  src\services\admin\category.service.ts:26:
+  src\services\admin\category.service.ts:27:  /**
+  src\services\admin\category.service.ts:28:   * Update a category
+  src\services\admin\category.service.ts:30:  async updateCategory(categoryId: string, payload: any) {
+  src\services\admin\category.service.ts:31:    const { data, error } = await supabaseAdmin
+> src\services\admin\category.service.ts:32:      .from('categories')
+  src\services\admin\category.service.ts:33:      .update(payload)
+  src\services\admin\category.service.ts:34:      .eq('id', categoryId)
+  src\services\admin\category.service.ts:35:      .select()
+  src\services\admin\category.service.ts:36:      .single();
+  src\services\admin\category.service.ts:37:
+  src\services\admin\category.service.ts:38:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\category.service.ts:39:    return data;
+  src\services\admin\category.service.ts:40:  }
+  src\services\admin\category.service.ts:41:
+  src\services\admin\category.service.ts:42:  /**
+  src\services\admin\category.service.ts:46:    // Check if category is used in offers
+  src\services\admin\category.service.ts:47:    const { count } = await supabaseAdmin
+> src\services\admin\category.service.ts:48:      .from('offers')
+  src\services\admin\category.service.ts:49:      .select('*', { count: 'exact', head: true })
+  src\services\admin\category.service.ts:50:      .eq('category_id', categoryId);
+  src\services\admin\category.service.ts:51:
+  src\services\admin\category.service.ts:52:    if (count && count > 0) {
+  src\services\admin\category.service.ts:53:      throw ApiError.badRequest('Cannot delete category because there are 
+offers using it');
+  src\services\admin\category.service.ts:54:    }
+  src\services\admin\category.service.ts:55:
+> src\services\admin\category.service.ts:56:    const { error } = await 
+supabaseAdmin.from('categories').delete().eq('id', categoryId);
+  src\services\admin\category.service.ts:57:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\category.service.ts:58:    return { success: true };
+  src\services\admin\category.service.ts:59:  }
+  src\services\admin\category.service.ts:60:}
+  src\services\admin\category.service.ts:61:
+  src\services\admin\category.service.ts:62:export const adminCategoryService = new AdminCategoryService();
+  src\services\admin\content.service.ts:12:  async updateOfferStatus(offerId: string, status: string) {
+  src\services\admin\content.service.ts:13:    const { data, error } = await supabaseAdmin
+> src\services\admin\content.service.ts:14:      .from('offers')
+  src\services\admin\content.service.ts:15:      .update({ status })
+  src\services\admin\content.service.ts:16:      .eq('id', offerId)
+  src\services\admin\content.service.ts:17:      .select()
+  src\services\admin\content.service.ts:18:      .single();
+  src\services\admin\content.service.ts:19:
+  src\services\admin\content.service.ts:20:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\content.service.ts:21:    return data;
+  src\services\admin\content.service.ts:22:  }
+  src\services\admin\content.service.ts:23:
+  src\services\admin\content.service.ts:24:  /**
+  src\services\admin\content.service.ts:26:   */
+  src\services\admin\content.service.ts:27:  async deleteOffer(offerId: string) {
+> src\services\admin\content.service.ts:28:    const { error } = await supabaseAdmin.from('offers').delete().eq('id', 
+offerId);
+  src\services\admin\content.service.ts:29:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\content.service.ts:30:    return { success: true };
+  src\services\admin\content.service.ts:31:  }
+  src\services\admin\content.service.ts:32:
+  src\services\admin\content.service.ts:33:  /**
+  src\services\admin\content.service.ts:34:   * Change ad status (e.g. approve 'active', 'rejected')
+  src\services\admin\content.service.ts:35:   */
+  src\services\admin\content.service.ts:36:  async updateAdStatus(adId: string, status: string) {
+  src\services\admin\content.service.ts:37:    const { data, error } = await supabaseAdmin
+> src\services\admin\content.service.ts:38:      .from('ads')
+  src\services\admin\content.service.ts:39:      .update({ status })
+  src\services\admin\content.service.ts:40:      .eq('id', adId)
+  src\services\admin\content.service.ts:41:      .select()
+  src\services\admin\content.service.ts:42:      .single();
+  src\services\admin\content.service.ts:43:
+  src\services\admin\content.service.ts:44:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\content.service.ts:45:    return data;
+  src\services\admin\content.service.ts:46:  }
+  src\services\admin\content.service.ts:47:
+  src\services\admin\content.service.ts:48:  /**
+  src\services\admin\content.service.ts:50:   */
+  src\services\admin\content.service.ts:51:  async deleteAd(adId: string) {
+> src\services\admin\content.service.ts:52:    const { error } = await supabaseAdmin.from('ads').delete().eq('id', 
+adId);
+  src\services\admin\content.service.ts:53:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\content.service.ts:54:    return { success: true };
+  src\services\admin\content.service.ts:55:  }
+  src\services\admin\content.service.ts:56:}
+  src\services\admin\content.service.ts:57:
+  src\services\admin\content.service.ts:58:export const adminContentService = new AdminContentService();
+  src\services\admin\payment.service.ts:14:
+  src\services\admin\payment.service.ts:15:    let query = supabaseAdmin
+> src\services\admin\payment.service.ts:16:      .from('payments')
+  src\services\admin\payment.service.ts:17:      .select('*, profile:profiles!profile_id(id, full_name, username, 
+account_type)', { count: 'exact' });
+  src\services\admin\payment.service.ts:18:
+  src\services\admin\payment.service.ts:19:    if (filters.status) {
+  src\services\admin\payment.service.ts:20:      query = query.eq('status', filters.status);
+  src\services\admin\payment.service.ts:21:    }
+  src\services\admin\payment.service.ts:22:    if (filters.type) {
+  src\services\admin\payment.service.ts:23:      query = query.eq('type', filters.type);
+  src\services\admin\payment.service.ts:24:    }
+  src\services\admin\payment.service.ts:25:
+  src\services\admin\payment.service.ts:26:    const { data, error, count } = await query
+  src\services\admin\plan.service.ts:12:  async getPlans() {
+  src\services\admin\plan.service.ts:13:    const { data, error } = await supabaseAdmin
+> src\services\admin\plan.service.ts:14:      .from('subscription_plans')
+  src\services\admin\plan.service.ts:15:      .select('*')
+  src\services\admin\plan.service.ts:16:      .order('price', { ascending: true });
+  src\services\admin\plan.service.ts:17:
+  src\services\admin\plan.service.ts:18:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\plan.service.ts:19:    return data;
+  src\services\admin\plan.service.ts:20:  }
+  src\services\admin\plan.service.ts:21:
+  src\services\admin\plan.service.ts:22:  /**
+  src\services\admin\plan.service.ts:23:   * Create a new subscription plan
+  src\services\admin\plan.service.ts:24:   */
+  src\services\admin\plan.service.ts:25:  async createPlan(payload: any) {
+  src\services\admin\plan.service.ts:26:    const { data, error } = await supabaseAdmin
+> src\services\admin\plan.service.ts:27:      .from('subscription_plans')
+  src\services\admin\plan.service.ts:28:      .insert(payload)
+  src\services\admin\plan.service.ts:29:      .select()
+  src\services\admin\plan.service.ts:30:      .single();
+  src\services\admin\plan.service.ts:31:
+  src\services\admin\plan.service.ts:32:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\plan.service.ts:33:    return data;
+  src\services\admin\plan.service.ts:34:  }
+  src\services\admin\plan.service.ts:35:
+  src\services\admin\plan.service.ts:36:  /**
+  src\services\admin\plan.service.ts:37:   * Update an existing subscription plan
+  src\services\admin\plan.service.ts:39:  async updatePlan(planId: string, payload: any) {
+  src\services\admin\plan.service.ts:40:    const { data, error } = await supabaseAdmin
+> src\services\admin\plan.service.ts:41:      .from('subscription_plans')
+  src\services\admin\plan.service.ts:42:      .update(payload)
+  src\services\admin\plan.service.ts:43:      .eq('id', planId)
+  src\services\admin\plan.service.ts:44:      .select()
+  src\services\admin\plan.service.ts:45:      .single();
+  src\services\admin\plan.service.ts:46:
+  src\services\admin\plan.service.ts:47:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\plan.service.ts:48:    return data;
+  src\services\admin\plan.service.ts:49:  }
+  src\services\admin\plan.service.ts:50:
+  src\services\admin\plan.service.ts:51:  /**
+  src\services\admin\plan.service.ts:55:    // Before deleting, ensure no active subscriptions rely on it
+  src\services\admin\plan.service.ts:56:    const { count } = await supabaseAdmin
+> src\services\admin\plan.service.ts:57:      .from('subscriptions')
+  src\services\admin\plan.service.ts:58:      .select('*', { count: 'exact', head: true })
+  src\services\admin\plan.service.ts:59:      .eq('plan_id', planId)
+  src\services\admin\plan.service.ts:60:      .in('status', ['active', 'trialing']);
+  src\services\admin\plan.service.ts:61:
+  src\services\admin\plan.service.ts:62:    if (count && count > 0) {
+  src\services\admin\plan.service.ts:63:      throw ApiError.badRequest('Cannot delete plan because there are active 
+subscriptions using it');
+  src\services\admin\plan.service.ts:64:    }
+  src\services\admin\plan.service.ts:65:
+> src\services\admin\plan.service.ts:66:    const { error } = await 
+supabaseAdmin.from('subscription_plans').delete().eq('id', planId);
+  src\services\admin\plan.service.ts:67:    if (error) throw ApiError.internal(error.message);
+  src\services\admin\plan.service.ts:68:    return { success: true };
+  src\services\admin\plan.service.ts:69:  }
+  src\services\admin\plan.service.ts:70:}
+  src\services\admin\plan.service.ts:71:
+  src\services\admin\plan.service.ts:72:export const adminPlanService = new AdminPlanService();
+  src\services\admin\report.service.ts:14:
+  src\services\admin\report.service.ts:15:    let query = supabaseAdmin
+> src\services\admin\report.service.ts:16:      .from('reports')
+  src\services\admin\report.service.ts:17:      .select('*, reporter:profiles!reporter_id(id, full_name, username)', { 
+count: 'exact' });
+  src\services\admin\report.service.ts:18:
+  src\services\admin\report.service.ts:19:    if (filters.status) {
+  src\services\admin\report.service.ts:20:      query = query.eq('status', filters.status);
+  src\services\admin\report.service.ts:21:    }
+  src\services\admin\report.service.ts:22:    if (filters.type) {
+  src\services\admin\report.service.ts:23:      query = query.eq('reported_type', filters.type);
+  src\services\admin\report.service.ts:24:    }
+  src\services\admin\report.service.ts:25:
+  src\services\admin\report.service.ts:26:    const { data, error, count } = await query
+  src\services\admin\report.service.ts:54:
+  src\services\admin\report.service.ts:55:    const { data, error } = await supabaseAdmin
+> src\services\admin\report.service.ts:56:      .from('reports')
+  src\services\admin\report.service.ts:57:      .update(updatePayload)
+  src\services\admin\report.service.ts:58:      .eq('id', reportId)
+  src\services\admin\report.service.ts:59:      .select()
+  src\services\admin\report.service.ts:60:      .single();
+  src\services\admin\report.service.ts:61:
+  src\services\admin\report.service.ts:62:    if (error) {
+  src\services\admin\report.service.ts:63:      throw ApiError.internal(error.message);
+  src\services\admin\report.service.ts:64:    }
+  src\services\admin\report.service.ts:65:
+  src\services\admin\report.service.ts:66:    return data;
+  src\services\admin\stats.service.ts:12:    // Total users
+  src\services\admin\stats.service.ts:13:    const { count: totalUsers } = await supabaseAdmin
+> src\services\admin\stats.service.ts:14:      .from('profiles')
+  src\services\admin\stats.service.ts:15:      .select('*', { count: 'exact', head: true });
+  src\services\admin\stats.service.ts:16:
+  src\services\admin\stats.service.ts:17:    // Active ads
+  src\services\admin\stats.service.ts:18:    const { count: activeAds } = await supabaseAdmin
+> src\services\admin\stats.service.ts:19:      .from('ads')
+  src\services\admin\stats.service.ts:20:      .select('*', { count: 'exact', head: true })
+  src\services\admin\stats.service.ts:21:      .eq('status', 'active');
+  src\services\admin\stats.service.ts:22:
+  src\services\admin\stats.service.ts:23:    // Pending reports
+  src\services\admin\stats.service.ts:24:    const { count: pendingReports } = await supabaseAdmin
+> src\services\admin\stats.service.ts:25:      .from('reports')
+  src\services\admin\stats.service.ts:26:      .select('*', { count: 'exact', head: true })
+  src\services\admin\stats.service.ts:27:      .eq('status', 'pending');
+  src\services\admin\stats.service.ts:28:
+  src\services\admin\stats.service.ts:29:    // Total revenue from successful payments
+  src\services\admin\stats.service.ts:30:    const { data: payments } = await supabaseAdmin
+> src\services\admin\stats.service.ts:31:      .from('payments')
+  src\services\admin\stats.service.ts:32:      .select('amount')
+  src\services\admin\stats.service.ts:33:      .eq('status', 'succeeded');
+  src\services\admin\stats.service.ts:34:
+  src\services\admin\stats.service.ts:35:    const totalRevenue = payments?.reduce((sum, p) => sum + Number(p.amount), 
+0) || 0;
+  src\services\admin\stats.service.ts:36:
+  src\services\admin\stats.service.ts:37:    return {
+  src\services\admin\stats.service.ts:38:      totalUsers: totalUsers || 0,
+  src\services\admin\stats.service.ts:39:      activeAds: activeAds || 0,
+  src\services\admin\stats.service.ts:40:      pendingReports: pendingReports || 0,
+  src\services\admin\stats.service.ts:41:      totalRevenue
+  src\services\admin\user.service.ts:14:
+  src\services\admin\user.service.ts:15:    let query = supabaseAdmin
+> src\services\admin\user.service.ts:16:      .from('profiles')
+  src\services\admin\user.service.ts:17:      .select('*', { count: 'exact' });
+  src\services\admin\user.service.ts:18:
+  src\services\admin\user.service.ts:19:    if (filters.search) {
+  src\services\admin\user.service.ts:20:      query = 
+query.or(`full_name.ilike.%${filters.search}%,username.ilike.%${filters.search}%`);
+  src\services\admin\user.service.ts:21:    }
+  src\services\admin\user.service.ts:22:    if (filters.accountType) {
+  src\services\admin\user.service.ts:23:      query = query.eq('account_type', filters.accountType);
+  src\services\admin\user.service.ts:24:    }
+  src\services\admin\user.service.ts:25:    if (filters.isVerified !== undefined) {
+  src\services\admin\user.service.ts:26:      query = query.eq('is_verified', filters.isVerified === 'true');
+  src\services\admin\user.service.ts:52:  async getUserDetails(userId: string) {
+  src\services\admin\user.service.ts:53:    const { data, error } = await supabaseAdmin
+> src\services\admin\user.service.ts:54:      .from('profiles')
+  src\services\admin\user.service.ts:55:      .select('*')
+  src\services\admin\user.service.ts:56:      .eq('id', userId)
+  src\services\admin\user.service.ts:57:      .single();
+  src\services\admin\user.service.ts:58:
+  src\services\admin\user.service.ts:59:    if (error || !data) {
+  src\services\admin\user.service.ts:60:      throw ApiError.notFound('User not found');
+  src\services\admin\user.service.ts:61:    }
+  src\services\admin\user.service.ts:62:
+  src\services\admin\user.service.ts:63:    return data;
+  src\services\admin\user.service.ts:64:  }
+  src\services\admin\user.service.ts:69:  async toggleBan(userId: string, isActive: boolean) {
+  src\services\admin\user.service.ts:70:    const { data, error } = await supabaseAdmin
+> src\services\admin\user.service.ts:71:      .from('profiles')
+  src\services\admin\user.service.ts:72:      .update({ is_active: isActive })
+  src\services\admin\user.service.ts:73:      .eq('id', userId)
+  src\services\admin\user.service.ts:74:      .select()
+  src\services\admin\user.service.ts:75:      .single();
+  src\services\admin\user.service.ts:76:
+  src\services\admin\user.service.ts:77:    if (error) {
+  src\services\admin\user.service.ts:78:      throw ApiError.internal(error.message);
+  src\services\admin\user.service.ts:79:    }
+  src\services\admin\user.service.ts:80:
+  src\services\admin\user.service.ts:81:    // If banning the user, revoke their active sessions globally
+  src\services\admin\user.service.ts:92:  async toggleVerify(userId: string, isVerified: boolean) {
+  src\services\admin\user.service.ts:93:    const { data, error } = await supabaseAdmin
+> src\services\admin\user.service.ts:94:      .from('profiles')
+  src\services\admin\user.service.ts:95:      .update({ is_verified: isVerified })
+  src\services\admin\user.service.ts:96:      .eq('id', userId)
+  src\services\admin\user.service.ts:97:      .select()
+  src\services\admin\user.service.ts:98:      .single();
+  src\services\admin\user.service.ts:99:
+  src\services\admin\user.service.ts:100:    if (error) {
+  src\services\admin\user.service.ts:101:      throw ApiError.internal(error.message);
+  src\services\admin\user.service.ts:102:    }
+  src\services\admin\user.service.ts:103:
+  src\services\admin\user.service.ts:104:    return data;
+
+

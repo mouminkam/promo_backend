@@ -66,7 +66,6 @@ src/
 ├── controllers/              # Request handlers
 │   └── admin/
 ├── services/                 # Business logic
-├── repositories/             # Data access layer
 ├── validators/               # Zod schemas per module
 ├── types/                    # TypeScript types & enums
 └── utils/                    # Shared utilities
@@ -208,6 +207,11 @@ export const registerSchema = z.object({
 });
 ```
 
+### Preventing Mass Assignment
+- ALWAYS destructure incoming payloads to strip sensitive fields (e.g., `is_admin`, `is_verified`, `stripe_customer_id`, `account_type`) before passing them to `.update()` or `.insert()`.
+- **Safe State Transitions**: When stripping fields like `status`, ensure you still allow legitimate state transitions (e.g., user pausing their own ad) by safely extracting and validating the status against permitted values instead of blindly dropping it.
+- NEVER pass `req.body` or raw `payload` directly to the database layer.
+
 ### Imports
 - Use ES module imports (`import/export`)
 - Order: Node built-ins → External packages → Internal modules → Types
@@ -221,9 +225,11 @@ export const registerSchema = z.object({
 - **Timestamps**: All tables have `created_at` (auto) and `updated_at` where applicable
 - **Soft deletes**: Use `deleted_at` timestamp instead of hard deletes for important data
 - **RLS**: Row Level Security enabled on ALL tables
-- **Service role**: Only used server-side in repositories, NEVER exposed
+- **Service role**: Only used server-side in services, NEVER exposed
 - **Indexes**: Add indexes on frequently queried columns (foreign keys, status, created_at)
-- **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense
+- **Constraints**: Use database constraints (UNIQUE, CHECK, NOT NULL) as the last line of defense. ALWAYS name constraints explicitly (e.g., `CONSTRAINT my_check CHECK (...)`) to allow safe dropping/altering in future migrations.
+- **Polymorphic Relations**: When using polymorphic relations (e.g., `related_id` + `related_to`), use DB triggers (like `cascade_polymorphic_deletes`) to handle cascading deletions cleanly since pure `FOREIGN KEY` constraints cannot enforce cross-table links.
+- **PostgREST Embedded Filters**: When filtering an embedded (joined) table using the Supabase JS SDK, ALWAYS use the table name (e.g. `query.ilike('profiles.location', ...)`) instead of the relation alias to prevent the SDK from misinterpreting it as a JSON path.
 
 ---
 
@@ -237,6 +243,7 @@ export const registerSchema = z.object({
 - ALWAYS apply rate limiting on auth endpoints
 - NEVER log sensitive data (passwords, tokens, card numbers)
 - Use CORS whitelist, not wildcard, in production
+- **Stripe Placeholders**: Safely intercept `price_*_placeholder` seed data in the API and throw a controlled `400 Bad Request` to prevent catastrophic `500 resource_missing` crashes in the Stripe SDK.
 
 ---
 
@@ -247,8 +254,10 @@ export const registerSchema = z.object({
 - Max attachment size: **10MB**
 - Allowed image types: `jpg, jpeg, png, webp, gif`
 - Allowed video types: `mp4, mov, webm`
-- Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`
+- Storage buckets: `avatars`, `covers`, `offers`, `ads`, `chat-media`, `services`, `stories`, `verifications`, `reports`, `general`
 - File naming: `{userId}/{timestamp}_{originalName}`
+- Storage RLS: ALWAYS enforce folder ownership in DB policies using `(storage.foldername(name))[1] = auth.uid()::text` to prevent folder hijacking.
+- **RLS Consistency**: Ensure that `UPDATE` and `INSERT` policies explicitly list ALL active buckets in their `WITH CHECK` conditions, while `DELETE` policies can safely be global if correctly restricted by `owner = auth.uid()`.
 
 ---
 
@@ -307,9 +316,8 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:5173
 
 When creating a new module, always create these files:
 1. `validators/{module}.validator.ts` — Zod schemas
-2. `repositories/{module}.repository.ts` — Data access
-3. `services/{module}.service.ts` — Business logic
-4. `controllers/{module}.controller.ts` — Request handling
-5. `routes/{module}.routes.ts` — Route definitions
-6. Register routes in `routes/index.ts`
-7. Add types to `types/` if needed
+2. `services/{module}.service.ts` — Business logic
+3. `controllers/{module}.controller.ts` — Request handling
+4. `routes/{module}.routes.ts` — Route definitions
+5. Register routes in `routes/index.ts`
+6. Add types to `types/` if needed

@@ -1,6 +1,16 @@
 -- Storage Policies for Promoo App
 
--- 1. Enable RLS on storage.objects (just in case it was disabled)
+-- 1. Create Buckets if they don't exist
+INSERT INTO storage.buckets (id, name, public) VALUES 
+  ('avatars', 'avatars', true),
+  ('covers', 'covers', true),
+  ('offers', 'offers', true),
+  ('ads', 'ads', true),
+  ('chat-media', 'chat-media', true),
+  ('general', 'general', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- 2. Enable RLS on storage.objects (just in case it was disabled)
 ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 
 -- 2. Allow Public Read Access (Select) for all specified buckets

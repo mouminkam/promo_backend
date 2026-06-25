@@ -58,10 +58,17 @@ export class ProfileService {
       }
     }
 
+    // Strip sensitive fields to prevent mass assignment privilege escalation
+    const { 
+      is_admin, is_verified, is_featured, account_type, 
+      stripe_customer_id, is_active, created_at, updated_at, 
+      id, ...safePayload 
+    } = payload;
+
     // Perform update using the user's token (RLS protected)
     const { data, error } = await supabase
       .from('profiles')
-      .update(payload)
+      .update(safePayload)
       .eq('id', userId)
       .select()
       .single();

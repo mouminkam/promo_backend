@@ -90,9 +90,12 @@ export class ServiceService {
   async updateService(serviceId: string, userId: string, token: string, payload: any) {
     const supabase = createSupabaseClient(token);
 
+    // Sanitize payload to prevent security bypass
+    const { views_count, profile_id, id, created_at, updated_at, ...safePayload } = payload;
+
     const { data, error } = await supabase
       .from('services')
-      .update(payload)
+      .update(safePayload)
       .eq('id', serviceId)
       .eq('profile_id', userId)
       .select('*, category:categories(id, name_ar, name_en, slug)')

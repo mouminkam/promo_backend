@@ -7,7 +7,7 @@ import { z } from 'zod';
 export const searchSchema = z.object({
   query: z.object({
     q: z.string().optional(),
-    type: z.enum(['profiles', 'offers', 'ads', 'all']).default('all').optional(),
+    type: z.enum(['profiles', 'offers', 'ads', 'services', 'all']).default('all').optional(),
     page: z.coerce.number().int().positive().default(1).optional(),
     limit: z.coerce.number().int().positive().max(100).default(20).optional(),
     

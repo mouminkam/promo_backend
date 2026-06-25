@@ -49,6 +49,7 @@ export class ChatService {
         .select('room_id, chat_rooms!inner(id, type)')
         .eq('profile_id', participantId)
         .in('room_id', roomIds)
+        .eq('chat_rooms.type', 'direct')
         .limit(1)
         .maybeSingle();
 
@@ -202,41 +203,34 @@ export class ChatService {
   ): Promise<{ data: Record<string, unknown>[]; total: number; page: number; limit: number; totalPages: number }> {
     const offset = (page - 1) * limit;
 
-    // Get all rooms the user is part of
+    // We can query chat_rooms directly, joining chat_participants to filter by the current user
     const { count } = await supabaseAdmin
-      .from('chat_participants')
-      .select('*', { count: 'exact', head: true })
-      .eq('profile_id', currentUserId);
+      .from('chat_rooms')
+      .select('id, chat_participants!inner(profile_id)', { count: 'exact', head: true })
+      .eq('chat_participants.profile_id', currentUserId);
 
     const total = count || 0;
 
-    const { data: participantEntries, error: pError } = await supabaseAdmin
-      .from('chat_participants')
-      .select('room_id, last_read_at')
-      .eq('profile_id', currentUserId)
-      .order('last_read_at', { ascending: false })
+    const { data: rooms, error: pError } = await supabaseAdmin
+      .from('chat_rooms')
+      .select('*, chat_participants!inner(profile_id, last_read_at)')
+      .eq('chat_participants.profile_id', currentUserId)
+      .order('last_message_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
-    if (pError || !participantEntries) {
+    if (pError) {
       throw ApiError.internal(pError?.message || 'Failed to fetch chats');
     }
 
-    if (participantEntries.length === 0) {
+    if (!rooms || rooms.length === 0) {
       return { data: [], total: 0, page, limit, totalPages: 0 };
     }
 
-    const roomIds = participantEntries.map((p) => p.room_id);
-
-    // Get rooms with last_message_at
-    const { data: rooms } = await supabaseAdmin
-      .from('chat_rooms')
-      .select('*')
-      .in('id', roomIds)
-      .order('last_message_at', { ascending: false });
-
-    if (!rooms) {
-      return { data: [], total, page, limit, totalPages: Math.ceil(total / limit) };
-    }
+    // Now extract participantEntries from the rooms list
+    const participantEntries = rooms.map((room: any) => ({
+      room_id: room.id,
+      last_read_at: room.chat_participants[0].last_read_at
+    }));
 
     // For each room, get the other participant's info and the last message
     const chatList: Record<string, unknown>[] = [];

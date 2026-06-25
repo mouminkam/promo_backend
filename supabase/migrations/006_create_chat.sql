@@ -53,7 +53,7 @@ create policy "Users can view their chat rooms."
 
 create policy "Users can create chat rooms."
   on public.chat_rooms for insert
-  with check ( true ); -- Need a tighter policy in practice or handle via Edge Function/Service Role
+  with check ( auth.uid() is not null );
 
 CREATE OR REPLACE FUNCTION public.is_room_participant(_room_id uuid)
 RETURNS boolean AS $$

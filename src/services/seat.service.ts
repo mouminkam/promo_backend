@@ -80,6 +80,8 @@ export class SeatService {
         type: 'seat_booking',
         seatId: seatId,
         userId: userId,
+        profileId: userId,
+        duration_days: '30',
       },
     });
 
@@ -119,6 +121,40 @@ export class SeatService {
     }
 
     return data;
+  }
+
+  /**
+   * Handle Stripe Webhook for seat booking
+   */
+  async handleStripeWebhook(session: any) {
+    if (session.payment_status === 'paid') {
+      const seatId = session.metadata?.seatId;
+      const userId = session.metadata?.userId;
+
+      if (seatId && userId) {
+        // Find existing seat
+        const { data: seat } = await supabaseAdmin
+          .from('seats')
+          .select('id, status')
+          .eq('id', seatId)
+          .single();
+
+        if (seat && seat.status !== 'booked') {
+          const durationDays = parseInt(session.metadata?.duration_days || '30', 10);
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + durationDays);
+
+          await supabaseAdmin
+            .from('seats')
+            .update({
+              status: 'booked',
+              influencer_id: userId,
+              expires_at: expiresAt.toISOString(),
+            })
+            .eq('id', seatId);
+        }
+      }
+    }
   }
 }
 

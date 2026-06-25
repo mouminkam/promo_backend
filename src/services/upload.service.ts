@@ -6,8 +6,8 @@ import { supabaseAdmin } from '../config/supabase';
 import { ApiError } from '../utils/apiError';
 import crypto from 'crypto';
 
-type BucketName = 'avatars' | 'covers' | 'offers' | 'ads' | 'chat-media' | 'general';
-type RelatedTo = 'profile' | 'offer' | 'ad' | 'chat';
+type BucketName = 'avatars' | 'covers' | 'offers' | 'ads' | 'chat-media' | 'services' | 'stories' | 'verifications' | 'reports' | 'general';
+type RelatedTo = 'profile' | 'offer' | 'ad' | 'chat' | 'service' | 'story' | 'report' | 'verification';
 
 export class UploadService {
   /**

@@ -15,8 +15,13 @@ values
 on conflict (slug) do nothing;
 
 -- 2. Insert Subscription Plans
--- Replace stripe_price_id with actual IDs from the Stripe Dashboard later
-insert into public.subscription_plans (name_ar, name_en, description_ar, description_en, price, interval, stripe_price_id, sort_order, features)
+-- =========================================================================
+-- ⚠️ WARNING: STRIPE PRICE IDs ARE PLACEHOLDERS
+-- These will cause a Stripe 'resource_missing' crash if used in testing.
+-- You MUST update the 'stripe_price_id' column with real IDs from your
+-- Stripe Dashboard before attempting to create Checkout sessions.
+-- =========================================================================
+insert into public.subscription_plans (name_ar, name_en, description_ar, description_en, price, interval, stripe_price_id, sort_order, features_ar, features_en)
 values
   (
     'الباقة الأساسية', 
@@ -27,6 +32,7 @@ values
     'monthly', 
     'price_basic_monthly_placeholder', 
     1, 
+    '["5 عروض شهرياً", "دعم فني أساسي", "ملف شخصي عادي"]'::jsonb,
     '["5 offers per month", "Basic support", "Standard profile"]'::jsonb
   ),
   (
@@ -38,6 +44,7 @@ values
     'monthly', 
     'price_premium_monthly_placeholder', 
     2, 
+    '["عروض غير محدودة", "دعم فني بأولوية", "علامة التوثيق", "تحليلات"]'::jsonb,
     '["Unlimited offers", "Priority support", "Verified badge", "Analytics"]'::jsonb
   ),
   (
@@ -49,6 +56,7 @@ values
     'yearly', 
     'price_enterprise_yearly_placeholder', 
     3, 
+    '["كل مميزات الباقة المميزة", "مدير حساب مخصص", "وصول API"]'::jsonb,
     '["Everything in Premium", "Dedicated account manager", "Custom API access"]'::jsonb
   )
 on conflict (stripe_price_id) do nothing;

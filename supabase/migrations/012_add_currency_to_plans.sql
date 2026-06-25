@@ -2,5 +2,5 @@
 -- 012_add_currency_to_plans.sql
 -- ==========================================
 
-alter table public.subscription_plans 
-add column currency text default 'usd' not null;
+-- NO-OP: The 'currency' column was already added in 005_create_subscriptions.sql.
+-- This migration has been intentionally left blank to prevent DuplicateColumn errors.

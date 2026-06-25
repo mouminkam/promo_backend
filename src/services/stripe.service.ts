@@ -52,38 +52,41 @@ export class StripeService {
   /**
    * Create a Checkout Session for a subscription
    */
-  async createSubscriptionCheckout(
-    customerId: string,
-    priceId: string,
-    successUrl: string,
-    cancelUrl: string
-  ) {
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
-      mode: 'subscription',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      subscription_data: {
-        metadata: {
-          price_id: priceId,
-        },
-      },
-    });
+  // async createSubscriptionCheckout(
+  //   customerId: string,
+  //   priceId: string,
+  //   successUrl: string,
+  //   cancelUrl: string
+  // ) {
+  //   const session = await stripe.checkout.sessions.create({
+  //     customer: customerId,
+  //     mode: 'subscription',
+  //     payment_method_types: ['card'],
+  //     line_items: [
+  //       {
+  //         price: priceId,
+  //         quantity: 1,
+  //       },
+  //     ],
+  //     success_url: successUrl,
+  //     cancel_url: cancelUrl,
+  //     subscription_data: {
+  //       metadata: {
+  //         price_id: priceId,
+  //       },
+  //     },
+  //   });
 
-    return session;
-  }
+  //   return session;
+  // }
 
   /**
    * Create a Subscription with Payment Intent for Mobile (PaymentSheet)
    */
   async createMobileSubscription(customerId: string, priceId: string) {
+    if (priceId.includes('placeholder')) {
+      throw ApiError.badRequest('This plan uses a placeholder Stripe Price ID. Please update the database with real Stripe Price IDs.');
+    }
     // 1. Create an Ephemeral Key for the Customer
     const ephemeralKey = await stripe.ephemeralKeys.create(
       { customer: customerId },

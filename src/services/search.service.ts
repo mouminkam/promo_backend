@@ -7,7 +7,7 @@ import { ApiError } from '../utils/apiError';
 
 interface ISearchParams {
   q?: string;
-  type?: 'profiles' | 'offers' | 'ads' | 'all';
+  type?: 'profiles' | 'offers' | 'ads' | 'services' | 'all';
   page?: number;
   limit?: number;
   categoryId?: string;
@@ -31,12 +31,13 @@ export class SearchService {
 
     if (type === 'all') {
       // For 'all', we return a non-paginated preview of top results
-      const [profiles, offers, ads] = await Promise.all([
+      const [profiles, offers, ads, services] = await Promise.all([
         this.searchProfiles(params, 1, 5),
         this.searchOffers(params, 1, 5),
-        this.searchAds(params, 1, 5)
+        this.searchAds(params, 1, 5),
+        this.searchServices(params, 1, 5)
       ]);
-      return { profiles: profiles.data, offers: offers.data, ads: ads.data };
+      return { profiles: profiles.data, offers: offers.data, ads: ads.data, services: services.data };
     }
 
     if (type === 'profiles') {
@@ -47,6 +48,9 @@ export class SearchService {
     }
     if (type === 'ads') {
       return await this.searchAds(params, page, limit);
+    }
+    if (type === 'services') {
+      return await this.searchServices(params, page, limit);
     }
 
     throw ApiError.badRequest('Invalid search type');
@@ -166,6 +170,55 @@ export class SearchService {
 
     const { data, count, error } = await query
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw ApiError.internal(error.message);
+    const total = count || 0;
+
+    return {
+      data: data || [],
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private async searchServices(params: ISearchParams, page: number, limit: number) {
+    const offset = (page - 1) * limit;
+    let query = supabaseAdmin
+      .from('services')
+      .select('*, profile:profiles!inner(full_name, username, avatar_url, is_verified, account_type)', { count: 'exact' })
+      .eq('status', 'active');
+
+    if (params.q) {
+      query = query.or(`title.ilike.%${params.q}%,description.ilike.%${params.q}%`);
+    }
+    if (params.categoryId) {
+      query = query.eq('category_id', params.categoryId);
+    }
+    if (params.minPrice !== undefined) {
+      query = query.gte('price', params.minPrice);
+    }
+    if (params.maxPrice !== undefined) {
+      query = query.lte('price', params.maxPrice);
+    }
+    if (params.accountType) {
+      query = query.eq('profiles.account_type', params.accountType);
+    }
+    if (params.is_verified !== undefined) {
+      query = query.eq('profiles.is_verified', params.is_verified === 'true');
+    }
+
+    if (params.sort === 'price_asc') {
+      query = query.order('price', { ascending: true });
+    } else if (params.sort === 'price_desc') {
+      query = query.order('price', { ascending: false });
+    } else {
+      query = query.order('created_at', { ascending: false });
+    }
+
+    const { data, count, error } = await query
       .range(offset, offset + limit - 1);
 
     if (error) throw ApiError.internal(error.message);
