@@ -61,7 +61,7 @@ export class FeaturedService {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: 'aed',
             product_data: {
               name: `Featured Placement - ${placement.charAt(0).toUpperCase() + placement.slice(1)}`,
               description: `Featured placement for ${duration_days} days`,
@@ -82,7 +82,7 @@ export class FeaturedService {
       },
     });
 
-    return { url: session.url };
+    return { checkoutUrl: session.url, sessionId: session.id, paymentId: session.payment_intent || null, status: 'pending' };
   }
 
   /**

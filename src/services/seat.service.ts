@@ -85,7 +85,7 @@ export class SeatService {
       },
     });
 
-    return { checkoutUrl: session.url, sessionId: session.id };
+    return { checkoutUrl: session.url, sessionId: session.id, paymentId: session.payment_intent || null, status: 'pending' };
   }
 
   async cancelSeat(seatId: string, userId: string, token: string) {

@@ -70,4 +70,4 @@ values
   ('gold', 499, 1, 'available'),
   ('silver', 299, 1, 'available'),
   ('bronze', 149, 1, 'available')
-on conflict (id) do nothing;
+on conflict (tier, position) do nothing;

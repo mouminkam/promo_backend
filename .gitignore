@@ -29,3 +29,10 @@ logs/
 coverage/
 # Added by code-review-graph
 .code-review-graph/
+
+# Promoo Specific Excludes
+scratch/
+repomix-output.xml
+.agents/
+Projects-Pictures/
+docs/api-reports/

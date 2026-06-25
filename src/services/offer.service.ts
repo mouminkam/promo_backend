@@ -303,7 +303,7 @@ export class OfferService {
       line_items: [
         {
           price_data: {
-            currency: 'usd',
+            currency: 'aed',
             product_data: {
               name: `Feature Offer - ${existing.title}`,
               description: `Feature this offer to boost visibility`,
@@ -323,7 +323,7 @@ export class OfferService {
       },
     });
 
-    return { checkoutUrl: session.url };
+    return { checkoutUrl: session.url, sessionId: session.id, paymentId: session.payment_intent || null, status: 'pending' };
   }
 }
 
