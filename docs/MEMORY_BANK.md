@@ -26,6 +26,7 @@
 | 14 | Final Deep Audit Bug Fixes | ✅ Completed | 2026-06-25 |
 | 15 | Prototype Audit, Currency Unify & Cup/Leaderboard | ✅ Completed | 2026-06-25 |
 | 16 | Final Backend Polish & Flutter Handover | ✅ Completed | 2026-06-25 |
+| 17 | Database Final Verification & Production Lock | ✅ Completed | 2026-06-25 |
 
 ---
 
@@ -57,6 +58,9 @@
 | 20 | Seat Race Condition Lock | Automatically mark seat status as `pending` and assign `influencer_id` directly in the backend before creating Stripe Checkout, and free them dynamically in `getSeats` if 15 mins have passed. Prevents double booking during checkout. | 2026-06-25 |
 | 21 | Strict Bucket Enumeration | Refactored `upload.validator.ts` from generic strings to an explicit `enum` representing existing storage buckets to prevent arbitrary bucket creation or upload failures. | 2026-06-25 |
 | 22 | Backend Lock | Resolved all NPM audit vulnerabilities and fixed Jest imports for Firebase Admin testing. Backend is now 100% Locked for the Flutter team. | 2026-06-25 |
+| 23 | Seat Status Constraint Fix | `seats_status_check` DB constraint only allowed `available`/`booked` — missing `pending`. The service was trying to set `pending` on checkout init, causing silent failures. Fixed via migration 030. | 2026-06-25 |
+| 24 | Subscription Plans Cleanup | Had 6 plans — 3 with placeholder Stripe IDs (unusable) + 1 inactive Enterprise. Deleted all 4 via migration 032. Kept 2 active plans with real Stripe IDs: Basic (10 AED) and Premium (29 AED). | 2026-06-25 |
+| 25 | DB Housekeeping | Removed duplicate RLS policies on `offers` and `subscription_plans`. Added missing `idx_profiles_category_id` index (was in migration file but never applied to Supabase). Fixed via migration 031. | 2026-06-25 |
 
 ---
 
@@ -141,6 +145,15 @@
   - Verified ordering + exclusion of regular users via live SQL.
 - [x] Removed leftover filesystem-write debug line in `validate.middleware.ts` (production crash risk).
 
+### Phase 17 — Database Final Verification & Production Lock
+- [x] **Direct Supabase MCP audit** — فحص شامل للداتا بيز مباشرةً عبر MCP (triggers, policies, indexes, constraints, seed data).
+- [x] **seats_status_check** — الـ constraint كان يمنع قيمة `pending`، مما يجعل حجز المقاعد يفشل صامتاً. أضيفت `pending` عبر migration 030.
+- [x] **Duplicate migration 022** — أُعيد تسمية `022_add_profile_category_index.sql` إلى `025_add_profile_category_index.sql` محلياً.
+- [x] **Duplicate RLS policies** — حُذفت السياسات المكررة على `offers` و`subscription_plans` عبر migration 031.
+- [x] **idx_profiles_category_id** — الـ index كان موجوداً في ملف migration لكن لم يُطبَّق على Supabase. أُضيف عبر migration 031.
+- [x] **Subscription Plans Cleanup** — حُذفت 4 خطط زائدة (3 placeholder IDs + 1 Enterprise غير نشط) عبر migration 032. تبقّت خطتان فعليتان بـ Stripe IDs حقيقية: Basic (10 AED) و Premium (29 AED).
+- [x] **DB Health Confirmed** — 21 جدول، RLS مفعّل على الكل، 25+ trigger، كل الـ indexes موجودة، seed data سليم.
+
 ### Phase 16 — Final Backend Polish & Flutter Handover
 - [x] **RLS Hardening:** Applied migration `029_harden_rls_and_seats.sql` dropping public `UPDATE` capabilities on `seats` and enforcing `protect_sensitive_columns` database triggers for `profiles`, `offers`, `ads`, and `services`.
 - [x] **Race Conditions:** Ensured `seat.service.ts` locks a seat immediately upon checkout init and releases it if abandoned for over 15 minutes.
@@ -152,10 +165,10 @@
 
 ## Current Context
 
-**Currently working on**: Backend is officially **Locked** and fully handed over to the Flutter Team.
-**Next up**: Front-end Flutter integration relying exclusively on Postman Collection & API Docs. v2 backlog: Reviews/Ratings, Likes/Comments, content Packages.
-**Blockers**: Stripe `stripe_price_id` values in the seed are still placeholders — must be replaced with real IDs before live payment testing.
-**Notes**: All Backend Phases (1-16) are fully complete. DB synced local+remote through migration 029. Security audited with triggers preventing RLS escalation.
+**Currently working on**: Backend + Database officially **Locked** and fully handed over to the Flutter Team.
+**Next up**: Front-end Flutter integration. v2 backlog: Reviews/Ratings, Likes/Comments, Content Packages.
+**Blockers**: لا يوجد أي blocker. الخطتان الموجودتان (Basic/Premium) لديهما Stripe IDs حقيقية وجاهزتان للدفع.
+**Notes**: All Backend Phases (1-17) are fully complete. DB verified directly via MCP through migration 032. Security audited, seed data clean, zero duplicate policies or constraints.
 
 ---
 

@@ -1,6 +1,6 @@
 # Promoo Backend — Requirements Status
 > تتبع دقيق لكل متطلبات التطبيق: ما نُفِّذ، ما تبقى، وكيف يعمل اللوجيك لكل ميزة.
-> آخر تحديث: 2026-06-25 | الوضع الحالي: Backend مكتمل + تدقيق على الـ Prototype + توحيد العملة (AED) + بناء صفحة Cup/Leaderboard ✅
+> آخر تحديث: 2026-06-25 | الوضع الحالي: Backend + Database مكتملان ومقفلان نهائياً ✅ — جاهزان للربط مع Flutter
 
 ---
 
@@ -492,6 +492,19 @@ Admin ينشئ ويعدل باقات الاشتراك.
 
 ---
 
+## 15. Phase 17: Database Final Verification & Production Lock
+
+| ID | Feature | Priority | Status |
+|---|---|---|---|
+| 17.1 | Direct MCP audit — triggers, policies, indexes, constraints, seed data | Critical | ✅ Completed |
+| 17.2 | seats_status_check constraint — أضيفت قيمة `pending` (migration 030) | Critical | ✅ Completed |
+| 17.3 | Duplicate migration 022 — أُعيد تسميته إلى 025 محلياً | Medium | ✅ Completed |
+| 17.4 | Duplicate RLS policies على offers و subscription_plans — حُذفت (migration 031) | Medium | ✅ Completed |
+| 17.5 | idx_profiles_category_id — أُضيف على Supabase (migration 031) | Medium | ✅ Completed |
+| 17.6 | Subscription plans cleanup — حُذفت 4 خطط زائدة/placeholders، تبقّت 2 بـ IDs حقيقية (migration 032) | High | ✅ Completed |
+
+---
+
 ## 14. Phase 16: Final Backend Polish & Flutter Handover
 
 | ID | Feature | Priority | Status |
@@ -521,4 +534,4 @@ Admin ينشئ ويعدل باقات الاشتراك.
 ### ⚠️ ما يحتاج انتباه لاحقاً
 1. **Front-End Integration**: الباك إند جاهز تماماً. يجب ربط تطبيق الموبايل بالـ Endpoints و Supabase SDK مباشرة (للـ Realtime و OAuth).
 2. **Dashboard Configuration**: يجب على مالك المشروع تفعيل Google/Apple OAuth من داخل الـ Supabase Dashboard، ووضع Client IDs الفعلية.
-3. **Stripe IDs**: باقات الاشتراك الـ Seeded تحتوي على `price_placeholder`. تم وضع كود حماية لمنع انهيار السيرفر (Server Crash) إذا تم استخدامها، ولكن يجب تغييرها بـ `stripe_price_id` الفعلي بعد إنشاء الباقات من لوحة تحكم Stripe لكي تعمل الدفعات الحقيقية.
+3. **Stripe Plans**: تبقّت خطتان نشطتان بـ Stripe IDs حقيقية بعد حذف الـ placeholders (migration 032): Basic (10 AED) و Premium (29 AED). هاتان الخطتان جاهزتان للدفع الفعلي دون أي تعديل إضافي.

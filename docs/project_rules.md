@@ -232,6 +232,8 @@ export const registerSchema = z.object({
 - **PostgREST Embedded Filters**: When filtering an embedded (joined) table using the Supabase JS SDK, ALWAYS use the table name (e.g. `query.ilike('profiles.location', ...)`) instead of the relation alias to prevent the SDK from misinterpreting it as a JSON path.
 - **Cached Counters**: For values read far more often than written and used for sorting (e.g. `profiles.followers_count` for the Cup leaderboard), store a cached counter column kept in sync via a trigger on the source table (INSERT/DELETE), and add a partial index for the sort. Always backfill existing rows in the same migration. Use `GREATEST(count - 1, 0)` on decrement to avoid negatives.
 - **SECURITY DEFINER Functions**: ALWAYS pin `SET search_path = ''` on `SECURITY DEFINER` functions and fully-qualify every object (`public.table`). Prevents the `function_search_path_mutable` advisor warning and search_path hijacking.
+- **Status Column Constraints**: When adding a new application-level status value to a service (e.g. `pending` for seats), ALWAYS update the corresponding DB `CHECK` constraint in the same migration. A missing value causes silent update failures — the Supabase JS client does not throw on constraint violations by default.
+- **Verify Index Application**: Migration files are the source of truth locally, but indexes/constraints must be verified against the live DB via MCP after each migration batch. A file can exist locally without ever being applied (e.g. if it was created after the last `supabase db push`).
 
 ---
 
