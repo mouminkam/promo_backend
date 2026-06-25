@@ -21,14 +21,15 @@ on conflict (slug) do nothing;
 -- You MUST update the 'stripe_price_id' column with real IDs from your
 -- Stripe Dashboard before attempting to create Checkout sessions.
 -- =========================================================================
-insert into public.subscription_plans (name_ar, name_en, description_ar, description_en, price, interval, stripe_price_id, sort_order, features_ar, features_en)
+insert into public.subscription_plans (name_ar, name_en, description_ar, description_en, price, currency, interval, stripe_price_id, sort_order, features_ar, features_en)
 values
   (
     'الباقة الأساسية', 
     'Basic Plan', 
     'مثالية للمبتدئين', 
     'Perfect for beginners', 
-    10.00, 
+    99.00, 
+    'AED',
     'monthly', 
     'price_basic_monthly_placeholder', 
     1, 
@@ -36,27 +37,37 @@ values
     '["5 offers per month", "Basic support", "Standard profile"]'::jsonb
   ),
   (
-    'الباقة المميزة', 
-    'Premium Plan', 
-    'للمحترفين والشركات', 
-    'For professionals and companies', 
-    29.00, 
+    'الباقة القياسية', 
+    'Standard Plan', 
+    'للمحترفين', 
+    'For professionals', 
+    149.00, 
+    'AED',
     'monthly', 
-    'price_premium_monthly_placeholder', 
+    'price_standard_monthly_placeholder', 
     2, 
-    '["عروض غير محدودة", "دعم فني بأولوية", "علامة التوثيق", "تحليلات"]'::jsonb,
-    '["Unlimited offers", "Priority support", "Verified badge", "Analytics"]'::jsonb
+    '["عروض غير محدودة", "دعم فني بأولوية", "تحليلات"]'::jsonb,
+    '["Unlimited offers", "Priority support", "Analytics"]'::jsonb
   ),
   (
-    'باقة الشركات', 
-    'Enterprise Plan', 
-    'دعم كامل وميزات غير محدودة', 
-    'Full support and unlimited features', 
-    290.00, 
-    'yearly', 
-    'price_enterprise_yearly_placeholder', 
+    'الباقة المميزة', 
+    'Premium Plan', 
+    'دعم كامل وميزات متقدمة', 
+    'Full support and advanced features', 
+    249.00, 
+    'AED',
+    'monthly', 
+    'price_premium_monthly_placeholder', 
     3, 
-    '["كل مميزات الباقة المميزة", "مدير حساب مخصص", "وصول API"]'::jsonb,
-    '["Everything in Premium", "Dedicated account manager", "Custom API access"]'::jsonb
+    '["كل مميزات الباقة القياسية", "علامة التوثيق", "أولوية في الظهور"]'::jsonb,
+    '["Everything in Standard", "Verified badge", "Priority placement"]'::jsonb
   )
 on conflict (stripe_price_id) do nothing;
+
+-- 3. Insert Seats
+insert into public.seats (tier, price, position, status)
+values
+  ('gold', 499, 1, 'available'),
+  ('silver', 299, 1, 'available'),
+  ('bronze', 149, 1, 'available')
+on conflict (id) do nothing;

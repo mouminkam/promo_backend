@@ -26,9 +26,10 @@ export class HomeService {
       const { data: featuredProfiles } = await supabaseAdmin
         .from('featured_accounts')
         .select('*, profile:profiles(id, full_name, username, avatar_url, account_type)')
-        .eq('status', 'active')
+        .eq('is_active', true)
+        .eq('placement', 'home')
         .gt('end_date', now)
-        .order('position', { ascending: true })
+        .order('created_at', { ascending: false })
         .limit(10);
 
       // 4. Fetch latest active offers (limit 10)
