@@ -27,6 +27,7 @@
 | 15 | Prototype Audit, Currency Unify & Cup/Leaderboard | ✅ Completed | 2026-06-25 |
 | 16 | Final Backend Polish & Flutter Handover | ✅ Completed | 2026-06-25 |
 | 17 | Database Final Verification & Production Lock | ✅ Completed | 2026-06-25 |
+| 18 | Full Live API Test Sweep & Bug Fixes | ✅ Completed | 2026-06-28 |
 
 ---
 
@@ -61,6 +62,11 @@
 | 23 | Seat Status Constraint Fix | `seats_status_check` DB constraint only allowed `available`/`booked` — missing `pending`. The service was trying to set `pending` on checkout init, causing silent failures. Fixed via migration 030. | 2026-06-25 |
 | 24 | Subscription Plans Cleanup | Had 6 plans — 3 with placeholder Stripe IDs (unusable) + 1 inactive Enterprise. Deleted all 4 via migration 032. Kept 2 active plans with real Stripe IDs: Basic (10 AED) and Premium (29 AED). | 2026-06-25 |
 | 25 | DB Housekeeping | Removed duplicate RLS policies on `offers` and `subscription_plans`. Added missing `idx_profiles_category_id` index (was in migration file but never applied to Supabase). Fixed via migration 031. | 2026-06-25 |
+| 26 | protect_sensitive_columns Trigger Bug | Migration 029's trigger referenced columns that don't exist: `is_featured`/`views_count` on `ads` (has neither), `is_featured` on `services`. This broke EVERY authenticated UPDATE to ads/services (`record "new" has no field "is_featured"`). Fixed in migration 033 to reference real columns (ads → `impressions/clicks/spent`, services → `views_count`). Found via live API testing. | 2026-06-28 |
+| 27 | Seat Cancel RLS Bug | Migration 029's seats UPDATE policy `WITH CHECK (auth.uid() = influencer_id)` blocked owners from releasing their seat (cancel sets `influencer_id = NULL`). Fixed in 033: `WITH CHECK (auth.uid() = influencer_id OR influencer_id IS NULL)` — still hijack-safe via USING. | 2026-06-28 |
+| 28 | Missing Storage Buckets | 4 buckets in the upload validator (`services`, `stories`, `verifications`, `reports`) were never created in Supabase Storage → uploads failed with "Bucket not found". Created all 4. | 2026-06-28 |
+| 29 | Stripe Mobile Subscription Bug (OPEN) | `POST /subscriptions` → 500 (`client_secret` undefined): stripe-node v22 defaults to a 2025 API version where `invoice.payment_intent` no longer exists. Needs PaymentSheet flow rewrite (pin apiVersion or use `confirmation_secret`). Flagged, NOT yet fixed. | 2026-06-28 |
+| 30 | Rate-Limit Test Bypass | Added `DISABLE_RATE_LIMIT` env guard in `rateLimit.middleware.ts` (defaults OFF, production-safe) so a full 108-endpoint sweep isn't throttled. | 2026-06-28 |
 
 ---
 
@@ -145,6 +151,14 @@
   - Verified ordering + exclusion of regular users via live SQL.
 - [x] Removed leftover filesystem-write debug line in `validate.middleware.ts` (production crash risk).
 
+### Phase 18 — Full Live API Test Sweep & Bug Fixes
+- [x] Built [`scripts/run_full_api_capture.ts`](../scripts/run_full_api_capture.ts): logs in every account type, exercises ALL 108 endpoints against a live server in dependency order, captures the real request/payload/response, and writes organized markdown to `docs/Apis-Resaults/<NN - Folder>/`.
+- [x] Generated full test results (21 folders + README legend) — route + payload + real response + status for every endpoint.
+- [x] **Found & fixed 3 real bugs via migration 033** (trigger column mismatch on ads/services, seat-cancel RLS) + created 4 missing storage buckets.
+- [x] **Flagged 1 open bug**: Stripe mobile subscription `client_secret` (decision #29) — needs a separate fix.
+- [x] Confirmed remaining non-2xx are NOT code bugs: phone provider disabled in Supabase, email rate limit, fake OAuth/OTP credentials, unsigned webhook.
+- [x] Hand-verified Postman collection also produced: [`docs/promoo_full_api.postman_collection.json`](promoo_full_api.postman_collection.json) (108 requests).
+
 ### Phase 17 — Database Final Verification & Production Lock
 - [x] **Direct Supabase MCP audit** — فحص شامل للداتا بيز مباشرةً عبر MCP (triggers, policies, indexes, constraints, seed data).
 - [x] **seats_status_check** — الـ constraint كان يمنع قيمة `pending`، مما يجعل حجز المقاعد يفشل صامتاً. أضيفت `pending` عبر migration 030.
@@ -165,10 +179,10 @@
 
 ## Current Context
 
-**Currently working on**: Backend + Database officially **Locked** and fully handed over to the Flutter Team.
-**Next up**: Front-end Flutter integration. v2 backlog: Reviews/Ratings, Likes/Comments, Content Packages.
-**Blockers**: لا يوجد أي blocker. الخطتان الموجودتان (Basic/Premium) لديهما Stripe IDs حقيقية وجاهزتان للدفع.
-**Notes**: All Backend Phases (1-17) are fully complete. DB verified directly via MCP through migration 032. Security audited, seed data clean, zero duplicate policies or constraints.
+**Currently working on**: Backend + Database verified end-to-end via a **live API test sweep** (all 108 endpoints). Results in `docs/Apis-Resaults/`.
+**Next up**: Front-end Flutter integration. One open backend bug to fix: Stripe mobile subscription (decision #29). v2 backlog: Reviews/Ratings, Likes/Comments, Content Packages.
+**Blockers**: `POST /subscriptions` returns 500 (Stripe API version / `client_secret`) — must fix before live subscription payments. All other paid flows (seat booking, feature offer) return real Stripe checkout URLs.
+**Notes**: All Backend Phases (1-18) complete. DB verified via MCP through migration 033. Live test fixed 3 bugs (trigger columns, seat-cancel RLS, missing buckets) that static review had missed.
 
 ---
 

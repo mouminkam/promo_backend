@@ -492,6 +492,20 @@ Admin ينشئ ويعدل باقات الاشتراك.
 
 ---
 
+## 16. Phase 18: Full Live API Test Sweep & Bug Fixes
+
+تم تشغيل اختبار حيّ لكل الـ 108 endpoint (سكربت `scripts/run_full_api_capture.ts`) — تسجيل دخول حقيقي لكل أنواع الحسابات وإنشاء الموارد بالترتيب الصحيح. النتائج الكاملة (راوت + payload + response حقيقي) في `docs/Apis-Resaults/`.
+
+| ID | Finding | Severity | Status |
+|---|---|---|---|
+| 18.1 | `protect_sensitive_columns` trigger يشير لأعمدة غير موجودة على ads/services → كسر كل تعديلات الإعلانات/الخدمات | 🔴 Critical | ✅ Fixed (migration 033) |
+| 18.2 | سياسة RLS على seats تمنع المالك من إلغاء مقعده | 🟠 High | ✅ Fixed (migration 033) |
+| 18.3 | 4 storage buckets ناقصة (services/stories/verifications/reports) | 🟠 High | ✅ Fixed (created) |
+| 18.4 | `POST /subscriptions` يرجّع 500 (`client_secret` undefined — Stripe API version) | 🟠 High | ⚠️ Open — يحتاج إصلاح flow الـ PaymentSheet |
+| 18.5 | باقي الـ non-2xx ليست أخطاء كود (phone provider معطّل، email quota، بيانات OAuth/OTP وهمية، webhook بدون توقيع) | — | ℹ️ موثّق في `Apis-Resaults/README.md` |
+
+---
+
 ## 15. Phase 17: Database Final Verification & Production Lock
 
 | ID | Feature | Priority | Status |
@@ -534,4 +548,4 @@ Admin ينشئ ويعدل باقات الاشتراك.
 ### ⚠️ ما يحتاج انتباه لاحقاً
 1. **Front-End Integration**: الباك إند جاهز تماماً. يجب ربط تطبيق الموبايل بالـ Endpoints و Supabase SDK مباشرة (للـ Realtime و OAuth).
 2. **Dashboard Configuration**: يجب على مالك المشروع تفعيل Google/Apple OAuth من داخل الـ Supabase Dashboard، ووضع Client IDs الفعلية.
-3. **Stripe Plans**: تبقّت خطتان نشطتان بـ Stripe IDs حقيقية بعد حذف الـ placeholders (migration 032): Basic (10 AED) و Premium (29 AED). هاتان الخطتان جاهزتان للدفع الفعلي دون أي تعديل إضافي.
+3. **Stripe Plans**: تبقّت خطتان نشطتان بـ Stripe IDs حقيقية بعد حذف الـ placeholders (migration 032): Basic (10 AED) و Premium (29 AED). ⚠️ **لكن** الاختبار الحيّ كشف أن `POST /subscriptions` يرجّع 500 (`client_secret` undefined بسبب إصدار Stripe API الحديث) — لازم يُصلَح flow الـ PaymentSheet قبل الدفع الفعلي للاشتراكات (Phase 18.4). مسارات Stripe الأخرى (حجز المقاعد، تمييز العروض) تعمل وترجّع checkout URL حقيقي.

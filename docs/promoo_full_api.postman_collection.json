@@ -1,0 +1,1776 @@
+{
+  "info": {
+    "name": "Promoo Backend — Full API (v1)",
+    "description": "Complete, hand-verified collection of every endpoint in the Promoo backend (108 requests).\n\nSetup:\n1. Set {{baseUrl}} (default http://localhost:3000/api/v1).\n2. Run 'Auth > Login (Email)' — the access_token is auto-saved into {{token}}.\n3. For admin endpoints, log in with an admin account and copy its token into {{adminToken}}.\n\nPre-filled real IDs (from the live DB): categoryId, planId, seatId, profileId. Other IDs (offerId, adId, roomId, etc.) are placeholders — fill them after creating resources.\n\nResponse shape: { success, data, message, meta? } on success; { success:false, data:null, message, error:{code,details?} } on error.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "categoryId", "value": "20361ed2-ab58-427a-ad12-a8ace962b09f" },
+    { "key": "planId", "value": "a951eaab-66db-4e58-a843-f08709741ec1" },
+    { "key": "seatId", "value": "6168c692-ae96-4af7-8695-281a2395783c" },
+    { "key": "profileId", "value": "8481b89e-43c2-47c8-a90e-7823c516f926" },
+    { "key": "offerId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "adId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "serviceId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "storyId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "roomId", "value": "00000000-0000-0000-0000-000000000000" },
+    {
+      "key": "notificationId",
+      "value": "00000000-0000-0000-0000-000000000000"
+    },
+    { "key": "savedItemId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "fileId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "paymentId", "value": "00000000-0000-0000-0000-000000000000" },
+    { "key": "userId", "value": "8481b89e-43c2-47c8-a90e-7823c516f926" },
+    { "key": "reportId", "value": "00000000-0000-0000-0000-000000000000" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (Email)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password123!\",\n  \"full_name\": \"New User\",\n  \"account_type\": \"company\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register", "email"]
+            }
+          }
+        },
+        {
+          "name": "Register (Phone)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971500000000\",\n  \"password\": \"Password123!\",\n  \"full_name\": \"New User\",\n  \"account_type\": \"influencer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register/phone",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register", "phone"]
+            }
+          }
+        },
+        {
+          "name": "Login (Email)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.data && json.data.session) {",
+                  "  pm.collectionVariables.set('token', json.data.session.access_token);",
+                  "  console.log('Saved access_token to {{token}}');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "email"]
+            }
+          }
+        },
+        {
+          "name": "Login (Phone)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971500000000\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/phone",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "phone"]
+            }
+          }
+        },
+        {
+          "name": "Login (OAuth)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"provider\": \"google\",\n  \"id_token\": \"GOOGLE_OR_APPLE_ID_TOKEN\",\n  \"nonce\": \"optional-nonce\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login/oauth",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login", "oauth"]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+971500000000\",\n  \"token\": \"123456\",\n  \"type\": \"sms\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"YOUR_REFRESH_TOKEN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"NewPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            },
+            "description": "Requires Bearer token obtained from the reset-password email link."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        },
+        {
+          "name": "Delete Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/account",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "account"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Name\",\n  \"username\": \"updated_username\",\n  \"bio\": \"Digital marketing agency in Dubai.\",\n  \"location\": \"Dubai, UAE\",\n  \"website\": \"https://example.com\",\n  \"category_id\": \"{{categoryId}}\",\n  \"social_links\": {\n    \"instagram\": \"https://instagram.com/promoo\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update Avatar",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"avatar_url\": \"https://example.com/avatar.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me", "avatar"]
+            }
+          }
+        },
+        {
+          "name": "Update Cover",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cover_url\": \"https://example.com/cover.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me/cover",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me", "cover"]
+            }
+          }
+        },
+        {
+          "name": "Request Verification",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"document_url\": \"https://example.com/id-document.pdf\",\n  \"notes\": \"Official trade license attached.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/profiles/me/verify-request",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "me", "verify-request"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile by ID or Username",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{{profileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "{{profileId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile Media",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/profiles/{{profileId}}/media",
+              "host": ["{{baseUrl}}"],
+              "path": ["profiles", "{{profileId}}", "media"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Follows",
+      "item": [
+        {
+          "name": "Follow Profile",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/{{profileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["follows", "{{profileId}}"]
+            }
+          }
+        },
+        {
+          "name": "Unfollow Profile",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/{{profileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["follows", "{{profileId}}"]
+            }
+          }
+        },
+        {
+          "name": "Check Follow Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/{{profileId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["follows", "{{profileId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Get Followers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/followers/{{profileId}}?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["follows", "followers", "{{profileId}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Following",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/follows/following/{{profileId}}?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["follows", "following", "{{profileId}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "item": [
+        {
+          "name": "List Offers",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                {
+                  "key": "category_id",
+                  "value": "{{categoryId}}",
+                  "disabled": true
+                },
+                { "key": "min_price", "value": "10", "disabled": true },
+                { "key": "max_price", "value": "1000", "disabled": true },
+                { "key": "location", "value": "Dubai", "disabled": true },
+                { "key": "search", "value": "discount", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Offer by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", "{{offerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Offers by Profile",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers/profile/{{profileId}}?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", "profile", "{{profileId}}"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Offer",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"{{categoryId}}\",\n  \"title\": \"50% Off Summer Collection\",\n  \"description\": \"Limited time discount on all summer items, valid in-store and online.\",\n  \"original_price\": 200,\n  \"offer_price\": 100,\n  \"discount_percentage\": 50,\n  \"media_urls\": [\"https://example.com/offer1.jpg\"],\n  \"start_date\": \"2026-07-01T00:00:00.000Z\",\n  \"end_date\": \"2026-08-01T00:00:00.000Z\",\n  \"status\": \"active\",\n  \"tags\": [\"summer\", \"sale\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/offers",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers"]
+            },
+            "description": "Requires account_type company or service_provider."
+          }
+        },
+        {
+          "name": "Update Offer",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"60% Off Summer Collection\",\n  \"offer_price\": 80,\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", "{{offerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Offer",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers/{{offerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", "{{offerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Feature Offer (Stripe Checkout)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/offers/{{offerId}}/feature",
+              "host": ["{{baseUrl}}"],
+              "path": ["offers", "{{offerId}}", "feature"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ads",
+      "item": [
+        {
+          "name": "Get Active Ads",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/active",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "active"]
+            }
+          }
+        },
+        {
+          "name": "Record Impression",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}/impression",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "{{adId}}", "impression"]
+            }
+          }
+        },
+        {
+          "name": "Record Click",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}/click",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "{{adId}}", "click"]
+            }
+          }
+        },
+        {
+          "name": "Create Ad",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Grand Opening Sale\",\n  \"description\": \"Visit our new branch this weekend.\",\n  \"media_url\": \"https://example.com/ad-banner.jpg\",\n  \"ad_type\": \"banner\",\n  \"target_url\": \"https://example.com\",\n  \"budget\": 500,\n  \"start_date\": \"2026-07-01T00:00:00.000Z\",\n  \"end_date\": \"2026-07-15T00:00:00.000Z\",\n  \"phone\": \"+971500000000\",\n  \"whatsapp\": \"+971500000000\",\n  \"contact_email\": \"ads@example.com\",\n  \"city\": \"Dubai\",\n  \"price\": 99,\n  \"currency\": \"AED\",\n  \"tags\": [\"opening\", \"sale\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ads",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads"]
+            },
+            "description": "Requires account_type company or influencer."
+          }
+        },
+        {
+          "name": "Update Ad",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Extended Grand Opening Sale\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "{{adId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Ad",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}/toggle",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "{{adId}}", "toggle"]
+            }
+          }
+        },
+        {
+          "name": "Get Ad Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/{{adId}}/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "{{adId}}", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Ads by Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/ads/profile/{{profileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["ads", "profile", "{{profileId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "List Services",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"]
+            }
+          }
+        },
+        {
+          "name": "Get Service by ID",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/{{serviceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", "{{serviceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": \"{{categoryId}}\",\n  \"title\": \"Professional Logo Design\",\n  \"description\": \"Custom logo design with unlimited revisions.\",\n  \"price\": 350,\n  \"currency\": \"AED\",\n  \"delivery_days\": 5,\n  \"media_urls\": [\"https://example.com/portfolio.jpg\"],\n  \"tags\": [\"design\", \"branding\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["services"]
+            },
+            "description": "Requires account_type service_provider or company."
+          }
+        },
+        {
+          "name": "Update Service",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 400,\n  \"delivery_days\": 7,\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/services/{{serviceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", "{{serviceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Service",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/{{serviceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["services", "{{serviceId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Seats (Cup)",
+      "item": [
+        {
+          "name": "Get Seats",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/seats?tier=gold",
+              "host": ["{{baseUrl}}"],
+              "path": ["seats"],
+              "query": [
+                {
+                  "key": "tier",
+                  "value": "gold",
+                  "description": "gold | silver | bronze (optional)"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Seats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/seats/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["seats", "me"]
+            }
+          }
+        },
+        {
+          "name": "Book Seat (Stripe Checkout)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/seats/{{seatId}}/book",
+              "host": ["{{baseUrl}}"],
+              "path": ["seats", "{{seatId}}", "book"]
+            },
+            "description": "Requires account_type influencer."
+          }
+        },
+        {
+          "name": "Cancel Seat",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/seats/{{seatId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["seats", "{{seatId}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stories",
+      "item": [
+        {
+          "name": "Get Active Stories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stories",
+              "host": ["{{baseUrl}}"],
+              "path": ["stories"]
+            }
+          }
+        },
+        {
+          "name": "Get User Stories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stories/user/{{profileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["stories", "user", "{{profileId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get My Stories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stories/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["stories", "me"]
+            }
+          }
+        },
+        {
+          "name": "Create Story",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"media_url\": \"https://example.com/story.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/stories",
+              "host": ["{{baseUrl}}"],
+              "path": ["stories"]
+            }
+          }
+        },
+        {
+          "name": "Delete Story",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/stories/{{storyId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["stories", "{{storyId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Saved Items",
+      "item": [
+        {
+          "name": "Get Saved Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saved",
+              "host": ["{{baseUrl}}"],
+              "path": ["saved"]
+            }
+          }
+        },
+        {
+          "name": "Save Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"item_id\": \"{{offerId}}\",\n  \"item_type\": \"offer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/saved",
+              "host": ["{{baseUrl}}"],
+              "path": ["saved"]
+            }
+          }
+        },
+        {
+          "name": "Unsave Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/saved/{{savedItemId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["saved", "{{savedItemId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Home & Leaderboard",
+      "item": [
+        {
+          "name": "Get Home Feed",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/home",
+              "host": ["{{baseUrl}}"],
+              "path": ["home"]
+            }
+          }
+        },
+        {
+          "name": "Get Leaderboard (Cup)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/leaderboard?page=1&limit=20&type=all",
+              "host": ["{{baseUrl}}"],
+              "path": ["leaderboard"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "all | company | influencer | service_provider"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Subscriptions",
+      "item": [
+        {
+          "name": "Get Plans",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "plans"]
+            }
+          }
+        },
+        {
+          "name": "Create Subscription",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan_id\": \"{{planId}}\",\n  \"return_url\": \"https://example.com/billing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions"]
+            }
+          }
+        },
+        {
+          "name": "Get My Subscription",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "me"]
+            }
+          }
+        },
+        {
+          "name": "Manage Subscription (Portal)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"return_url\": \"https://example.com/billing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/subscriptions/manage",
+              "host": ["{{baseUrl}}"],
+              "path": ["subscriptions", "manage"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Chats",
+      "item": [
+        {
+          "name": "Get Chat List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["chats"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Start Chat",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participant_id\": \"{{profileId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chats",
+              "host": ["{{baseUrl}}"],
+              "path": ["chats"]
+            }
+          }
+        },
+        {
+          "name": "Get Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}/messages?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["chats", "{{roomId}}", "messages"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"Hello, is this offer still available?\",\n  \"type\": \"text\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}/messages",
+              "host": ["{{baseUrl}}"],
+              "path": ["chats", "{{roomId}}", "messages"]
+            }
+          }
+        },
+        {
+          "name": "Mark as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["chats", "{{roomId}}", "read"]
+            }
+          }
+        },
+        {
+          "name": "Delete Chat",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/chats/{{roomId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["chats", "{{roomId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mark All as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/read-all",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "read-all"]
+            }
+          }
+        },
+        {
+          "name": "Mark One as Read",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "{{notificationId}}", "read"]
+            }
+          }
+        },
+        {
+          "name": "Delete Notification",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/{{notificationId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "{{notificationId}}"]
+            }
+          }
+        },
+        {
+          "name": "Register FCM Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"FCM_DEVICE_TOKEN\",\n  \"device_type\": \"android\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "token"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Upload",
+      "item": [
+        {
+          "name": "Upload Image",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "related_to", "value": "profile", "type": "text" },
+                { "key": "bucket", "value": "avatars", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload/image",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload", "image"]
+            },
+            "description": "multipart/form-data. bucket enum: avatars, covers, offers, ads, chat-media, services, stories, verifications, reports, general."
+          }
+        },
+        {
+          "name": "Upload Video",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "related_to", "value": "story", "type": "text" },
+                { "key": "bucket", "value": "stories", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload/video",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload", "video"]
+            }
+          }
+        },
+        {
+          "name": "Upload File",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                {
+                  "key": "related_to",
+                  "value": "verification",
+                  "type": "text"
+                },
+                { "key": "bucket", "value": "verifications", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/upload/file",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload", "file"]
+            }
+          }
+        },
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/upload/{{fileId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["upload", "{{fileId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Search & Categories",
+      "item": [
+        {
+          "name": "Search",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/search?q=design&type=all&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["search"],
+              "query": [
+                { "key": "q", "value": "design" },
+                {
+                  "key": "type",
+                  "value": "all",
+                  "description": "profiles | offers | ads | services | all"
+                },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}",
+                  "disabled": true
+                },
+                { "key": "minPrice", "value": "0", "disabled": true },
+                { "key": "maxPrice", "value": "1000", "disabled": true },
+                { "key": "location", "value": "Dubai", "disabled": true },
+                { "key": "accountType", "value": "company", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Categories",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category Content",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}/content?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "{{categoryId}}", "content"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Featured",
+      "item": [
+        {
+          "name": "Get Featured Listings",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/featured?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["featured"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "placement", "value": "home", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Request Featured",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placement\": \"home\",\n  \"duration_days\": 30\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/featured",
+              "host": ["{{baseUrl}}"],
+              "path": ["featured"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Get Payment History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/history?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "history"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Customer Portal Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/portal",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "portal"]
+            }
+          }
+        },
+        {
+          "name": "Get Payment Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/payments/{{paymentId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "{{paymentId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Create Report",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reported_id\": \"{{profileId}}\",\n  \"reported_type\": \"profile\",\n  \"reason\": \"Spam content\",\n  \"details\": \"This account is posting repeated spam offers.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/reports",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports"]
+            }
+          }
+        },
+        {
+          "name": "Get My Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/reports/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "description": "All admin endpoints require an admin account. Set {{adminToken}} to an admin user's access_token.",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          { "key": "token", "value": "{{adminToken}}", "type": "string" }
+        ]
+      },
+      "item": [
+        {
+          "name": "Get Global Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "search", "value": "test", "disabled": true },
+                {
+                  "key": "accountType",
+                  "value": "influencer",
+                  "disabled": true
+                },
+                { "key": "isVerified", "value": "true", "disabled": true },
+                { "key": "isActive", "value": "true", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get User Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Ban",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"isActive\": false\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/ban",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "ban"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Verify",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"isVerified\": true\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Offer Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"active\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/offers/{{offerId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "offers", "{{offerId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Offer (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/offers/{{offerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "offers", "{{offerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Ad Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"status\": \"active\"\n}" },
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/ads/{{adId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "ads", "{{adId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Delete Ad (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/ads/{{adId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "ads", "{{adId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Plans (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "plans"]
+            }
+          }
+        },
+        {
+          "name": "Create Plan",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stripe_price_id\": \"price_xxxxxxxxxxxx\",\n  \"name_ar\": \"الباقة الذهبية\",\n  \"name_en\": \"Gold Plan\",\n  \"description_ar\": \"وصول كامل\",\n  \"description_en\": \"Full access\",\n  \"price\": 199,\n  \"currency\": \"aed\",\n  \"interval\": \"monthly\",\n  \"features_ar\": [\"ميزة 1\", \"ميزة 2\"],\n  \"features_en\": [\"Feature 1\", \"Feature 2\"],\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "plans"]
+            }
+          }
+        },
+        {
+          "name": "Update Plan",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 249,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans/{{planId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "plans", "{{planId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Plan",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/plans/{{planId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "plans", "{{planId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Payments (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/payments?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "payments"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "succeeded", "disabled": true },
+                { "key": "type", "value": "subscription", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Reports (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/reports?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "reports"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "pending", "disabled": true },
+                { "key": "type", "value": "profile", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Report Status",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"resolved\",\n  \"admin_note\": \"Reviewed and action taken.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/reports/{{reportId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "reports", "{{reportId}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_ar\": \"عقارات\",\n  \"name_en\": \"Real Estate\",\n  \"icon_url\": \"https://example.com/icon.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name_en\": \"Real Estate & Property\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "categories", "{{categoryId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/categories/{{categoryId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "categories", "{{categoryId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Stripe Webhook (Stripe-only)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Stripe-Signature", "value": "t=...,v1=..." }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"evt_test\",\n  \"type\": \"checkout.session.completed\",\n  \"data\": { \"object\": {} }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhooks/stripe",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhooks", "stripe"]
+            },
+            "description": "Called by Stripe only. Needs a valid Stripe-Signature; manual calls will fail signature verification. Listed for completeness."
+          }
+        }
+      ]
+    }
+  ]
+}
