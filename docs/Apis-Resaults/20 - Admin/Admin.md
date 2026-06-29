@@ -1144,3 +1144,94 @@ _— none —_
 
 ---
 
+## 21. List Offers (Moderation) — NEW
+
+> Admin moderation list — returns offers of **all statuses** (not just active). Powers the dashboard Content → Offers tab.
+
+- **Method / Route:** `GET {{baseUrl}}/admin/content/offers?page=1&limit=20`
+- **Auth:** Bearer (admin)
+- **Query:** `page`, `limit`, optional `status` (`draft|active|expired|rejected`)
+- **Status:** `200` ✅
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [],
+  "message": "Offers retrieved",
+  "meta": { "page": 1, "limit": 20, "total": 0, "totalPages": 0 }
+}
+```
+
+> Each offer (when present) embeds `profile` (id, full_name, username, avatar_url) and `category` (id, name_en, name_ar, slug).
+
+---
+
+## 22. List Ads (Moderation) — NEW
+
+> Admin moderation list — returns ads of **all statuses** including `pending`. The public `/ads/active` only returns active ads, and there is no public `GET /ads`, so this endpoint is required to moderate pending ads. Powers the dashboard Content → Ads tab.
+
+- **Method / Route:** `GET {{baseUrl}}/admin/content/ads?page=1&limit=20`
+- **Auth:** Bearer (admin)
+- **Query:** `page`, `limit`, optional `status` (`pending|active|paused|completed|rejected`)
+- **Status:** `200` ✅
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "8ad75ead-ed80-4442-8320-d2513516f07f",
+      "profile_id": "17c88df6-5081-4114-9b85-7f278d23894a",
+      "title": "Updated Banner Ad",
+      "description": "Promotional banner for summer campaign",
+      "media_url": "https://example.com/ad-banner.jpg",
+      "ad_type": "banner",
+      "status": "pending",
+      "budget": 150,
+      "spent": 0,
+      "impressions": 0,
+      "clicks": 0,
+      "created_at": "2026-06-22T15:31:05.307691+00:00",
+      "profile": {
+        "id": "17c88df6-5081-4114-9b85-7f278d23894a",
+        "username": "testuser",
+        "full_name": "Updated Name",
+        "avatar_url": "https://example.com/avatar.png"
+      }
+    }
+  ],
+  "message": "Ads retrieved",
+  "meta": { "page": 1, "limit": 20, "total": 1, "totalPages": 1 }
+}
+```
+
+---
+
+## 23. List Services (Moderation) — NEW
+
+> Admin moderation list — returns services of **all statuses**. Powers the dashboard Content → Services tab.
+
+- **Method / Route:** `GET {{baseUrl}}/admin/content/services?page=1&limit=20`
+- **Auth:** Bearer (admin)
+- **Query:** `page`, `limit`, optional `status`
+- **Status:** `200` ✅
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "data": [],
+  "message": "Services retrieved",
+  "meta": { "page": 1, "limit": 20, "total": 0, "totalPages": 0 }
+}
+```
+
+> Each service (when present) embeds `profile` and `category`.
+
+---
+

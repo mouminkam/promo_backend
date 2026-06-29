@@ -1593,6 +1593,60 @@
           }
         },
         {
+          "name": "List Offers (Moderation)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/offers?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "offers"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "active", "disabled": true }
+              ]
+            },
+            "description": "Lists offers of ALL statuses (draft/active/expired/rejected) for moderation. Each row embeds profile + category."
+          }
+        },
+        {
+          "name": "List Ads (Moderation)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/ads?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "ads"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "pending", "disabled": true }
+              ]
+            },
+            "description": "Lists ads of ALL statuses including pending (public /ads/active is active-only; there is no public GET /ads). Each row embeds profile."
+          }
+        },
+        {
+          "name": "List Services (Moderation)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/admin/content/services?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "content", "services"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" },
+                { "key": "status", "value": "active", "disabled": true }
+              ]
+            },
+            "description": "Lists services of ALL statuses for moderation. Each row embeds profile + category."
+          }
+        },
+        {
           "name": "Get Plans (Admin)",
           "request": {
             "method": "GET",

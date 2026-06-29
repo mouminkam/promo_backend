@@ -28,6 +28,7 @@
 | 16 | Final Backend Polish & Flutter Handover | ✅ Completed | 2026-06-25 |
 | 17 | Database Final Verification & Production Lock | ✅ Completed | 2026-06-25 |
 | 18 | Full Live API Test Sweep & Bug Fixes | ✅ Completed | 2026-06-28 |
+| 19 | Admin Dashboard build + Content List Endpoints | ✅ Completed | 2026-06-29 |
 
 ---
 
@@ -67,10 +68,21 @@
 | 28 | Missing Storage Buckets | 4 buckets in the upload validator (`services`, `stories`, `verifications`, `reports`) were never created in Supabase Storage → uploads failed with "Bucket not found". Created all 4. | 2026-06-28 |
 | 29 | Stripe Mobile Subscription Bug (OPEN) | `POST /subscriptions` → 500 (`client_secret` undefined): stripe-node v22 defaults to a 2025 API version where `invoice.payment_intent` no longer exists. Needs PaymentSheet flow rewrite (pin apiVersion or use `confirmation_secret`). Flagged, NOT yet fixed. | 2026-06-28 |
 | 30 | Rate-Limit Test Bypass | Added `DISABLE_RATE_LIMIT` env guard in `rateLimit.middleware.ts` (defaults OFF, production-safe) so a full 108-endpoint sweep isn't throttled. | 2026-06-28 |
+| 31 | Admin Content List Endpoints | The dashboard's moderation screen needed to list ALL content (incl. pending/draft/rejected), but public lists return active-only and there was NO `GET /ads`. Added `GET /admin/content/offers`, `/ads`, `/services` — paginated, any status, optional `?status` filter, with embedded owner/category. Fixes the dashboard Content > Ads tab and enables real moderation of pending items. | 2026-06-29 |
 
 ---
 
 ## Completed Work
+
+### Phase 19 — Admin Dashboard build + Content List Endpoints
+- [x] Built the **Promoo Admin Dashboard** (separate repo `promo_dashboard`, Vite + React 19 + TS + Tailwind v4). Dark/yellow brand, EN+AR/RTL, all admin screens. Talks to this backend via REST.
+- [x] Full live QA pass of the dashboard found 2 issues; fixed both.
+- [x] **NEW backend endpoints** for content moderation (admins must see non-active items):
+  - `GET /admin/content/offers?page&limit&status` — all offers, any status, paginated, embedded `profile` + `category`.
+  - `GET /admin/content/ads?page&limit&status` — all ads, embedded `profile`.
+  - `GET /admin/content/services?page&limit&status` — all services, embedded `profile` + `category`.
+  - Files: `services/admin/content.service.ts` (list methods), `controllers/admin/content.controller.ts`, `validators/admin/content.validator.ts` (`listContentSchema`), `routes/admin/content.routes.ts`.
+- [x] These replace the dashboard's earlier use of public `/offers`/`/ads`/`/services` (active-only; and `GET /ads` didn't even exist — only `/ads/active`).
 
 ### Phase 4 — Follow System
 - [x] Follow, unfollow, check follow status endpoints.

@@ -53,6 +53,47 @@ export class AdminContentService {
     if (error) throw ApiError.internal(error.message);
     return { success: true };
   }
+
+  // ─── Admin moderation lists (ALL statuses, with owner) ───────────
+  // The public list endpoints only return active content; admins need to see
+  // pending/draft/rejected items to moderate them.
+  private range(page: number, limit: number) {
+    const from = (page - 1) * limit;
+    return { from, to: from + limit - 1 };
+  }
+
+  async listOffers(page: number, limit: number, status?: string) {
+    const { from, to } = this.range(page, limit);
+    let query = supabaseAdmin
+      .from('offers')
+      .select('*, profile:profiles(id, full_name, username, avatar_url), category:categories(id, name_en, name_ar, slug)', { count: 'exact' });
+    if (status) query = query.eq('status', status);
+    const { data, error, count } = await query.range(from, to).order('created_at', { ascending: false });
+    if (error) throw ApiError.internal(error.message);
+    return { data: data ?? [], count: count ?? 0 };
+  }
+
+  async listAds(page: number, limit: number, status?: string) {
+    const { from, to } = this.range(page, limit);
+    let query = supabaseAdmin
+      .from('ads')
+      .select('*, profile:profiles(id, full_name, username, avatar_url)', { count: 'exact' });
+    if (status) query = query.eq('status', status);
+    const { data, error, count } = await query.range(from, to).order('created_at', { ascending: false });
+    if (error) throw ApiError.internal(error.message);
+    return { data: data ?? [], count: count ?? 0 };
+  }
+
+  async listServices(page: number, limit: number, status?: string) {
+    const { from, to } = this.range(page, limit);
+    let query = supabaseAdmin
+      .from('services')
+      .select('*, profile:profiles(id, full_name, username, avatar_url), category:categories(id, name_en, name_ar, slug)', { count: 'exact' });
+    if (status) query = query.eq('status', status);
+    const { data, error, count } = await query.range(from, to).order('created_at', { ascending: false });
+    if (error) throw ApiError.internal(error.message);
+    return { data: data ?? [], count: count ?? 0 };
+  }
 }
 
 export const adminContentService = new AdminContentService();
